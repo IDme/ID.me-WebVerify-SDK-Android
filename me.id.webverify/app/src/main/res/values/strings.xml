@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">me.id.webverify</string>
+    <string name="result_text">Respone:</string>
+    <string name="action_settings">Settings</string>
+
+    <string-array name="array_name">
+        <item>Military</item>
+        <item>Student</item>
+        <item>Teacher</item>
+        <item>First Responder</item>
+    </string-array>
+
+    <string name="title_activity_web_view">WebView</string>
+
+</resources>
