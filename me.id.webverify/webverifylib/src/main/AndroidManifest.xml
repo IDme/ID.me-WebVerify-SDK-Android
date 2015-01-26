@@ -1,11 +1,16 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="me.id.webverifylib">
+<manifest
+    package="me.id.webverifylib"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <application android:allowBackup="true"
-                 android:label="@string/app_name"
-                 android:icon="@drawable/ic_launcher"
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+
         >
-<activity android:name=".WebViewActivity"/>
+        <activity
+            android:name=".WebViewActivity"
+          />
     </application>
 
 </manifest>

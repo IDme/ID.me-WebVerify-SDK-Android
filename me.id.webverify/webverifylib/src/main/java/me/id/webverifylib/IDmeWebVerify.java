@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -27,8 +28,8 @@ public class IDmeWebVerify
     public final static String TEACHER = "teacher";
     public final static String FIRST_RESPONDER = "responder";
 
-    public final static String IDME_WEB_VERIFY_RESPONSE="response";
-    public final static int WEB_REQUEST_CODE=39820;
+    public final static String IDME_WEB_VERIFY_RESPONSE = "response";
+    public final static int WEB_REQUEST_CODE = 39820;
 
     private final String IDME_WEB_VERIFY_GET_AUTH_URI = "https://api.id.me/oauth/authorize?client_id=clientID&redirect_uri=redirectURI&response_type=token&affiliationType=scopeType";
     private final String IDME_WEB_VERIFY_GET_USER_PROFILE = "https://api.id.me/api/public/v2/affiliationScope.json?access_token=accessTOKEN";
@@ -41,12 +42,13 @@ public class IDmeWebVerify
     /**
      * Default Constructor For the class.
      *
-     * @param clientID    The client ID provided by ID.me http://developer.id.me
-     * @param redirectURI The redirect URI
-     * @param affiliationType       The Verification type
-     * @param activity    the calling activity
+     * @param clientID        The client ID provided by ID.me http://developer.id.me
+     * @param redirectURI     The redirect URI
+     * @param affiliationType The Verification type
+     * @param activity        the calling activity
      */
-    public IDmeWebVerify(String clientID, String redirectURI, String affiliationType, Activity activity)
+    public IDmeWebVerify(String clientID, String redirectURI, String affiliationType,
+                         Activity activity)
     {
         this.clientID = clientID;
         this.redirectURI = redirectURI;
@@ -60,15 +62,31 @@ public class IDmeWebVerify
     public void StartWebView()
     {
         Intent intent = new Intent(activity, WebViewActivity.class);
+        boolean start = true;
+        if (clientID == null)
+        {
+            Toast.makeText(activity, "Client ID Cannot be Null", Toast.LENGTH_SHORT).show();
+            start = false;
+        }
 
-        String url = createURL();
-        intent.putExtra("URL", url);
-        intent.putExtra("affiliationType", affiliationType);
-        intent.putExtra("clientID",clientID);
-        intent.putExtra("redirectURI",redirectURI);
+        if (redirectURI == null)
+        {
+            Toast.makeText(activity, "Redirect URI  Cannot be Null", Toast.LENGTH_SHORT).show();
+            start = false;
+        }
 
-       activity.startActivityForResult(intent, WEB_REQUEST_CODE);
+
+        if (start)
+        {
+            String url = createURL();
+            intent.putExtra("URL", url);
+            intent.putExtra("affiliationType", affiliationType);
+            intent.putExtra("clientID", clientID);
+            intent.putExtra("redirectURI", redirectURI);
+            activity.startActivityForResult(intent, WEB_REQUEST_CODE);
+        }
     }
+
     /**
      * Creates the url to be loaded in the webView
      *
@@ -167,6 +185,7 @@ public class IDmeWebVerify
             HttpClient httpclient = new DefaultHttpClient();
             HttpResponse response = httpclient.execute(new HttpGet(url));
             StatusLine statusLine = response.getStatusLine();
+
             if (statusLine.getStatusCode() == HttpStatus.SC_OK)
             {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();

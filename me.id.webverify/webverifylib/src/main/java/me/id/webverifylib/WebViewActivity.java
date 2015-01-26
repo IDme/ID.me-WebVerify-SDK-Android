@@ -1,14 +1,11 @@
 package me.id.webverifylib;
 
+import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.text.Html;
 import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
-import android.webkit.ValueCallback;
 import android.webkit.WebView;
 
 
@@ -23,6 +20,9 @@ public class WebViewActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_view);
 
+
+        getSupportActionBar().setTitle(Html.fromHtml("<font color='#2fc073'>Verify With ID.me </font>"));
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xff2e3d50));
         String scope = getIntent().getStringExtra("affiliationType");
         String url = getIntent().getStringExtra("URL");
         String clientId = getIntent().getStringExtra("clientID");

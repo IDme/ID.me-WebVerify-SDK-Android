@@ -8,12 +8,23 @@ The ID.me WebVerify SDK for Android is a class that allows you to verify a user'
 For more information please email us at mobile@id.me or visit us at http://developer.id.me.
 
 ##Changelog
-- Uploaded to Github
+- Styled Web View Activity
 
 
 ##Installation Instructions
-### Maven
-Maven support coming soon.
+### Gradle
+```
+repositories
+        {
+            maven {
+                url 'https://oss.sonatype.org/content/groups/public'
+            }
+        }
+
+dependencies {
+    compile 'me.id.webverify:webverifylib:1.1'
+}
+```
 
 ### Manual
 Copy the `.aar` file into your project's `libs` folder.
