@@ -26,33 +26,33 @@ public class IDmeWebVerify
     public final static String MILITARY = "military";
     public final static String STUDENT = "student";
     public final static String TEACHER = "teacher";
+    public final static String GOVERNMENT = "government";
     public final static String FIRST_RESPONDER = "responder";
 
     public final static String IDME_WEB_VERIFY_RESPONSE = "response";
     public final static int WEB_REQUEST_CODE = 39820;
 
-    private final String IDME_WEB_VERIFY_GET_AUTH_URI = "https://api.id.me/oauth/authorize?client_id=clientID&redirect_uri=redirectURI&response_type=token&affiliationType=scopeType";
-    private final String IDME_WEB_VERIFY_GET_USER_PROFILE = "https://api.id.me/api/public/v2/affiliationScope.json?access_token=accessTOKEN";
+    private final String IDME_WEB_VERIFY_GET_AUTH_URI = "https://api.id.me/oauth/authorize?client_id=clientID&redirect_uri=redirectURI&response_type=token&scope=scopeType";
+    private final String IDME_WEB_VERIFY_GET_USER_PROFILE = "https://api.id.me/api/public/v2/data.json?access_token=token";
 
     private String clientID = "";
     private String redirectURI = "";
-    private String affiliationType = "";
+    private String scope = "";
     private Activity activity;
 
     /**
      * Default Constructor For the class.
      *
-     * @param clientID        The client ID provided by ID.me http://developer.id.me
-     * @param redirectURI     The redirect URI
-     * @param affiliationType The Verification type
-     * @param activity        the calling activity
+     * @param clientID      The client ID provided by ID.me http://developer.id.me
+     * @param redirectURI   The redirect URI
+     * @param scope         The Verification type
+     * @param activity      The calling activity
      */
-    public IDmeWebVerify(String clientID, String redirectURI, String affiliationType,
-                         Activity activity)
+    public IDmeWebVerify(String clientID, String redirectURI, String scope, Activity activity)
     {
+        this.scope = scope;
         this.clientID = clientID;
         this.redirectURI = redirectURI;
-        this.affiliationType = affiliationType;
         this.activity = activity;
     }
 
@@ -65,13 +65,13 @@ public class IDmeWebVerify
         boolean start = true;
         if (clientID == null)
         {
-            Toast.makeText(activity, "Client ID Cannot be Null", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, "Client ID Cannot be null", Toast.LENGTH_SHORT).show();
             start = false;
         }
 
         if (redirectURI == null)
         {
-            Toast.makeText(activity, "Redirect URI  Cannot be Null", Toast.LENGTH_SHORT).show();
+            Toast.makeText(activity, "Redirect URI Cannot be null", Toast.LENGTH_SHORT).show();
             start = false;
         }
 
@@ -80,7 +80,7 @@ public class IDmeWebVerify
         {
             String url = createURL();
             intent.putExtra("URL", url);
-            intent.putExtra("affiliationType", affiliationType);
+            intent.putExtra("scope", scope);
             intent.putExtra("clientID", clientID);
             intent.putExtra("redirectURI", redirectURI);
             activity.startActivityForResult(intent, WEB_REQUEST_CODE);
@@ -90,12 +90,12 @@ public class IDmeWebVerify
     /**
      * Creates the url to be loaded in the webView
      *
-     * @return URl with redirect uri, client id and affiliationType type
+     * @return URl with redirect uri, client id and scope
      */
     private String createURL()
     {
         String url = IDME_WEB_VERIFY_GET_AUTH_URI;
-        url = url.replace("scopeType", affiliationType);
+        url = url.replace("scopeType", scope);
         url = url.replace("redirectURI", redirectURI);
         url = url.replace("clientID", clientID);
 
@@ -152,8 +152,7 @@ public class IDmeWebVerify
     {
         String url = IDME_WEB_VERIFY_GET_USER_PROFILE;
 
-        url = url.replace("affiliationScope", affiliationType);
-        url = url.replace("accessTOKEN", accessToken);
+        url = url.replace("token", accessToken);
 
         return url;
     }

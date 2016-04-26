@@ -23,7 +23,7 @@ public class WebViewActivity extends ActionBarActivity
 
         getSupportActionBar().setTitle(Html.fromHtml("<font color='#2fc073'>Verify With ID.me </font>"));
         getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xff2e3d50));
-        String scope = getIntent().getStringExtra("affiliationType");
+        String scope = getIntent().getStringExtra("scope");
         String url = getIntent().getStringExtra("URL");
         String clientId = getIntent().getStringExtra("clientID");
         String redirectUri = getIntent().getStringExtra("redirectURI");

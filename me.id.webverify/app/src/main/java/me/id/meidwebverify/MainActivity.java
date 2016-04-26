@@ -59,6 +59,9 @@ public class MainActivity extends ActionBarActivity
         {
             affiliationType = IDmeWebVerify.FIRST_RESPONDER;
         }
+        else if (spnRoute.getSelectedItem().toString().equals("Government")) {
+            affiliationType = IDmeWebVerify.GOVERNMENT;
+        }
 
         webVerify = new IDmeWebVerify(clientID, redirectUri, affiliationType, this);
         webVerify.StartWebView();
