@@ -39,9 +39,10 @@ public class IDmeWebVerify
     private String redirectURI = "";
     private String scope = "";
     private Activity activity;
+    private boolean returnProperties = true;
 
     /**
-     * Default Constructor For the class.
+     * Constructor For the class.
      *
      * @param clientID      The client ID provided by ID.me http://developer.id.me
      * @param redirectURI   The redirect URI
@@ -54,6 +55,24 @@ public class IDmeWebVerify
         this.clientID = clientID;
         this.redirectURI = redirectURI;
         this.activity = activity;
+    }
+
+    /**
+     * Constructor For the class.
+     *
+     * @param clientID         The client ID provided by ID.me http://developer.id.me
+     * @param redirectURI      The redirect URI
+     * @param scope            The Verification type
+     * @param activity         The calling activity
+     * @param returnProperties Whether user properties or access token should be returned
+     */
+    public IDmeWebVerify(String clientID, String redirectURI, String scope, Activity activity, boolean returnProperties)
+    {
+        this.scope = scope;
+        this.clientID = clientID;
+        this.redirectURI = redirectURI;
+        this.activity = activity;
+        this.returnProperties = returnProperties;
     }
 
     /**
@@ -130,15 +149,21 @@ public class IDmeWebVerify
             if (hasToken)
             {
                 final String accessToken = ExtractAccessToken(url);
-                AsyncTask asyncTask = new AsyncTask()
+
+                if (returnProperties)
                 {
-                    @Override protected Object doInBackground(Object[] params)
+                    AsyncTask asyncTask = new AsyncTask()
                     {
-                        GetWebProfile(CreateRequestUrl(accessToken));
-                        return null;
-                    }
-                };
-                asyncTask.execute(null, null, null);
+                        @Override protected Object doInBackground(Object[] params)
+                        {
+                            GetWebProfile(CreateRequestUrl(accessToken));
+                            return null;
+                        }
+                    };
+                    asyncTask.execute(null, null, null);
+                } else {
+                    SendDataBack(accessToken);
+                }
             }
         }
     };
