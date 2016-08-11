@@ -2,8 +2,8 @@
 The ID.me WebVerify SDK for Android is a class that allows you to verify a user's group affiliation status using ID.me's platform. A sample project has been provided to delineate the integration process.
 
 #Release Information 
-- **SDK Version:** 1.0.0 (January 21, 2015)
-- **Maintained By:** [Ruben Roman](https://github.com/rubsnick)
+- **SDK Version:** 1.1.0 (August 11, 2016)
+- **Maintained By:** [ID.me](http://github.com/IDme)
 
 For more information please email us at mobile@id.me or visit us at http://developer.id.me.
 
