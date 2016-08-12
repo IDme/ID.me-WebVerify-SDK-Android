@@ -33,7 +33,7 @@ public class IDmeWebVerify
     public final static int WEB_REQUEST_CODE = 39820;
 
     private final String IDME_WEB_VERIFY_GET_AUTH_URI = "https://api.id.me/oauth/authorize?client_id=clientID&redirect_uri=redirectURI&response_type=token&scope=scopeType";
-    private final String IDME_WEB_VERIFY_GET_USER_PROFILE = "https://api.id.me/api/public/v2/data.json?access_token=token";
+    private final String IDME_WEB_VERIFY_GET_USER_PROFILE = "https://api.id.me/api/public/v2/data.json?access_token=user_token";
 
     private String clientID = "";
     private String redirectURI = "";
@@ -102,6 +102,7 @@ public class IDmeWebVerify
             intent.putExtra("scope", scope);
             intent.putExtra("clientID", clientID);
             intent.putExtra("redirectURI", redirectURI);
+            intent.putExtra("returnProperties", returnProperties);
             activity.startActivityForResult(intent, WEB_REQUEST_CODE);
         }
     }
@@ -177,7 +178,7 @@ public class IDmeWebVerify
     {
         String url = IDME_WEB_VERIFY_GET_USER_PROFILE;
 
-        url = url.replace("token", accessToken);
+        url = url.replace("user_token", accessToken);
 
         return url;
     }
