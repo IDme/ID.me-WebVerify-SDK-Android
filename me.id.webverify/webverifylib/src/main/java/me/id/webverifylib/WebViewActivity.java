@@ -27,8 +27,9 @@ public class WebViewActivity extends ActionBarActivity
         String url = getIntent().getStringExtra("URL");
         String clientId = getIntent().getStringExtra("clientID");
         String redirectUri = getIntent().getStringExtra("redirectURI");
+        boolean returnProperties = getIntent().getBooleanExtra("returnProperties", true);
 
-        iDmeWebVerify = new IDmeWebVerify(clientId, redirectUri, scope, this);
+        iDmeWebVerify = new IDmeWebVerify(clientId, redirectUri, scope, this, returnProperties);
 
         webView = (WebView) findViewById(R.id.webView);
         webView.setWebViewClient(iDmeWebVerify.getWebViewClient());
