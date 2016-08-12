@@ -10,12 +10,12 @@ import android.widget.TextView;
 
 import me.id.webverifylib.IDmeWebVerify;
 
-
 public class MainActivity extends ActionBarActivity
 {
     private IDmeWebVerify webVerify;
     private String clientID = null;
     private String redirectUri = null;
+    private boolean returnProperties = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -40,8 +40,11 @@ public class MainActivity extends ActionBarActivity
     public void Verify()
     {
         Spinner spnRoute = (Spinner) findViewById(R.id.spnRoute);
+        Spinner propRoute = (Spinner) findViewById(R.id.spnProperties);
         String affiliationType = "";
         String url = "";
+
+        returnProperties = propRoute.getSelectedItem().toString().equals("Yes");
 
         if (spnRoute.getSelectedItem().toString().equals("Military"))
         {
@@ -63,7 +66,7 @@ public class MainActivity extends ActionBarActivity
             affiliationType = IDmeWebVerify.GOVERNMENT;
         }
 
-        webVerify = new IDmeWebVerify(clientID, redirectUri, affiliationType, this);
+        webVerify = new IDmeWebVerify(clientID, redirectUri, affiliationType, this, returnProperties);
         webVerify.StartWebView();
     }
 
