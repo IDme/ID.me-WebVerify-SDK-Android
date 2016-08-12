@@ -229,7 +229,7 @@ public class IDmeWebVerify
         } catch (IOException e)
         {
             SendDataBack(e.getMessage());
-            Log.e("Error Has Occurred in the Web Request", e.getMessage());
+            Log.e("Web Request Error", e.getMessage());
         }
     }
 
