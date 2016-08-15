@@ -42,7 +42,6 @@ public class MainActivity extends ActionBarActivity
         Spinner spnRoute = (Spinner) findViewById(R.id.spnRoute);
         Spinner propRoute = (Spinner) findViewById(R.id.spnProperties);
         String affiliationType = "";
-        String url = "";
 
         returnProperties = propRoute.getSelectedItem().toString().equals("Yes");
 
