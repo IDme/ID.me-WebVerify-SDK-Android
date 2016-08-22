@@ -10,6 +10,12 @@
         <item>Student</item>
         <item>Teacher</item>
         <item>First Responder</item>
+        <item>Government</item>
+    </string-array>
+
+    <string-array name="boolean_array">
+        <item>Yes</item>
+        <item>No</item>
     </string-array>
 
     <string name="title_activity_web_view">WebView</string>

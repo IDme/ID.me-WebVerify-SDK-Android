@@ -33,15 +33,16 @@ public class IDmeWebVerify
     public final static int WEB_REQUEST_CODE = 39820;
 
     private final String IDME_WEB_VERIFY_GET_AUTH_URI = "https://api.id.me/oauth/authorize?client_id=clientID&redirect_uri=redirectURI&response_type=token&scope=scopeType";
-    private final String IDME_WEB_VERIFY_GET_USER_PROFILE = "https://api.id.me/api/public/v2/data.json?access_token=token";
+    private final String IDME_WEB_VERIFY_GET_USER_PROFILE = "https://api.id.me/api/public/v2/data.json?access_token=user_token";
 
     private String clientID = "";
     private String redirectURI = "";
     private String scope = "";
     private Activity activity;
+    private boolean returnProperties = true;
 
     /**
-     * Default Constructor For the class.
+     * Constructor For the class.
      *
      * @param clientID      The client ID provided by ID.me http://developer.id.me
      * @param redirectURI   The redirect URI
@@ -54,6 +55,24 @@ public class IDmeWebVerify
         this.clientID = clientID;
         this.redirectURI = redirectURI;
         this.activity = activity;
+    }
+
+    /**
+     * Constructor For the class.
+     *
+     * @param clientID         The client ID provided by ID.me http://developer.id.me
+     * @param redirectURI      The redirect URI
+     * @param scope            The Verification type
+     * @param activity         The calling activity
+     * @param returnProperties Whether user properties or access token should be returned
+     */
+    public IDmeWebVerify(String clientID, String redirectURI, String scope, Activity activity, boolean returnProperties)
+    {
+        this.scope = scope;
+        this.clientID = clientID;
+        this.redirectURI = redirectURI;
+        this.activity = activity;
+        this.returnProperties = returnProperties;
     }
 
     /**
@@ -83,6 +102,7 @@ public class IDmeWebVerify
             intent.putExtra("scope", scope);
             intent.putExtra("clientID", clientID);
             intent.putExtra("redirectURI", redirectURI);
+            intent.putExtra("returnProperties", returnProperties);
             activity.startActivityForResult(intent, WEB_REQUEST_CODE);
         }
     }
@@ -130,15 +150,21 @@ public class IDmeWebVerify
             if (hasToken)
             {
                 final String accessToken = ExtractAccessToken(url);
-                AsyncTask asyncTask = new AsyncTask()
+
+                if (returnProperties)
                 {
-                    @Override protected Object doInBackground(Object[] params)
+                    AsyncTask asyncTask = new AsyncTask()
                     {
-                        GetWebProfile(CreateRequestUrl(accessToken));
-                        return null;
-                    }
-                };
-                asyncTask.execute(null, null, null);
+                        @Override protected Object doInBackground(Object[] params)
+                        {
+                            GetWebProfile(CreateRequestUrl(accessToken));
+                            return null;
+                        }
+                    };
+                    asyncTask.execute(null, null, null);
+                } else {
+                    SendDataBack(accessToken);
+                }
             }
         }
     };
@@ -152,7 +178,7 @@ public class IDmeWebVerify
     {
         String url = IDME_WEB_VERIFY_GET_USER_PROFILE;
 
-        url = url.replace("token", accessToken);
+        url = url.replace("user_token", accessToken);
 
         return url;
     }
@@ -204,7 +230,7 @@ public class IDmeWebVerify
         } catch (IOException e)
         {
             SendDataBack(e.getMessage());
-            Log.e("Error Has Occurred in the Web Request", e.getMessage());
+            Log.e("Web Request Error", e.getMessage());
         }
     }
 

@@ -20,18 +20,27 @@
         android:id="@+id/spnRoute"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="173dp"
+        android:layout_marginBottom="203dp"
         android:drawSelectorOnTop="true"
         android:entries="@array/array_name"/>
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/spnProperties"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="163dp"
+        android:drawSelectorOnTop="true"
+        android:entries="@array/boolean_array"/>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Verify Me"
         android:id="@+id/btnVerify"
-        android:layout_alignTop="@+id/spnRoute"
+        android:layout_alignTop="@+id/spnProperties"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="68dp"/>
-
 
 </RelativeLayout>

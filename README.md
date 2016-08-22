@@ -2,8 +2,8 @@
 The ID.me WebVerify SDK for Android is a class that allows you to verify a user's group affiliation status using ID.me's platform. A sample project has been provided to delineate the integration process.
 
 #Release Information 
-- **SDK Version:** 1.0.0 (January 21, 2015)
-- **Maintained By:** [Ruben Roman](https://github.com/rubsnick)
+- **SDK Version:** 1.2.0 (August 11, 2016)
+- **Maintained By:** [ID.me](http://github.com/IDme)
 
 For more information please email us at mobile@id.me or visit us at http://developer.id.me.
 
@@ -22,7 +22,7 @@ repositories
         }
 
 dependencies {
-    compile 'me.id.webverify:webverifylib:1.1'
+    compile 'me.id.webverify:webverifylib:1.2'
 }
 ```
 
@@ -52,17 +52,23 @@ To run the sample project you'll need to replace the `clientID` and `redirectUri
 ## Execution
 Both the OAuth flow and verification occur through a WebView that initialized from withn the SDK. Upon successful completion the activity will close and the JSON string will be sent back to the calling activity.
 
-To start the `WebViewActivity` you must initialize a `IDmeWebVerify` object, and call the `StartWebView()`nethod.
+To start the `WebViewActivity` you must initialize a `IDmeWebVerify` object,
 
     IDmeWebVerify webVerify = new IDmeWebVerify(clientID, redirectURI, affiliationType, activity);
+or
+    IDmeWebVerify webVerify = new IDmeWebVerify(clientID, redirectURI, affiliationType, activity, returnProperties);
+
+and call the `StartWebView()`method
+
     webVerify.StartWebView();
 
 The params in the constructor are as follows:
 
 - `clientID`: The clientID provided by ID.me when registering the app at [http://developer.id.me](http://developer.id.me).
 - `redirectURI`: The redirectURI provided to ID.me when registering your app at [http://developer.id.me](http://developer.id.me)
-- `affiliationType`: The type of group verficiation that should be presented. 
-- `activity`: The activity that is calling creating the Class Object.
+- `affiliationType`: The type of group verfication that should be presented.
+- `activity`: The activity that is creating the Class Object.
+- `returnProperties`: Indicates returning the user properties or an access token which you can use to get user properties.
 
 To retrieve the data your `onActivityResult` method will look like the following.
 
@@ -84,7 +90,7 @@ To retrieve the data your `onActivityResult` method will look like the following
 ```
 
 ##Results
-Each successful request returns the following information:
+Each successful request for user properties returns the following information:
 
 - Group Affiliation (Military Veteran, Student, Firefighter, etc.)
 - Unique user Identifier
