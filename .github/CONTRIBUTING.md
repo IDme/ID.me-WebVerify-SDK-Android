@@ -52,5 +52,5 @@ We would love to hear your ideas and make discussions about it.
 
 * Use github issues to make feature proposals.
 * We use `type: feature request` label to mark all [feature request issues](https://github.com/IDme/ID.me-WebVerify-SDK-Android/labels/type%3A%20feature%20request).
-* Before submitting your proposal make sure there is no similar feature request. If you find a match, feel free to join the discussion or just add a brief "+1" if you think the feature is worth implementing.
+* Before submitting your proposal make sure there is no similar feature request. If you find a match, feel free to join the discussion or just or just act with a reaction if you think the feature is worth implementing.
 * Be as specific as possible providing a precise explanation of the feature so anyone can understand the problem and the benefits of solving it.
