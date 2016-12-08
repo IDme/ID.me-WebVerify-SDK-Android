@@ -11,8 +11,8 @@ hs_err_pid*
 
 # Android Studio and gradle specific
 .gradle
-/.idea
-/build
+.idea
+build
 *.iml
 
 #built application files

@@ -1,4 +1,4 @@
-Fixes #issue(s).
+Please include the fixed issues ("Fixed #issue_number")
 
 ## Description
 A few sentences describing the overall goals of the pull request's commits.
@@ -8,7 +8,7 @@ A few sentences describing the overall goals of the pull request's commits.
 * Modified...
 * Removed...
 
-## Todos
+## Contains
 - [ ] Tests
 - [ ] Documentation
 

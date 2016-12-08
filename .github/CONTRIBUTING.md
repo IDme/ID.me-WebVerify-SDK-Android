@@ -3,13 +3,13 @@ Contributing Guidelines
 
 This document provides general guidelines about how to contribute to the project. Keep in mind these important things before you start contributing.
 
-### Reporting issues
+## Reporting issues
 
 * Use [github issues](https://github.com/IDme/ID.me-WebVerify-SDK-Android/issues) to report a bug.
 * Before creating a new issue:
   * Make sure you are using the [latest release](https://github.com/IDme/ID.me-WebVerify-SDK-Android/releases).
   * Check if the issue was [already reported or fixed](https://github.com/IDme/ID.me-WebVerify-SDK-Android/issues?utf8=%E2%9C%93&q=is%3Aissue). Notice that it may not be released yet.
-  * If you found a match add a brief comment "I have the same problem" or "+1". This helps prioritize the issues addressing the most common and critical ones first. If possible, add additional information to help us reproduce and fix the issue. Please use your best judgement.    
+  * If you found a match add the github "+1" reaction brief comment. This helps prioritize the issues addressing the most common and critical ones first. If possible, add additional information to help us reproduce, and find the issue. Please use your best judgement.    
 * Reporting issues:
   * Please include the following information to help maintainers to fix the problem faster:
     * Android version you are targeting.
@@ -17,7 +17,7 @@ This document provides general guidelines about how to contribute to the project
     * Any other additional detail you think it would be useful to understand and solve the problem.
 
 
-### Pull requests
+## Pull requests
 
 The easiest way to start contributing is searching open issues by `help wanted` tag.
 
@@ -27,7 +27,7 @@ The easiest way to start contributing is searching open issues by `help wanted` 
 * Please only one fix or feature per pull request. This will increase the chances your feature will be merged.
 
 
-###### Suggested git workflow to contribute
+### Suggested git workflow to contribute
 
 1. Fork the repository.
 2. Clone your forked project into your developer machine: `git clone git@github.com:<your-github-username>/ID.me-WebVerify-SDK-Android.git`
@@ -41,16 +41,16 @@ The easiest way to start contributing is searching open issues by `help wanted` 
 10. Create a new pull request adding any useful comment.
 
 
-###### Code style and conventions
+### Code style and conventions
 
-We try to follow [this android style guide](https://github.com/xmartlabs/Android-Style-Guide).
+We try to follow [The Xmartlabs Android Style Guide](https://github.com/xmartlabs/Android-Style-Guide).
 
 
 ### Feature proposal
 
-We would love to hear your ideas and make a discussions about it.
+We would love to hear your ideas and make discussions about it.
 
 * Use github issues to make feature proposals.
 * We use `type: feature request` label to mark all [feature request issues](https://github.com/IDme/ID.me-WebVerify-SDK-Android/labels/type%3A%20feature%20request).
-* Before submitting your proposal make sure there is no similar feature request. If you found a match feel free to join the discussion or just add a brief "+1" if you think the feature is worth implementing.
-* Be as specific as possible providing a precise explanation of feature request so anyone can understand the problem and the benefits of solving it.
+* Before submitting your proposal make sure there is no similar feature request. If you find a match, feel free to join the discussion or just add a brief "+1" if you think the feature is worth implementing.
+* Be as specific as possible providing a precise explanation of the feature so anyone can understand the problem and the benefits of solving it.
