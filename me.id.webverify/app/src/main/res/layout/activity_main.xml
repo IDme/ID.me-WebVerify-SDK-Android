@@ -46,7 +46,7 @@
         android:layout_alignTop="@+id/spnProperties"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="68dp"
-        android:text="Verify Me"
+        android:text="@string/verify_me"
         />
 
 </RelativeLayout>

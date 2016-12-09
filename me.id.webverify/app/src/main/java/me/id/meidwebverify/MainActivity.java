@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import me.id.webverifylib.IDmeWebVerify;
 
@@ -25,7 +26,7 @@ public class MainActivity extends ActionBarActivity {
     btnVerify.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        Verify();
+        verify();
       }
     });
   }
@@ -33,22 +34,26 @@ public class MainActivity extends ActionBarActivity {
   /**
    * Method that Starts the Verification Process.
    */
-  public void Verify() {
+  public void verify() {
     Spinner spnRoute = (Spinner) findViewById(R.id.spnRoute);
     Spinner propRoute = (Spinner) findViewById(R.id.spnProperties);
     String affiliationType = "";
 
     returnProperties = propRoute.getSelectedItem().toString().equals("Yes");
 
-    if (spnRoute.getSelectedItem().toString().equals("Military")) {
+    Object selectedItem = spnRoute.getSelectedItem();
+    if (selectedItem == null) {
+      Toast.makeText(this, "Affiliation Type is required", Toast.LENGTH_LONG).show();
+      return;
+    } else if (selectedItem.toString().equals("Military")) {
       affiliationType = IDmeWebVerify.MILITARY;
-    } else if (spnRoute.getSelectedItem().toString().equals("Student")) {
+    } else if (selectedItem.toString().equals("Student")) {
       affiliationType = IDmeWebVerify.STUDENT;
-    } else if (spnRoute.getSelectedItem().toString().equals("Teacher")) {
+    } else if (selectedItem.toString().equals("Teacher")) {
       affiliationType = IDmeWebVerify.TEACHER;
-    } else if (spnRoute.getSelectedItem().toString().equals("First Responder")) {
+    } else if (selectedItem.toString().equals("First Responder")) {
       affiliationType = IDmeWebVerify.FIRST_RESPONDER;
-    } else if (spnRoute.getSelectedItem().toString().equals("Government")) {
+    } else if (selectedItem.toString().equals("Government")) {
       affiliationType = IDmeWebVerify.GOVERNMENT;
     }
 
