@@ -57,4 +57,13 @@ public class WebViewActivity extends ActionBarActivity
         webView.destroy();
 
     }
+
+    @Override
+    public void onBackPressed() {
+        if (webView.canGoBack()) {
+            webView.goBack();
+        } else {
+            super.onBackPressed();
+        }
+    }
 }
