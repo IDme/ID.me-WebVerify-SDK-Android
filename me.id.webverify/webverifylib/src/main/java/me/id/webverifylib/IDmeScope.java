@@ -4,6 +4,7 @@ import android.support.annotation.StringRes;
 
 /**
  * Created by mirland on 09/12/16.
+ * The type of group verification.
  */
 public enum IDmeScope {
   MILITARY(R.string.scope_military),
