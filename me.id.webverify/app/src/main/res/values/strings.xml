@@ -19,5 +19,6 @@
     </string-array>
 
     <string name="title_activity_web_view">WebView</string>
+    <string name="verify_me">Verify Me</string>
 
 </resources>
