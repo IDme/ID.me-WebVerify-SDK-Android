@@ -9,16 +9,12 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-
-import java.io.ByteArrayOutputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
-
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class IDmeWebVerify
 {
@@ -204,34 +200,53 @@ public class IDmeWebVerify
      */
     private void GetWebProfile(String url)
     {
+        String serverResponse;
+        HttpURLConnection urlConnection = null;
+        URL urlRequest;
+        try {
+            urlRequest = new URL(url);
+            urlConnection = (HttpURLConnection) urlRequest.openConnection();
 
-        try
-        {
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpResponse response = httpclient.execute(new HttpGet(url));
-            StatusLine statusLine = response.getStatusLine();
+            int responseCode = urlConnection.getResponseCode();
 
-            if (statusLine.getStatusCode() == HttpStatus.SC_OK)
-            {
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                response.getEntity().writeTo(out);
-                String responseString = out.toString();
-
-                out.close();
-                SendDataBack(responseString);
-
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                serverResponse = readStream(urlConnection.getInputStream());
+                SendDataBack(serverResponse);
             }
-            else
-            {
-                //Closes the connection.
-                response.getEntity().getContent().close();
-                throw new IOException(statusLine.getReasonPhrase());
+        } catch (IOException exception) {
+            SendErrorBack(exception.getMessage());
+        } finally {
+            if (urlConnection != null) {
+                urlConnection.disconnect();
             }
-        } catch (IOException e)
-        {
-            SendDataBack(e.getMessage());
-            Log.e("Web Request Error", e.getMessage());
         }
+    }
+
+    /**
+     * This converts the InputStream to a String
+     *
+     * @param inputStream from the Web Request
+     * @return the converted string
+     */
+    private String readStream(InputStream inputStream) throws IOException {
+        BufferedReader reader = null;
+        StringBuilder response = new StringBuilder();
+        try {
+            reader = new BufferedReader(new InputStreamReader(inputStream));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException exception) {
+                    Log.e("Read stream error", exception.getMessage());
+                }
+            }
+        }
+        return response.toString();
     }
 
     /**
@@ -243,9 +258,18 @@ public class IDmeWebVerify
     {
         activity.getIntent().putExtra(IDME_WEB_VERIFY_RESPONSE, response);
         activity.setResult(Activity.RESULT_OK, activity.getIntent());
-
         activity.finish();
     }
 
-
+    /**
+     * Sends the error back to the activity that called the WebView.
+     *
+     * @param error The service error form the Web Request.
+     */
+    private void SendErrorBack(String error) {
+        Log.e("Web Request Error", error);
+        activity.getIntent().putExtra(IDME_WEB_VERIFY_RESPONSE, error);
+        activity.setResult(Activity.RESULT_CANCELED);
+        activity.finish();
+    }
 }

@@ -4,16 +4,17 @@ import android.annotation.SuppressLint;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
-import android.text.Html;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
 
 
-public class WebViewActivity extends ActionBarActivity
+public class WebViewActivity extends AppCompatActivity
 {
     IDmeWebVerify iDmeWebVerify;
     private WebView webView;
+    private Toolbar toolbar;
 
     @Override
     @SuppressLint("SetJavaScriptEnabled")
@@ -22,9 +23,6 @@ public class WebViewActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_web_view);
 
-
-        getSupportActionBar().setTitle(Html.fromHtml("<font color='#2fc073'>Verify With ID.me </font>"));
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(0xff2e3d50));
         String scope = getIntent().getStringExtra("scope");
         String url = getIntent().getStringExtra("URL");
         String clientId = getIntent().getStringExtra("clientID");
@@ -32,6 +30,9 @@ public class WebViewActivity extends ActionBarActivity
         boolean returnProperties = getIntent().getBooleanExtra("returnProperties", true);
 
         iDmeWebVerify = new IDmeWebVerify(clientId, redirectUri, scope, this, returnProperties);
+
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         webView = (WebView) findViewById(R.id.webView);
         webView.setWebViewClient(iDmeWebVerify.getWebViewClient());
