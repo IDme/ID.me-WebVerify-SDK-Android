@@ -201,7 +201,7 @@ public class IDmeWebVerify
     private void GetWebProfile(String url)
     {
         String serverResponse;
-        HttpURLConnection urlConnection;
+        HttpURLConnection urlConnection = null;
         URL urlRequest;
         try {
             urlRequest = new URL(url);
@@ -209,12 +209,16 @@ public class IDmeWebVerify
 
             int responseCode = urlConnection.getResponseCode();
 
-            if(responseCode == HttpURLConnection.HTTP_OK){
+            if (responseCode == HttpURLConnection.HTTP_OK) {
                 serverResponse = readStream(urlConnection.getInputStream());
                 SendDataBack(serverResponse);
             }
         } catch (IOException e) {
             SendErrorBack(e.getMessage());
+        } finally {
+            if (urlConnection != null) {
+                urlConnection.disconnect();
+            }
         }
     }
 
@@ -262,8 +266,7 @@ public class IDmeWebVerify
      *
      * @param error The service error form the Web Request.
      */
-    private void SendErrorBack(String error)
-    {
+    private void SendErrorBack(String error) {
         Log.e("Web Request Error", error);
         activity.getIntent().putExtra(IDME_WEB_VERIFY_RESPONSE, error);
         activity.setResult(Activity.RESULT_CANCELED);
