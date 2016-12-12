@@ -213,8 +213,8 @@ public class IDmeWebVerify
                 serverResponse = readStream(urlConnection.getInputStream());
                 SendDataBack(serverResponse);
             }
-        } catch (IOException e) {
-            SendErrorBack(e.getMessage());
+        } catch (IOException exception) {
+            SendErrorBack(exception.getMessage());
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -241,8 +241,8 @@ public class IDmeWebVerify
             if (reader != null) {
                 try {
                     reader.close();
-                } catch (IOException ignored) {
-
+                } catch (IOException exception) {
+                    Log.e("Read stream error", exception.getMessage());
                 }
             }
         }
