@@ -1,5 +1,6 @@
 package me.id.webverifylib;
 
+import android.annotation.SuppressLint;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ public class WebViewActivity extends ActionBarActivity
     private WebView webView;
 
     @Override
+    @SuppressLint("SetJavaScriptEnabled")
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
@@ -34,7 +36,7 @@ public class WebViewActivity extends ActionBarActivity
         webView = (WebView) findViewById(R.id.webView);
         webView.setWebViewClient(iDmeWebVerify.getWebViewClient());
         webView.loadUrl(url);
-
+        webView.getSettings().setJavaScriptEnabled(true);
     }
 
     @Override
