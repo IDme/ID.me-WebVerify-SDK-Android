@@ -1,12 +1,10 @@
 package me.id.webverifylib;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.os.AsyncTask;
+import android.net.Uri;
 import android.util.Log;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -15,56 +13,60 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Calendar;
+import java.util.HashSet;
+import java.util.Set;
 
 public class IDmeWebVerify {
   public static final String IDME_WEB_VERIFY_RESPONSE = "response";
   public static final int WEB_REQUEST_CODE = 39820;
 
-  private static final String ACCESS_TOKEN_KEY = "access_token=";
+  private static final String ACCESS_TOKEN_KEY = "access_token";
+  private static final String EXPIRE_TOKEN_KEY = "expires_in";
   private static final String USER_TOKEN_KEY = "user_token";
 
   private final String IDME_WEB_VERIFY_GET_AUTH_URI = "https://api.id.me/oauth/authorize?client_id=clientID&redirect_uri=redirectURI&response_type=token&scope=scopeType";
   private final String IDME_WEB_VERIFY_GET_USER_PROFILE = "https://api.id.me/api/public/v2/data.json?access_token=user_token";
 
-  private String clientID = "";
-  private String redirectURI = "";
-  private IDmeScope scope;
-  private Activity activity;
-  private boolean returnProperties = true;
+  private static AccessTokenManager accessTokenManager;
+  private static String clientID;
+  private static String redirectURI = "";
+  private Set<IDmeGetAccessTokenListener> iDmeGetAccessTokenListeners = new HashSet<>();
+  private Set<IDmeGetProfileListener> iDmeGetProfileListeners = new HashSet<>();
+
+  private static final IDmeWebVerify INSTANCE = new IDmeWebVerify();
 
   /**
-   * Constructor For the class.
+   * This method needs to be called before IDmeWebVerify can be used.
+   * Typically it will be called from your Application class's onCreate method.
    *
-   * @param clientID    The client ID provided by ID.me http://developer.id.me
-   * @param redirectURI The redirect URI
-   * @param scope       The Verification type
-   * @param activity    The calling activity
+   * @param context Application context
    */
-  public IDmeWebVerify(String clientID, String redirectURI, IDmeScope scope, Activity activity) {
-    this(clientID, redirectURI, scope, activity, false);
+  public static void initialize(Context context, String clientID, String redirectURI) {
+    accessTokenManager = new AccessTokenManager(context);
+    IDmeWebVerify.clientID = clientID;
+    IDmeWebVerify.redirectURI = redirectURI;
   }
 
   /**
    * Constructor For the class.
-   *
-   * @param clientID         The client ID provided by ID.me http://developer.id.me
-   * @param redirectURI      The redirect URI
-   * @param scope            The Verification type
-   * @param activity         The calling activity
-   * @param returnProperties Whether user properties or access token should be returned
    */
-  public IDmeWebVerify(String clientID, String redirectURI, IDmeScope scope, Activity activity, boolean returnProperties) {
-    this.scope = scope;
-    this.clientID = clientID;
-    this.redirectURI = redirectURI;
-    this.activity = activity;
-    this.returnProperties = returnProperties;
+  private IDmeWebVerify() {
+
+  }
+
+  public static IDmeWebVerify getInstance() {
+    return INSTANCE;
   }
 
   /**
-   * Starts web view activity
+   * Starts the login process
+   *
+   * @param activity which will be used to start the login activity
+   * @param scope    The type of group verification.
+   * @param listener The listener that will be called when the login process is finished.
    */
-  public void startWebView() {
+  public void login(Activity activity, IDmeScope scope, IDmeGetAccessTokenListener listener) {
     Intent intent = new Intent(activity, WebViewActivity.class);
     boolean start = true;
     if (clientID == null) {
@@ -78,14 +80,29 @@ public class IDmeWebVerify {
     }
 
     if (start) {
-      String url = createURL();
+      String url = createURL(activity, scope);
       intent.putExtra(WebViewActivity.EXTRA_URL, url);
       intent.putExtra(WebViewActivity.EXTRA_SCOPE, scope);
-      intent.putExtra(WebViewActivity.EXTRA_CLIENT_ID, clientID);
-      intent.putExtra(WebViewActivity.EXTRA_REDIRECT_URI, redirectURI);
-      intent.putExtra(WebViewActivity.EXTRA_RETURN_PROPERTIES, returnProperties);
-      activity.startActivityForResult(intent, WEB_REQUEST_CODE);
+      iDmeGetAccessTokenListeners.add(listener);
+      activity.startActivity(intent);
     }
+  }
+
+  public void getAccessToken(IDmeScope scope, IDmeGetAccessTokenListener listener) {
+    AuthToken token = accessTokenManager.getToken(scope);
+    listener.onSuccess(token == null ? null : token.getAccessToken());
+  }
+
+  public void getAccessToken(IDmeScope scope, boolean forceReload, IDmeGetAccessTokenListener listener) {
+    // TODO mirland 13/12/16:  
+  }
+
+  public void getUserProfile(IDmeGetProfileListener listener) {
+    // TODO mirland 13/12/16:    
+  }
+
+  public void logOut() {
+    // TODO mirland 13/12/16:
   }
 
   /**
@@ -93,49 +110,28 @@ public class IDmeWebVerify {
    *
    * @return URl with redirect uri, client id and scope
    */
-  private String createURL() {
+  private String createURL(Context context, IDmeScope scope) {
     String url = IDME_WEB_VERIFY_GET_AUTH_URI;
-    url = url.replace("scopeType", activity.getResources().getString(scope.getKeyRes()));
+    url = url.replace("scopeType", context.getResources().getString(scope.getKeyRes()));
     url = url.replace("redirectURI", redirectURI);
     url = url.replace("clientID", clientID);
     return url;
   }
 
   /**
-   * Gets Web View Client
+   * Checks if the URL has a correct AccessToken and save it if it is right
    *
-   * @return Custom Web View Client
+   * @return if the access token was saved correctly
    */
-  protected WebViewClient getWebViewClient() {
-    return mWebViewClient;
+  boolean validateAndSaveAccessToken(String url, IDmeScope scope) {
+    if (url.contains(ACCESS_TOKEN_KEY)) {
+      AuthToken authToken = extractAccessToken(url);
+      accessTokenManager.addToken(scope, authToken);
+      return true;
+    } else {
+      return false;
+    }
   }
-
-  private WebViewClient mWebViewClient = new WebViewClient() {
-    @Override
-    public void onPageStarted(WebView view, String url, Bitmap favicon) {
-      super.onPageStarted(view, url, favicon);
-    }
-
-    @Override
-    public void onPageFinished(WebView view, final String url) {
-      boolean hasToken = url.contains(ACCESS_TOKEN_KEY);
-      if (hasToken) {
-        final String accessToken = extractAccessToken(url);
-        if (returnProperties) {
-          AsyncTask asyncTask = new AsyncTask() {
-            @Override
-            protected Object doInBackground(Object[] params) {
-              getWebProfile(createRequestUrl(accessToken));
-              return null;
-            }
-          };
-          asyncTask.execute(null, null, null);
-        } else {
-          sendDataBack(accessToken);
-        }
-      }
-    }
-  };
 
   /**
    * Creates the URL for the Web Request
@@ -153,10 +149,19 @@ public class IDmeWebVerify {
    *
    * @param url URL that contains access token
    */
-  private String extractAccessToken(String url) {
-    int firstIndex = url.indexOf("=") + 1;
-    int lastIndex = url.indexOf("&");
-    return url.substring(firstIndex, lastIndex);
+  private AuthToken extractAccessToken(String url) {
+    Uri uri = Uri.parse(url.replace("#", "?"));
+    AuthToken authToken = new AuthToken();
+    authToken.setAccessToken(uri.getQueryParameter(ACCESS_TOKEN_KEY));
+    try {
+      Integer expirationInMinutes = Integer.valueOf(uri.getQueryParameter(EXPIRE_TOKEN_KEY));
+      Calendar calendar = Calendar.getInstance();
+      calendar.add(Calendar.MINUTE, expirationInMinutes);
+      authToken.setExpiration(calendar.getTime());
+    } catch (NumberFormatException ex) {
+      ex.printStackTrace();
+    }
+    return authToken;
   }
 
   /**
@@ -164,6 +169,7 @@ public class IDmeWebVerify {
    *
    * @param url URL for the Web Request
    */
+  // TODO mirland 14/12/16:
   private void getWebProfile(String url) {
     String serverResponse;
     HttpURLConnection urlConnection = null;
@@ -175,10 +181,10 @@ public class IDmeWebVerify {
       int responseCode = urlConnection.getResponseCode();
       if (responseCode == HttpURLConnection.HTTP_OK) {
         serverResponse = readStream(urlConnection.getInputStream());
-        sendDataBack(serverResponse);
+        // TODO mirland 13/12/16: notify data
       }
     } catch (IOException exception) {
-      sendErrorBack(exception.getMessage());
+      // TODO mirland 13/12/16: notify error
     } finally {
       if (urlConnection != null) {
         urlConnection.disconnect();
@@ -211,28 +217,5 @@ public class IDmeWebVerify {
       }
     }
     return response.toString();
-  }
-
-  /**
-   * Sends data back to the activity that called the WebView.
-   *
-   * @param response The response form the Web Request.
-   */
-  private void sendDataBack(String response) {
-    activity.getIntent().putExtra(IDME_WEB_VERIFY_RESPONSE, response);
-    activity.setResult(Activity.RESULT_OK, activity.getIntent());
-    activity.finish();
-  }
-
-  /**
-   * Sends the error back to the activity that called the WebView.
-   *
-   * @param error The service error form the Web Request.
-   */
-  private void sendErrorBack(String error) {
-    Log.e("Web Request Error", error);
-    activity.getIntent().putExtra(IDME_WEB_VERIFY_RESPONSE, error);
-    activity.setResult(Activity.RESULT_CANCELED);
-    activity.finish();
   }
 }
