@@ -64,7 +64,7 @@ public class WebViewActivity extends AppCompatActivity {
   private class IDmeWebViewClient extends WebViewClient {
     private final IDmeScope scope;
 
-    public IDmeWebViewClient(IDmeScope scope) {
+    IDmeWebViewClient(IDmeScope scope) {
       this.scope = scope;
     }
 

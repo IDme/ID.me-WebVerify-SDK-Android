@@ -52,4 +52,11 @@ final class AccessTokenManager {
         .putString(scope.name(), ObjectHelper.toStringByteArray(token))
         .apply();
   }
+
+  void deleteSession() {
+    waitForTokenLoad();
+    preferences.edit()
+        .clear()
+        .apply();
+  }
 }

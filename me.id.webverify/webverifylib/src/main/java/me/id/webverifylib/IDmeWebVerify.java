@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.util.Log;
+
+import org.json.JSONException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,14 +16,15 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Calendar;
+import java.util.Locale;
 
 public final class IDmeWebVerify {
   private static final String ACCESS_TOKEN_KEY = "access_token";
   private static final String EXPIRE_TOKEN_KEY = "expires_in";
   private static final String USER_TOKEN_KEY = "user_token";
 
-  private final String IDME_WEB_VERIFY_GET_AUTH_URI = "https://api.id.me/oauth/authorize?client_id=clientID&redirect_uri=redirectURI&response_type=token&scope=scopeType";
-  private final String IDME_WEB_VERIFY_GET_USER_PROFILE = "https://api.id.me/api/public/v2/data.json?access_token=user_token";
+  private final String IDME_WEB_VERIFY_GET_AUTH_URI = "http://api.idmelabs.com/oauth/authorize?client_id=clientID&redirect_uri=redirectURI&response_type=token&scope=scopeType";
+  private final String IDME_WEB_VERIFY_GET_USER_PROFILE = "https://api.idmelabs.com/api/public/v2/data.json?access_token=user_token";
 
   private static AccessTokenManager accessTokenManager;
   private static String clientID;
@@ -64,6 +68,16 @@ public final class IDmeWebVerify {
   }
 
   /**
+   * Checks if the application is already initialized
+   * @throws IllegalStateException
+   */
+  private void checkInitialization() {
+    if (!initialized) {
+      throw new IllegalStateException("IDmeWebVerify has to be initialized before use any operation");
+    }
+  }
+
+  /**
    * Starts the login process
    *
    * @param activity which will be used to start the login activity
@@ -98,24 +112,21 @@ public final class IDmeWebVerify {
     throw new UnsupportedOperationException();
   }
 
-  public void getUserProfile(IDmeGetProfileListener listener) {
-    checkInitialization();
-    // TODO mirland 13/12/16:
+  public void getUserProfile(IDmeScope scope, IDmeGetProfileListener listener) {
+    AuthToken token = accessTokenManager.getToken(scope);
+    if (token == null) {
+      String message = String.format(Locale.US, "There is not an access token related to the %s scope", scope);
+      listener.onError(new IllegalStateException(message));
+    } else if (token.isValidToken()) {
+      String requestUrl = createRequestUrl(token.getAccessToken());
+      new GetProfileConnectionTask(listener).execute(requestUrl);
+    } else {
+      listener.onError(new IllegalStateException("The access token is expired"));
+    }
   }
 
   public void logOut() {
-    checkInitialization();
-    // TODO mirland 13/12/16:
-  }
-
-  /**
-   * Checks if the application is already initialized
-   * @throws IllegalStateException
-   */
-  private void checkInitialization() {
-    if (!initialized) {
-      throw new IllegalStateException("IDmeWebVerify has to be initialized before use any operation");
-    }
+    accessTokenManager.deleteSession();
   }
 
   /**
@@ -197,40 +208,12 @@ public final class IDmeWebVerify {
   }
 
   /**
-   * This performs the Web Request
-   *
-   * @param url URL for the Web Request
-   */
-  // TODO mirland 14/12/16:
-  private void getWebProfile(String url) {
-    String serverResponse;
-    HttpURLConnection urlConnection = null;
-    URL urlRequest;
-    try {
-      urlRequest = new URL(url);
-      urlConnection = (HttpURLConnection) urlRequest.openConnection();
-
-      int responseCode = urlConnection.getResponseCode();
-      if (responseCode == HttpURLConnection.HTTP_OK) {
-        serverResponse = readStream(urlConnection.getInputStream());
-        // TODO mirland 13/12/16: notify data
-      }
-    } catch (IOException exception) {
-      // TODO mirland 13/12/16: notify error
-    } finally {
-      if (urlConnection != null) {
-        urlConnection.disconnect();
-      }
-    }
-  }
-
-  /**
    * This converts the InputStream to a String
    *
    * @param inputStream from the Web Request
    * @return the converted string
    */
-  private String readStream(InputStream inputStream) throws IOException {
+  private static String readStream(InputStream inputStream) throws IOException {
     BufferedReader reader = null;
     StringBuilder response = new StringBuilder();
     try {
@@ -249,5 +232,53 @@ public final class IDmeWebVerify {
       }
     }
     return response.toString();
+  }
+
+  private static final class GetProfileConnectionTask extends AsyncTask<String, Void, String> {
+    private IDmeGetProfileListener listener;
+    private boolean returnedError;
+
+    GetProfileConnectionTask(IDmeGetProfileListener listener) {
+      this.listener = listener;
+    }
+
+    @Override
+    protected String doInBackground(String... urls) {
+      HttpURLConnection urlConnection = null;
+      URL urlRequest;
+      try {
+        urlRequest = new URL(urls[0]);
+        urlConnection = (HttpURLConnection) urlRequest.openConnection();
+
+        int responseCode = urlConnection.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+          return readStream(urlConnection.getInputStream());
+        }
+      } catch (IOException exception) {
+        returnedError = true;
+        listener.onError(exception);
+      } finally {
+        if (urlConnection != null) {
+          urlConnection.disconnect();
+        }
+      }
+      return null;
+    }
+
+    @Override
+    protected void onPostExecute(String result) {
+      if (returnedError) {
+        return;
+      }
+      if (result == null) {
+        listener.onError(new IllegalStateException("Profile error"));
+      } else {
+        try {
+          listener.onSuccess(new IDmeProfile(result));
+        } catch (JSONException e) {
+          listener.onError(e);
+        }
+      }
+    }
   }
 }

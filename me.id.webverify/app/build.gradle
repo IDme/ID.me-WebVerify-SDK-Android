@@ -28,6 +28,6 @@ repositories
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile "com.android.support:appcompat-v7:${rootProject.ext.appcompat7Version}"
-    compile 'me.id.webverify:webverifylib:1.2'
-     //compile project(':webverifylib')
+    //compile 'me.id.webverify:webverifylib:1.2'
+    compile project(':webverifylib')
 }
