@@ -14,13 +14,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Calendar;
-import java.util.HashSet;
-import java.util.Set;
 
 public final class IDmeWebVerify {
-  public static final String IDME_WEB_VERIFY_RESPONSE = "response";
-  public static final int WEB_REQUEST_CODE = 39820;
-
   private static final String ACCESS_TOKEN_KEY = "access_token";
   private static final String EXPIRE_TOKEN_KEY = "expires_in";
   private static final String USER_TOKEN_KEY = "user_token";
@@ -31,8 +26,7 @@ public final class IDmeWebVerify {
   private static AccessTokenManager accessTokenManager;
   private static String clientID;
   private static String redirectURI = "";
-  private Set<IDmeGetAccessTokenListener> iDmeGetAccessTokenListeners = new HashSet<>();
-  private Set<IDmeGetProfileListener> iDmeGetProfileListeners = new HashSet<>();
+  private IDmeGetAccessTokenListener loginGetAccessTokenListeners = null;
 
   private static final IDmeWebVerify INSTANCE = new IDmeWebVerify();
 
@@ -80,10 +74,10 @@ public final class IDmeWebVerify {
     }
 
     if (start) {
+      loginGetAccessTokenListeners = listener;
       String url = createURL(activity, scope);
       intent.putExtra(WebViewActivity.EXTRA_URL, url);
       intent.putExtra(WebViewActivity.EXTRA_SCOPE, scope);
-      iDmeGetAccessTokenListeners.add(listener);
       activity.startActivity(intent);
     }
   }
@@ -94,7 +88,7 @@ public final class IDmeWebVerify {
   }
 
   public void getAccessToken(IDmeScope scope, boolean forceReload, IDmeGetAccessTokenListener listener) {
-    // TODO mirland 13/12/16:  
+    // TODO mirland 13/12/16:
   }
 
   public void getUserProfile(IDmeGetProfileListener listener) {
@@ -131,6 +125,17 @@ public final class IDmeWebVerify {
     } else {
       return false;
     }
+  }
+
+  /**
+   * Send access token to the listener with id {@code listenerId}
+   */
+  void notifyAccessToken(IDmeScope scope) {
+    AuthToken token = accessTokenManager.getToken(scope);
+    if (loginGetAccessTokenListeners != null) {
+      loginGetAccessTokenListeners.onSuccess(token == null ? null : token.getAccessToken());
+    }
+    loginGetAccessTokenListeners = null;
   }
 
   /**

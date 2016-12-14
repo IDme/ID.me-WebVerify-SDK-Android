@@ -70,6 +70,7 @@ public class WebViewActivity extends AppCompatActivity {
     @Override
     public void onPageFinished(WebView view, final String url) {
       if (IDmeWebVerify.getInstance().validateAndSaveAccessToken(url, scope)) {
+        IDmeWebVerify.getInstance().notifyAccessToken(scope);
         finish();
       }
     }
