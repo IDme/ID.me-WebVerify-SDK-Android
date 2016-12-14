@@ -1,7 +1,6 @@
 package me.id.webverifylib;
 
 import android.annotation.SuppressLint;
-import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -66,11 +65,6 @@ public class WebViewActivity extends AppCompatActivity {
 
     public IDmeWebViewClient(IDmeScope scope) {
       this.scope = scope;
-    }
-
-    @Override
-    public void onPageStarted(WebView view, String url, Bitmap favicon) {
-      super.onPageStarted(view, url, favicon);
     }
 
     @Override

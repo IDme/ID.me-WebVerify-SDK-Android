@@ -3,14 +3,12 @@ package me.id.webverifylib;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 
 import java.util.concurrent.ExecutionException;
 
-/**
- * Created by mirland on 13/12/16.
- */
-public class AsyncSharedPreferenceLoader {
-  public static final String IDME_SHARED_PREFERENCES_NAME = "IDmeSharedPreferences";
+final class AsyncSharedPreferenceLoader {
+  private static final String IDME_SHARED_PREFERENCES_NAME = "IDmeSharedPreferences";
 
   private final Context context;
 
@@ -26,6 +24,7 @@ public class AsyncSharedPreferenceLoader {
     asyncTask.execute();
   }
 
+  @Nullable
   SharedPreferences get() {
     try {
       return asyncTask.get();

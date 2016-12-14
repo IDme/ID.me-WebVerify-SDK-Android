@@ -7,15 +7,12 @@ import android.support.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by mirland on 13/12/16.
- */
-public class AccessTokenManager {
+final class AccessTokenManager {
   private SharedPreferences preferences;
   private final AsyncSharedPreferenceLoader preferenceLoader;
   private final Map<IDmeScope, AuthToken> tokens = new HashMap<>();
 
-  private void waitForLoad() {
+  private void waitForTokenLoad() {
     if (preferences == null) {
       preferences = preferenceLoader.get();
       loadTokensFromSharedPreferences();
@@ -44,15 +41,15 @@ public class AccessTokenManager {
 
   @Nullable
   AuthToken getToken(IDmeScope scope) {
-    waitForLoad();
+    waitForTokenLoad();
     return tokens.get(scope);
   }
 
   void addToken(IDmeScope scope, AuthToken token) {
-    waitForLoad();
+    waitForTokenLoad();
     tokens.put(scope, token);
-    SharedPreferences.Editor edit = preferences.edit();
-    edit.putString(scope.name(), ObjectHelper.toStringByteArray(token));
-    edit.apply();
+    preferences.edit()
+        .putString(scope.name(), ObjectHelper.toStringByteArray(token))
+        .apply();
   }
 }

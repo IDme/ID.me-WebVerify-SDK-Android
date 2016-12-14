@@ -10,9 +10,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-/**
- * Created by mirland on 13/12/16.
- */
 public final class ObjectHelper {
   private ObjectHelper() {
   }

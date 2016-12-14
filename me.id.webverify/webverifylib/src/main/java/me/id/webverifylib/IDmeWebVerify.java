@@ -17,7 +17,7 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 
-public class IDmeWebVerify {
+public final class IDmeWebVerify {
   public static final String IDME_WEB_VERIFY_RESPONSE = "response";
   public static final int WEB_REQUEST_CODE = 39820;
 
@@ -119,7 +119,7 @@ public class IDmeWebVerify {
   }
 
   /**
-   * Checks if the URL has a correct AccessToken and save it if it is right
+   * Checks if the URL has a correct AccessToken and saves it if it is right
    *
    * @return if the access token was saved correctly
    */

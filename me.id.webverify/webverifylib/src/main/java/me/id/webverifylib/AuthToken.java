@@ -3,10 +3,7 @@ package me.id.webverifylib;
 import java.io.Serializable;
 import java.util.Date;
 
-/**
- * Created by mirland on 13/12/16.
- */
-public class AuthToken implements Serializable {
+final class AuthToken implements Serializable {
   private IDmeScope scope;
   private String accessToken;
   private String refreshToken;
