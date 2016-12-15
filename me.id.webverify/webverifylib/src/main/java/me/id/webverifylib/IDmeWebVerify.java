@@ -86,9 +86,12 @@ public final class IDmeWebVerify {
 
   public void getAccessToken(IDmeScope scope, IDmeGetAccessTokenListener listener) {
     checkInitialization();
-
     AuthToken token = accessTokenManager.getToken(scope);
-    listener.onSuccess(token == null ? null : token.getAccessToken());
+    if (token == null || !token.isValidToken()) {
+      listener.onError(new TokenNotFaundExeption());
+    } else {
+      listener.onSuccess(token.getAccessToken());
+    }
   }
 
   public void getAccessToken(IDmeScope scope, boolean forceReload, IDmeGetAccessTokenListener listener) {
@@ -186,7 +189,7 @@ public final class IDmeWebVerify {
       Integer expirationInMinutes = Integer.valueOf(uri.getQueryParameter(EXPIRE_TOKEN_KEY));
       Calendar calendar = Calendar.getInstance();
       calendar.add(Calendar.MINUTE, expirationInMinutes);
-      authToken.setExpiration(calendar.getTime());
+      authToken.setExpiration(calendar);
     } catch (NumberFormatException ex) {
       ex.printStackTrace();
     }

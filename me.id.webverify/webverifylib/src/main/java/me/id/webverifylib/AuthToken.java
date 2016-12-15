@@ -1,13 +1,13 @@
 package me.id.webverifylib;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.util.Calendar;
 
 final class AuthToken implements Serializable {
   private IDmeScope scope;
   private String accessToken;
   private String refreshToken;
-  private Date expiration;
+  private Calendar expiration;
 
   public IDmeScope getScope() {
     return scope;
@@ -33,11 +33,15 @@ final class AuthToken implements Serializable {
     this.refreshToken = refreshToken;
   }
 
-  public Date getExpiration() {
+  public Calendar getExpiration() {
     return expiration;
   }
 
-  public void setExpiration(Date expiration) {
+  public void setExpiration(Calendar expiration) {
     this.expiration = expiration;
+  }
+
+  public boolean isValidToken() {
+    return accessToken != null && expiration != null && Calendar.getInstance().before(expiration);
   }
 }
