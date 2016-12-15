@@ -88,7 +88,7 @@ public final class IDmeWebVerify {
     checkInitialization();
     AuthToken token = accessTokenManager.getToken(scope);
     if (token == null || !token.isValidToken()) {
-      listener.onError(new TokenNotFaundExeption());
+      listener.onError(new UnauthenticatedException());
     } else {
       listener.onSuccess(token.getAccessToken());
     }
@@ -147,7 +147,7 @@ public final class IDmeWebVerify {
   }
 
   /**
-   * Send access token to the signIn listener
+   * Send access token to the login listener
    */
   void notifyAccessToken(IDmeScope scope) {
     AuthToken token = accessTokenManager.getToken(scope);
