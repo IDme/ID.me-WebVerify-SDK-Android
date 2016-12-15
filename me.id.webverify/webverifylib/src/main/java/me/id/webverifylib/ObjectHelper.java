@@ -1,5 +1,6 @@
 package me.id.webverifylib;
 
+import android.support.annotation.Nullable;
 import android.util.Base64;
 import android.util.Base64InputStream;
 import android.util.Base64OutputStream;
@@ -20,6 +21,7 @@ public final class ObjectHelper {
    * @param object an object
    * @return the {@code string} byte array representation of the object
    */
+  @Nullable
   public static String toStringByteArray(Object object) {
     ObjectOutputStream objectOutput;
     ByteArrayOutputStream arrayOutputStream = new ByteArrayOutputStream();
@@ -48,6 +50,7 @@ public final class ObjectHelper {
    * @param stringByteArray a string byte array representation of the object
    * @return the object
    */
+  @Nullable
   public static <T> T fromStringByteArray(String stringByteArray) {
     if (stringByteArray == null) {
       return null;

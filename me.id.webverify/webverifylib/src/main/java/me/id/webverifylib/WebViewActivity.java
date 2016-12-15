@@ -49,6 +49,7 @@ public class WebViewActivity extends AppCompatActivity {
     webView.clearHistory();
     webView.clearFormData();
     webView.destroy();
+    IDmeWebVerify.getInstance().clearSignInListener();
   }
 
   @Override

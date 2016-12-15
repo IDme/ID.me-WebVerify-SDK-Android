@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,7 +25,8 @@ public final class IDmeWebVerify {
   private static AccessTokenManager accessTokenManager;
   private static String clientID;
   private static String redirectURI = "";
-  private IDmeGetAccessTokenListener loginGetAccessTokenListeners = null;
+  private static boolean initialized;
+  private IDmeGetAccessTokenListener loginGetAccessTokenListener = null;
 
   private static final IDmeWebVerify INSTANCE = new IDmeWebVerify();
 
@@ -37,6 +37,16 @@ public final class IDmeWebVerify {
    * @param context Application context
    */
   public static void initialize(Context context, String clientID, String redirectURI) {
+    if (initialized) {
+      throw new IllegalStateException("IDmeWebVerify is already initialized");
+    }
+    if (clientID == null) {
+      throw new IllegalStateException("ClientId cannot be null");
+    }
+    if (redirectURI == null) {
+      throw new IllegalStateException("RedirectURI cannot be null");
+    }
+    initialized = true;
     accessTokenManager = new AccessTokenManager(context);
     IDmeWebVerify.clientID = clientID;
     IDmeWebVerify.redirectURI = redirectURI;
@@ -61,42 +71,48 @@ public final class IDmeWebVerify {
    * @param listener The listener that will be called when the login process is finished.
    */
   public void login(Activity activity, IDmeScope scope, IDmeGetAccessTokenListener listener) {
+    checkInitialization();
     Intent intent = new Intent(activity, WebViewActivity.class);
-    boolean start = true;
-    if (clientID == null) {
-      Toast.makeText(activity, "Client ID Cannot be null", Toast.LENGTH_SHORT).show();
-      start = false;
+    if (loginGetAccessTokenListener != null) {
+      throw new IllegalStateException("The activity is already initialized");
     }
 
-    if (redirectURI == null) {
-      Toast.makeText(activity, "Redirect URI Cannot be null", Toast.LENGTH_SHORT).show();
-      start = false;
-    }
-
-    if (start) {
-      loginGetAccessTokenListeners = listener;
-      String url = createURL(activity, scope);
-      intent.putExtra(WebViewActivity.EXTRA_URL, url);
-      intent.putExtra(WebViewActivity.EXTRA_SCOPE, scope);
-      activity.startActivity(intent);
-    }
+    loginGetAccessTokenListener = listener;
+    String url = createURL(activity, scope);
+    intent.putExtra(WebViewActivity.EXTRA_URL, url);
+    intent.putExtra(WebViewActivity.EXTRA_SCOPE, scope);
+    activity.startActivity(intent);
   }
 
   public void getAccessToken(IDmeScope scope, IDmeGetAccessTokenListener listener) {
+    checkInitialization();
+
     AuthToken token = accessTokenManager.getToken(scope);
     listener.onSuccess(token == null ? null : token.getAccessToken());
   }
 
   public void getAccessToken(IDmeScope scope, boolean forceReload, IDmeGetAccessTokenListener listener) {
-    // TODO mirland 13/12/16:
+    throw new UnsupportedOperationException();
   }
 
   public void getUserProfile(IDmeGetProfileListener listener) {
-    // TODO mirland 13/12/16:    
+    checkInitialization();
+    // TODO mirland 13/12/16:
   }
 
   public void logOut() {
+    checkInitialization();
     // TODO mirland 13/12/16:
+  }
+
+  /**
+   * Checks if the application is already initialized
+   * @throws IllegalStateException
+   */
+  private void checkInitialization() {
+    if (!initialized) {
+      throw new IllegalStateException("IDmeWebVerify has to be initialized before use any operation");
+    }
   }
 
   /**
@@ -128,14 +144,20 @@ public final class IDmeWebVerify {
   }
 
   /**
-   * Send access token to the listener with id {@code listenerId}
+   * Send access token to the signIn listener
    */
   void notifyAccessToken(IDmeScope scope) {
     AuthToken token = accessTokenManager.getToken(scope);
-    if (loginGetAccessTokenListeners != null) {
-      loginGetAccessTokenListeners.onSuccess(token == null ? null : token.getAccessToken());
+    if (loginGetAccessTokenListener != null) {
+      loginGetAccessTokenListener.onSuccess(token == null ? null : token.getAccessToken());
     }
-    loginGetAccessTokenListeners = null;
+  }
+
+  /**
+   * Remove the signIn listener
+   */
+  void clearSignInListener() {
+    loginGetAccessTokenListener = null;
   }
 
   /**
@@ -155,6 +177,8 @@ public final class IDmeWebVerify {
    * @param url URL that contains access token
    */
   private AuthToken extractAccessToken(String url) {
+    // the service url does not respect the rfc3986, the query parameters start with "#" and it should start with "?"
+    // https://tools.ietf.org/html/rfc3986
     Uri uri = Uri.parse(url.replace("#", "?"));
     AuthToken authToken = new AuthToken();
     authToken.setAccessToken(uri.getQueryParameter(ACCESS_TOKEN_KEY));
