@@ -7,15 +7,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 public class WebViewActivity extends AppCompatActivity {
   public static final String EXTRA_SCOPE = "scope";
   public static final String EXTRA_URL = "Url";
-  public static final String EXTRA_CLIENT_ID = "clientId";
-  public static final String EXTRA_REDIRECT_URI = "redirectUri";
-  public static final String EXTRA_RETURN_PROPERTIES = "returnProperties";
 
-  private IDmeWebVerify iDmeWebVerify;
   private WebView webView;
   private Toolbar toolbar;
 
@@ -27,17 +24,12 @@ public class WebViewActivity extends AppCompatActivity {
 
     IDmeScope scope = (IDmeScope) getIntent().getSerializableExtra(EXTRA_SCOPE);
     String url = getIntent().getStringExtra(EXTRA_URL);
-    String clientId = getIntent().getStringExtra(EXTRA_CLIENT_ID);
-    String redirectUri = getIntent().getStringExtra(EXTRA_REDIRECT_URI);
-    boolean returnProperties = getIntent().getBooleanExtra(EXTRA_RETURN_PROPERTIES, true);
-
-    iDmeWebVerify = new IDmeWebVerify(clientId, redirectUri, scope, this, returnProperties);
 
     toolbar = (Toolbar) findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
 
     webView = (WebView) findViewById(R.id.webView);
-    webView.setWebViewClient(iDmeWebVerify.getWebViewClient());
+    webView.setWebViewClient(new IDmeWebViewClient(scope));
     webView.loadUrl(url);
     webView.getSettings().setJavaScriptEnabled(true);
   }
@@ -57,6 +49,7 @@ public class WebViewActivity extends AppCompatActivity {
     webView.clearHistory();
     webView.clearFormData();
     webView.destroy();
+    IDmeWebVerify.getInstance().clearSignInListener();
   }
 
   @Override
@@ -65,6 +58,22 @@ public class WebViewActivity extends AppCompatActivity {
       webView.goBack();
     } else {
       super.onBackPressed();
+    }
+  }
+
+  private class IDmeWebViewClient extends WebViewClient {
+    private final IDmeScope scope;
+
+    public IDmeWebViewClient(IDmeScope scope) {
+      this.scope = scope;
+    }
+
+    @Override
+    public void onPageFinished(WebView view, final String url) {
+      if (IDmeWebVerify.getInstance().validateAndSaveAccessToken(url, scope)) {
+        IDmeWebVerify.getInstance().notifyAccessToken(scope);
+        finish();
+      }
     }
   }
 }
