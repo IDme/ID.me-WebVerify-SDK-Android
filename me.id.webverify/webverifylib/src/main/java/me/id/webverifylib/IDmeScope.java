@@ -1,9 +1,9 @@
 package me.id.webverifylib;
 
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 
 /**
- * Created by mirland on 09/12/16.
  * The type of group verification.
  */
 public enum IDmeScope {
@@ -25,5 +25,18 @@ public enum IDmeScope {
   @StringRes
   public int getKeyRes() {
     return key;
+  }
+
+  @Nullable
+  public static IDmeScope fromName(String scopeName) {
+    if (scopeName == null) {
+      return null;
+    }
+    for (IDmeScope scope : values()) {
+      if (ObjectHelper.equals(scope.toString(), scopeName)) {
+        return scope;
+      }
+    }
+    return null;
   }
 }
