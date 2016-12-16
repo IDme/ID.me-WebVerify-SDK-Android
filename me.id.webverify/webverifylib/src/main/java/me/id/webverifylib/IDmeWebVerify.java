@@ -56,7 +56,6 @@ public final class IDmeWebVerify {
     IDmeWebVerify.redirectURI = redirectURI;
   }
 
-  /** Constructor for the class. */
   private IDmeWebVerify() {
 
   }
@@ -67,6 +66,8 @@ public final class IDmeWebVerify {
 
   /**
    * Checks if the application is already initialized
+
+   * @throws IllegalStateException Throws exception if the library hasn't been initialized yet
    */
   private void checkInitialization() {
     if (!initialized) {
