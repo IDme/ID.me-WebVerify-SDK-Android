@@ -23,8 +23,8 @@ public final class IDmeWebVerify {
   private static final String EXPIRE_TOKEN_KEY = "expires_in";
   private static final String USER_TOKEN_KEY = "user_token";
 
-  private final String IDME_WEB_VERIFY_GET_AUTH_URI = "http://api.idmelabs.com/oauth/authorize?client_id=clientID&redirect_uri=redirectURI&response_type=token&scope=scopeType";
-  private final String IDME_WEB_VERIFY_GET_USER_PROFILE = "https://api.idmelabs.com/api/public/v2/data.json?access_token=user_token";
+  private static String idMeWebVerifyGetAuthUri;
+  private static String idMeWebVerifyGetUserProfile;
 
   private static AccessTokenManager accessTokenManager;
   private static String clientID;
@@ -50,6 +50,8 @@ public final class IDmeWebVerify {
     if (redirectURI == null) {
       throw new IllegalStateException("RedirectURI cannot be null");
     }
+    idMeWebVerifyGetAuthUri = context.getString(R.string.idme_web_verify_get_auth_uri);
+    idMeWebVerifyGetUserProfile = context.getString(R.string.idme_web_verify_get_profile_uri);
     initialized = true;
     accessTokenManager = new AccessTokenManager(context);
     IDmeWebVerify.clientID = clientID;
@@ -162,7 +164,7 @@ public final class IDmeWebVerify {
    * @return URl with redirect uri, client id and scope
    */
   private String createURL(Context context, IDmeScope scope) {
-    String url = IDME_WEB_VERIFY_GET_AUTH_URI;
+    String url = idMeWebVerifyGetAuthUri;
     url = url.replace("scopeType", context.getResources().getString(scope.getKeyRes()));
     url = url.replace("redirectURI", redirectURI);
     url = url.replace("clientID", clientID);
@@ -207,7 +209,7 @@ public final class IDmeWebVerify {
    * @return URL with proper formatted request
    */
   private String createRequestUrl(String accessToken) {
-    String url = IDME_WEB_VERIFY_GET_USER_PROFILE;
+    String url = idMeWebVerifyGetUserProfile;
     url = url.replace(USER_TOKEN_KEY, accessToken);
     return url;
   }
