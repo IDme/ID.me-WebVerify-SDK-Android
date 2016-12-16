@@ -40,7 +40,7 @@ public final class IDmeProfile implements Parcelable {
     } catch (JSONException e) {
       e.printStackTrace();
     }
-    return field == null || field.equals("null") ? null : field;
+    return field == null || JSONObject.NULL.equals(field) ? null : field;
   }
 
   public String getId() {

@@ -53,6 +53,13 @@ final class AccessTokenManager {
         .apply();
   }
 
+  void deleteToken(IDmeScope scope) {
+    waitForTokenLoad();
+    preferences.edit()
+        .remove(scope.name())
+        .apply();
+  }
+
   void deleteSession() {
     waitForTokenLoad();
     preferences.edit()

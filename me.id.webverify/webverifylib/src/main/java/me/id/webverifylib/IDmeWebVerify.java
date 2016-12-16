@@ -98,6 +98,12 @@ public final class IDmeWebVerify {
     activity.startActivity(intent);
   }
 
+  /**
+   * Returns a access token
+   *
+   * @param scope    The type of group verification.
+   * @param listener    The listener that will be called when the get access token process finished.
+   */
   public void getAccessToken(IDmeScope scope, IDmeGetAccessTokenListener listener) {
     checkInitialization();
     AuthToken token = accessTokenManager.getToken(scope);
@@ -108,10 +114,23 @@ public final class IDmeWebVerify {
     }
   }
 
+  /**
+   * Returns a access token
+   *
+   * @param scope       The type of group verification.
+   * @param forceReload Force to reload the access token.
+   * @param listener    The listener that will be called when the get access token process finished.
+   */
   public void getAccessToken(IDmeScope scope, boolean forceReload, IDmeGetAccessTokenListener listener) {
     throw new UnsupportedOperationException();
   }
 
+  /**
+   * Returns a access token
+   *
+   * @param scope       The type of group verification.
+   * @param listener    The listener that will be called when the get user profile process finished.
+   */
   public void getUserProfile(IDmeScope scope, IDmeGetProfileListener listener) {
     AuthToken token = accessTokenManager.getToken(scope);
     if (token == null) {
@@ -125,7 +144,19 @@ public final class IDmeWebVerify {
     }
   }
 
+  /**
+   * Delete all session information
+   */
   public void logOut() {
+    accessTokenManager.deleteSession();
+  }
+
+  /**
+   * Delete all session information regarding to the given scope
+   *
+   * @param scope The type of group verification.
+   */
+  public void logOut(IDmeScope scope) {
     accessTokenManager.deleteSession();
   }
 
