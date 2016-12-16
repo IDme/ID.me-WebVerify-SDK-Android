@@ -56,9 +56,7 @@ public final class IDmeWebVerify {
     IDmeWebVerify.redirectURI = redirectURI;
   }
 
-  /**
-   * Constructor For the class.
-   */
+  /** Constructor for the class. */
   private IDmeWebVerify() {
 
   }
@@ -69,7 +67,6 @@ public final class IDmeWebVerify {
 
   /**
    * Checks if the application is already initialized
-   * @throws IllegalStateException
    */
   private void checkInitialization() {
     if (!initialized) {
@@ -99,10 +96,10 @@ public final class IDmeWebVerify {
   }
 
   /**
-   * Returns a access token
+   * Returns an access token
    *
    * @param scope    The type of group verification.
-   * @param listener    The listener that will be called when the get access token process finished.
+   * @param listener The listener that will be called when the get access token process finished.
    */
   public void getAccessToken(IDmeScope scope, IDmeGetAccessTokenListener listener) {
     checkInitialization();
@@ -115,7 +112,7 @@ public final class IDmeWebVerify {
   }
 
   /**
-   * Returns a access token
+   * Returns an access token
    *
    * @param scope       The type of group verification.
    * @param forceReload Force to reload the access token.
@@ -126,10 +123,10 @@ public final class IDmeWebVerify {
   }
 
   /**
-   * Returns a access token
+   * Returns the user profile who is associated with that scope
    *
-   * @param scope       The type of group verification.
-   * @param listener    The listener that will be called when the get user profile process finished.
+   * @param scope    The type of group verification.
+   * @param listener The listener that will be called when the get user profile process finished.
    */
   public void getUserProfile(IDmeScope scope, IDmeGetProfileListener listener) {
     AuthToken token = accessTokenManager.getToken(scope);
@@ -144,15 +141,13 @@ public final class IDmeWebVerify {
     }
   }
 
-  /**
-   * Delete all session information
-   */
+  /** Deletes all session information */
   public void logOut() {
     accessTokenManager.deleteSession();
   }
 
   /**
-   * Delete all session information regarding to the given scope
+   * Deletes all session information regarding to the given scope
    *
    * @param scope The type of group verification.
    */
@@ -189,7 +184,7 @@ public final class IDmeWebVerify {
   }
 
   /**
-   * Send access token to the login listener
+   * Sends access token to the login listener
    */
   void notifyAccessToken(IDmeScope scope) {
     AuthToken token = accessTokenManager.getToken(scope);
@@ -199,7 +194,7 @@ public final class IDmeWebVerify {
   }
 
   /**
-   * Remove the signIn listener
+   * Removes the signIn listener
    */
   void clearSignInListener() {
     loginGetAccessTokenListener = null;
@@ -217,7 +212,7 @@ public final class IDmeWebVerify {
   }
 
   /**
-   * Extract Access Token from URL
+   * Extracts Access Token from URL
    *
    * @param url URL that contains access token
    */
