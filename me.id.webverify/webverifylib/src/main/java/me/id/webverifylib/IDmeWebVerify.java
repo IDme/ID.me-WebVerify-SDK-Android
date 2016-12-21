@@ -228,7 +228,7 @@ public final class IDmeWebVerify {
     try {
       Integer expirationInMinutes = Integer.valueOf(uri.getQueryParameter(EXPIRE_TOKEN_KEY));
       Calendar calendar = Calendar.getInstance();
-      calendar.add(Calendar.MINUTE, expirationInMinutes);
+      calendar.add(Calendar.SECOND, expirationInMinutes);
       authToken.setExpiration(calendar);
     } catch (NumberFormatException ex) {
       ex.printStackTrace();
