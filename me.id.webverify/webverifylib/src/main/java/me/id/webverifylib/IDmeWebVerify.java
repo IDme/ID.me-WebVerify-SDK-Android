@@ -92,9 +92,9 @@ public final class IDmeWebVerify {
     }
 
     loginGetAccessTokenListener = listener;
-    String url = createURL(activity, scope);
+    String url = createURL(scope);
     intent.putExtra(WebViewActivity.EXTRA_URL, url);
-    intent.putExtra(WebViewActivity.EXTRA_SCOPE, scope);
+    intent.putExtra(WebViewActivity.EXTRA_SCOPE_ID, scope.getScopeId());
     activity.startActivity(intent);
   }
 
@@ -155,7 +155,7 @@ public final class IDmeWebVerify {
    * @param scope The type of group verification.
    */
   public void logOut(IDmeScope scope) {
-    accessTokenManager.deleteSession();
+    accessTokenManager.deleteToken(scope);
   }
 
   /**
@@ -163,9 +163,9 @@ public final class IDmeWebVerify {
    *
    * @return URl with redirect uri, client id and scope
    */
-  private String createURL(Context context, IDmeScope scope) {
+  private String createURL(IDmeScope scope) {
     String url = idMeWebVerifyGetAuthUri;
-    url = url.replace("scopeType", context.getResources().getString(scope.getKeyRes()));
+    url = url.replace("scopeType", scope.getScopeId());
     url = url.replace("redirectURI", redirectURI);
     url = url.replace("clientID", clientID);
     return url;
@@ -177,13 +177,17 @@ public final class IDmeWebVerify {
    * @return if the access token was saved correctly
    */
   boolean validateAndSaveAccessToken(String url, IDmeScope scope) {
-    if (url.contains(ACCESS_TOKEN_KEY)) {
+    if (hasAccessToken(url)) {
       AuthToken authToken = extractAccessToken(url);
       accessTokenManager.addToken(scope, authToken);
       return true;
     } else {
       return false;
     }
+  }
+
+  boolean hasAccessToken(String url) {
+    return url.contains(ACCESS_TOKEN_KEY);
   }
 
   /**

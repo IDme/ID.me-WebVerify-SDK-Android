@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import java.util.Locale;
 
+import me.id.webverifylib.IDmeCommonScope;
 import me.id.webverifylib.IDmeGetAccessTokenListener;
 import me.id.webverifylib.IDmeGetProfileListener;
 import me.id.webverifylib.IDmeProfile;
@@ -76,15 +77,15 @@ public class MainActivity extends ActionBarActivity {
     if (selectedItem == null) {
       return null;
     } else if (selectedItem.toString().equals("Military")) {
-      return IDmeScope.MILITARY;
+      return IDmeCommonScope.MILITARY;
     } else if (selectedItem.toString().equals("Student")) {
-      return IDmeScope.STUDENT;
+      return IDmeCommonScope.STUDENT;
     } else if (selectedItem.toString().equals("Teacher")) {
-      return IDmeScope.TEACHER;
+      return IDmeCommonScope.TEACHER;
     } else if (selectedItem.toString().equals("First Responder")) {
-      return IDmeScope.FIRST_RESPONDER;
+      return IDmeCommonScope.FIRST_RESPONDER;
     } else if (selectedItem.toString().equals("Government")) {
-      return IDmeScope.GOVERNMENT;
+      return IDmeCommonScope.GOVERNMENT;
     }
     return null;
   }
