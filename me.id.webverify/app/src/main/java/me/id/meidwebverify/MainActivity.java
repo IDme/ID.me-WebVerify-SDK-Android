@@ -1,7 +1,7 @@
 package me.id.meidwebverify;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.Button;
@@ -9,19 +9,28 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Locale;
+
+import me.id.webverifylib.IDmeCommonScope;
+import me.id.webverifylib.IDmeGetAccessTokenListener;
+import me.id.webverifylib.IDmeGetProfileListener;
+import me.id.webverifylib.IDmeProfile;
+import me.id.webverifylib.IDmeScope;
 import me.id.webverifylib.IDmeWebVerify;
 
 public class MainActivity extends ActionBarActivity {
-  private IDmeWebVerify webVerify;
   private String clientID = null;
   private String redirectUri = null;
   private boolean returnProperties = true;
+  private TextView txtResult;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
+    txtResult = (TextView) findViewById(R.id.txtResult);
+    IDmeWebVerify.initialize(this, clientID, redirectUri);
     Button btnVerify = (Button) findViewById(R.id.btnVerify);
     btnVerify.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -35,42 +44,76 @@ public class MainActivity extends ActionBarActivity {
    * Method that Starts the Verification Process.
    */
   public void verify() {
-    Spinner spnRoute = (Spinner) findViewById(R.id.spnRoute);
     Spinner propRoute = (Spinner) findViewById(R.id.spnProperties);
-    String affiliationType = "";
 
     returnProperties = propRoute.getSelectedItem().toString().equals("Yes");
 
-    Object selectedItem = spnRoute.getSelectedItem();
-    if (selectedItem == null) {
-      Toast.makeText(this, "Affiliation Type is required", Toast.LENGTH_LONG).show();
+    final IDmeScope affiliationType = getSelectedAffiliationType();
+    if (affiliationType == null) {
+      showError(new IllegalStateException("Affiliation Type is required"));
       return;
-    } else if (selectedItem.toString().equals("Military")) {
-      affiliationType = IDmeWebVerify.MILITARY;
-    } else if (selectedItem.toString().equals("Student")) {
-      affiliationType = IDmeWebVerify.STUDENT;
-    } else if (selectedItem.toString().equals("Teacher")) {
-      affiliationType = IDmeWebVerify.TEACHER;
-    } else if (selectedItem.toString().equals("First Responder")) {
-      affiliationType = IDmeWebVerify.FIRST_RESPONDER;
-    } else if (selectedItem.toString().equals("Government")) {
-      affiliationType = IDmeWebVerify.GOVERNMENT;
     }
+    IDmeWebVerify.getInstance().getAccessToken(affiliationType, new IDmeGetAccessTokenListener() {
+      @Override
+      public void onSuccess(String accessToken) {
+        if (returnProperties) {
+          showUserProfileInformation(affiliationType);
+        } else {
+          showResponse(accessToken);
+        }
+      }
 
-    webVerify = new IDmeWebVerify(clientID, redirectUri, affiliationType, this, returnProperties);
-    webVerify.StartWebView();
+      @Override
+      public void onError(Throwable throwable) {
+        showError(throwable);
+      }
+    });
   }
 
-  @Override
-  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    super.onActivityResult(requestCode, resultCode, data);
-    if (resultCode == RESULT_OK) {
-      if (requestCode == IDmeWebVerify.WEB_REQUEST_CODE) {
-        String response = data.getStringExtra(IDmeWebVerify.IDME_WEB_VERIFY_RESPONSE);
+  @Nullable
+  private IDmeScope getSelectedAffiliationType() {
+    Spinner spnRoute = (Spinner) findViewById(R.id.spnRoute);
+    Object selectedItem = spnRoute.getSelectedItem();
 
-        TextView txtResult = (TextView) findViewById(R.id.txtResult);
-        txtResult.setText("Response : " + response);
+    if (selectedItem == null) {
+      return null;
+    } else {
+      String selectedItemText = selectedItem.toString().toLowerCase();
+      if (selectedItemText.equals(IDmeCommonScope.MILITARY.getScopeId().toLowerCase())) {
+        return IDmeCommonScope.MILITARY;
+      } else if (selectedItemText.equals(IDmeCommonScope.STUDENT.getScopeId().toLowerCase())) {
+        return IDmeCommonScope.STUDENT;
+      } else if (selectedItemText.equals(IDmeCommonScope.TEACHER.getScopeId().toLowerCase())) {
+        return IDmeCommonScope.TEACHER;
+      } else if (selectedItemText.equals(IDmeCommonScope.FIRST_RESPONDER.getScopeId().toLowerCase())) {
+        return IDmeCommonScope.FIRST_RESPONDER;
+      } else if (selectedItemText.equals(IDmeCommonScope.GOVERNMENT.getScopeId().toLowerCase())) {
+        return IDmeCommonScope.GOVERNMENT;
       }
     }
+    return null;
+  }
+
+  private void showError(Throwable throwable) {
+    throwable.printStackTrace();
+    Toast.makeText(MainActivity.this, throwable.getMessage(), Toast.LENGTH_LONG).show();
+  }
+
+  private void showResponse(Object object) {
+    txtResult.setText(String.format(Locale.getDefault(), "Response : %s", object));
+  }
+
+  public void showUserProfileInformation(IDmeScope scope) {
+    IDmeWebVerify.getInstance().getUserProfile(scope, new IDmeGetProfileListener() {
+      @Override
+      public void onSuccess(IDmeProfile profile) {
+        showResponse(profile);
+      }
+
+      @Override
+      public void onError(Throwable throwable) {
+        showError(throwable);
+      }
+    });
   }
 }
