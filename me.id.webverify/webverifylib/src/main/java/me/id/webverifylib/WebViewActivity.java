@@ -3,6 +3,7 @@ package me.id.webverifylib;
 import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.webkit.CookieManager;
@@ -10,7 +11,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 public class WebViewActivity extends AppCompatActivity {
-  public static final String EXTRA_SCOPE = "scope";
+  public static final String EXTRA_SCOPE_ID = "scope";
   public static final String EXTRA_URL = "Url";
 
   private WebView webView;
@@ -22,7 +23,7 @@ public class WebViewActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_web_view);
 
-    IDmeScope scope = (IDmeScope) getIntent().getSerializableExtra(EXTRA_SCOPE);
+    IDmeScope scope = getScopeFromKey(getIntent().getStringExtra(EXTRA_SCOPE_ID));
     String url = getIntent().getStringExtra(EXTRA_URL);
 
     toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -32,6 +33,17 @@ public class WebViewActivity extends AppCompatActivity {
     webView.setWebViewClient(new IDmeWebViewClient(scope));
     webView.loadUrl(url);
     webView.getSettings().setJavaScriptEnabled(true);
+  }
+
+  @NonNull
+  private IDmeScope getScopeFromKey(final String scopeId) {
+    return new IDmeScope() {
+      @NonNull
+      @Override
+      public String getScopeId() {
+        return scopeId;
+      }
+    };
   }
 
   @Override
@@ -64,7 +76,7 @@ public class WebViewActivity extends AppCompatActivity {
   private class IDmeWebViewClient extends WebViewClient {
     private final IDmeScope scope;
 
-    public IDmeWebViewClient(IDmeScope scope) {
+    IDmeWebViewClient(IDmeScope scope) {
       this.scope = scope;
     }
 
@@ -74,6 +86,12 @@ public class WebViewActivity extends AppCompatActivity {
         IDmeWebVerify.getInstance().notifyAccessToken(scope);
         finish();
       }
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public boolean shouldOverrideUrlLoading(WebView view, String url){
+      return IDmeWebVerify.getInstance().hasAccessToken(url);
     }
   }
 }
