@@ -74,18 +74,22 @@ public class MainActivity extends ActionBarActivity {
   private IDmeScope getSelectedAffiliationType() {
     Spinner spnRoute = (Spinner) findViewById(R.id.spnRoute);
     Object selectedItem = spnRoute.getSelectedItem();
+
     if (selectedItem == null) {
       return null;
-    } else if (selectedItem.toString().equals(IDmeCommonScope.MILITARY.getScopeId())) {
-      return IDmeCommonScope.MILITARY;
-    } else if (selectedItem.toString().equals(IDmeCommonScope.STUDENT.getScopeId())) {
-      return IDmeCommonScope.STUDENT;
-    } else if (selectedItem.toString().equals(IDmeCommonScope.TEACHER.getScopeId())) {
-      return IDmeCommonScope.TEACHER;
-    } else if (selectedItem.toString().equals(IDmeCommonScope.FIRST_RESPONDER.getScopeId())) {
-      return IDmeCommonScope.FIRST_RESPONDER;
-    } else if (selectedItem.toString().equals(IDmeCommonScope.GOVERNMENT.getScopeId())) {
-      return IDmeCommonScope.GOVERNMENT;
+    } else {
+      String selectedItemText = selectedItem.toString().toLowerCase();
+      if (selectedItemText.equals(IDmeCommonScope.MILITARY.getScopeId().toLowerCase())) {
+        return IDmeCommonScope.MILITARY;
+      } else if (selectedItemText.equals(IDmeCommonScope.STUDENT.getScopeId().toLowerCase())) {
+        return IDmeCommonScope.STUDENT;
+      } else if (selectedItemText.equals(IDmeCommonScope.TEACHER.getScopeId().toLowerCase())) {
+        return IDmeCommonScope.TEACHER;
+      } else if (selectedItemText.equals(IDmeCommonScope.FIRST_RESPONDER.getScopeId().toLowerCase())) {
+        return IDmeCommonScope.FIRST_RESPONDER;
+      } else if (selectedItemText.equals(IDmeCommonScope.GOVERNMENT.getScopeId().toLowerCase())) {
+        return IDmeCommonScope.GOVERNMENT;
+      }
     }
     return null;
   }

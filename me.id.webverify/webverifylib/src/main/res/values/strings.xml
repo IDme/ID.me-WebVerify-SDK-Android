@@ -1,13 +1,6 @@
 <resources>
     <string name="app_name">Webverifylib</string>
 
-    <string name="scope_military">military</string>
-    <string name="scope_student">student</string>
-    <string name="scope_teacher">teacher</string>
-    <string name="scope_government">government</string>
-    <string name="scope_first_responder">responder</string>
-    <string name="scope_wallet">wallet</string>
-
     <string name="idme_web_verify_get_auth_uri"><![CDATA[https://api.id.me/oauth/authorize?client_id=clientID&redirect_uri=redirectURI&response_type=token&scope=scopeType]]></string>
     <string name="idme_web_verify_get_profile_uri">https://api.id.me/api/public/v2/data.json?access_token=user_token</string>
 </resources>
