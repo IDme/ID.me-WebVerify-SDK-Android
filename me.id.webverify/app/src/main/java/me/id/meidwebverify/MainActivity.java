@@ -76,15 +76,15 @@ public class MainActivity extends ActionBarActivity {
     Object selectedItem = spnRoute.getSelectedItem();
     if (selectedItem == null) {
       return null;
-    } else if (selectedItem.toString().equals("Military")) {
+    } else if (selectedItem.toString().equals(IDmeCommonScope.MILITARY.getScopeId())) {
       return IDmeCommonScope.MILITARY;
-    } else if (selectedItem.toString().equals("Student")) {
+    } else if (selectedItem.toString().equals(IDmeCommonScope.STUDENT.getScopeId())) {
       return IDmeCommonScope.STUDENT;
-    } else if (selectedItem.toString().equals("Teacher")) {
+    } else if (selectedItem.toString().equals(IDmeCommonScope.TEACHER.getScopeId())) {
       return IDmeCommonScope.TEACHER;
-    } else if (selectedItem.toString().equals("First Responder")) {
+    } else if (selectedItem.toString().equals(IDmeCommonScope.FIRST_RESPONDER.getScopeId())) {
       return IDmeCommonScope.FIRST_RESPONDER;
-    } else if (selectedItem.toString().equals("Government")) {
+    } else if (selectedItem.toString().equals(IDmeCommonScope.GOVERNMENT.getScopeId())) {
       return IDmeCommonScope.GOVERNMENT;
     }
     return null;
