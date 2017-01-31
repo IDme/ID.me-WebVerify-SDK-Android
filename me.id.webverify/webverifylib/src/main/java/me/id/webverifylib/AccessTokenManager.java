@@ -55,6 +55,7 @@ final class AccessTokenManager {
 
   void deleteToken(IDmeScope scope) {
     waitForTokenLoad();
+    tokens.remove(scope.getScopeId());
     preferences.edit()
         .remove(scope.getScopeId())
         .apply();
@@ -62,6 +63,7 @@ final class AccessTokenManager {
 
   void deleteSession() {
     waitForTokenLoad();
+    tokens.clear();
     preferences.edit()
         .clear()
         .apply();
