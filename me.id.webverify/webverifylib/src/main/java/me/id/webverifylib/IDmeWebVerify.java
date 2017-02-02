@@ -3,24 +3,14 @@ package me.id.webverifylib;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.util.Log;
 
-import org.json.JSONException;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Calendar;
 import java.util.Locale;
 
 public final class IDmeWebVerify {
-  private static final String ACCESS_TOKEN_KEY = "access_token";
-  private static final String EXPIRE_TOKEN_KEY = "expires_in";
+  private static final String CLIENT_ID_KEY = "clientID";
+  private static final String REDIRECT_URI_KEY = "redirectURI";
+  private static final String RESPONSE_TYPE_KEY = "responseType";
+  private static final String SCOPE_TYPE_KEY = "scopeType";
   private static final String USER_TOKEN_KEY = "user_token";
 
   private static String idMeWebVerifyGetAuthUri;
@@ -31,8 +21,11 @@ public final class IDmeWebVerify {
   private static String redirectURI = "";
   private static boolean initialized;
   private IDmeGetAccessTokenListener loginGetAccessTokenListener = null;
+  private IDmeRegisterAffiliationListener registerAffiliationListener = null;
 
   private static final IDmeWebVerify INSTANCE = new IDmeWebVerify();
+
+  private IDmePageFinishedListener pageFinishedListener;
 
   /**
    * This method needs to be called before IDmeWebVerify can be used.
@@ -86,11 +79,10 @@ public final class IDmeWebVerify {
    */
   public void login(Activity activity, IDmeScope scope, IDmeGetAccessTokenListener listener) {
     checkInitialization();
-    Intent intent = new Intent(activity, WebViewActivity.class);
-    if (loginGetAccessTokenListener != null) {
-      throw new IllegalStateException("The activity is already initialized");
-    }
+    checkPendingRequest();
 
+    Intent intent = new Intent(activity, WebViewActivity.class);
+    pageFinishedListener = new AuthenticationFinishedListener(this, redirectURI);
     loginGetAccessTokenListener = listener;
     String url = createURL(scope);
     intent.putExtra(WebViewActivity.EXTRA_URL, url);
@@ -159,44 +151,71 @@ public final class IDmeWebVerify {
   }
 
   /**
-   * Creates the url to be loaded in the webView
    *
-   * @return URl with redirect uri, client id and scope
+   * @param scope
+   * @param affiliationType
+   * @param listener
    */
-  private String createURL(IDmeScope scope) {
-    String url = idMeWebVerifyGetAuthUri;
-    url = url.replace("scopeType", scope.getScopeId());
-    url = url.replace("redirectURI", redirectURI);
-    url = url.replace("clientID", clientID);
-    return url;
-  }
+  public void registerAffiliation(Activity activity, IDmeScope scope, IDmeAffiliationType affiliationType, IDmeRegisterAffiliationListener listener) {
+    checkInitialization();
+    checkPendingRequest();
 
-  /**
-   * Checks if the URL has a correct AccessToken and saves it if it is right
-   *
-   * @return if the access token was saved correctly
-   */
-  boolean validateAndSaveAccessToken(String url, IDmeScope scope) {
-    if (hasAccessToken(url)) {
-      AuthToken authToken = extractAccessToken(url);
-      accessTokenManager.addToken(scope, authToken);
-      return true;
+    Intent intent = new Intent(activity, WebViewActivity.class);
+    pageFinishedListener = new RegisterAffiliationFinishedListener(this, redirectURI);
+    AuthToken token = accessTokenManager.getToken(scope);
+    if (token == null) {
+      String message = String.format(Locale.US, "There is not an access token related to the %s scope", scope);
+      listener.onError(new IllegalStateException(message));
+    } else if (token.isValidToken()) {
+      registerAffiliationListener = listener;
+      String requestUrl = createRegisterAffiliationUrl(affiliationType, scope, token.getAccessToken());
+      intent.putExtra(WebViewActivity.EXTRA_URL, requestUrl);
+      intent.putExtra(WebViewActivity.EXTRA_SCOPE_ID, scope.getScopeId());
+      activity.startActivity(intent);
     } else {
-      return false;
+      listener.onError(new IllegalStateException("The access token is expired"));
     }
   }
 
-  boolean hasAccessToken(String url) {
-    return url.contains(ACCESS_TOKEN_KEY);
+  IDmePageFinishedListener getPageFinishedListener() {
+    return pageFinishedListener;
+  }
+
+  /**
+   * Persists the access token for the given scope
+   * @param scope
+   * @param token
+   */
+  void saveAccessToken(IDmeScope scope, AuthToken token) {
+    accessTokenManager.addToken(scope, token);
   }
 
   /**
    * Sends access token to the login listener
    */
-  void notifyAccessToken(IDmeScope scope) {
-    AuthToken token = accessTokenManager.getToken(scope);
+  void notifyAccessToken(IDmeScope scope, AuthToken token) {
     if (loginGetAccessTokenListener != null) {
       loginGetAccessTokenListener.onSuccess(token == null ? null : token.getAccessToken());
+    }
+  }
+
+  /**
+   * Sends data to the register affiliation listener
+   */
+  void notifyAffiliationRegistration() {
+    if (registerAffiliationListener != null) {
+      registerAffiliationListener.onSuccess();
+    }
+  }
+
+  /**
+   * Notifies to any of the available listener about the given error
+   */
+  void notifyFailure(Throwable throwable) {
+    if (loginGetAccessTokenListener!= null) {
+      loginGetAccessTokenListener.onError(throwable);
+    } else if (registerAffiliationListener != null) {
+      registerAffiliationListener.onError(throwable);
     }
   }
 
@@ -204,7 +223,23 @@ public final class IDmeWebVerify {
    * Removes the signIn listener
    */
   void clearSignInListener() {
+    pageFinishedListener = null;
     loginGetAccessTokenListener = null;
+    registerAffiliationListener = null;
+  }
+
+  /**
+   * Creates the url to be loaded in the webView
+   *
+   * @return URl with redirect uri, client id and scope
+   */
+  private String createURL(IDmeScope scope) {
+    String url = idMeWebVerifyGetAuthUri;
+    url = url.replace(CLIENT_ID_KEY, clientID);
+    url = url.replace(REDIRECT_URI_KEY, redirectURI);
+    url = url.replace(RESPONSE_TYPE_KEY, "token");
+    url = url.replace(SCOPE_TYPE_KEY, scope.getScopeId());
+    return url;
   }
 
   /**
@@ -219,99 +254,22 @@ public final class IDmeWebVerify {
   }
 
   /**
-   * Extracts Access Token from URL
+   * Creates the URL for adding a new affiliation type
    *
-   * @param url URL that contains access token
+   * @return URL with proper formatted request
    */
-  private AuthToken extractAccessToken(String url) {
-    // the service url does not respect the rfc3986, the query parameters start with "#" and it should start with "?"
-    // https://tools.ietf.org/html/rfc3986
-    Uri uri = Uri.parse(url.replace("#", "?"));
-    AuthToken authToken = new AuthToken();
-    authToken.setAccessToken(uri.getQueryParameter(ACCESS_TOKEN_KEY));
-    try {
-      Integer expirationTimeInSeconds = Integer.valueOf(uri.getQueryParameter(EXPIRE_TOKEN_KEY));
-      Calendar calendar = Calendar.getInstance();
-      calendar.add(Calendar.SECOND, expirationTimeInSeconds);
-      authToken.setExpiration(calendar);
-    } catch (NumberFormatException ex) {
-      ex.printStackTrace();
-    }
-    return authToken;
+  private String createRegisterAffiliationUrl(IDmeAffiliationType affiliationType, IDmeScope scope, String accessToken) {
+    String url = idMeWebVerifyGetAuthUri;
+    url = url.replace(CLIENT_ID_KEY, clientID);
+    url = url.replace(REDIRECT_URI_KEY, redirectURI);
+    url = url.replace(RESPONSE_TYPE_KEY, "token");
+    url = url.replace(SCOPE_TYPE_KEY, affiliationType.getKey());
+    return url;
   }
 
-  /**
-   * This converts the InputStream to a String
-   *
-   * @param inputStream from the Web Request
-   * @return the converted string
-   */
-  private static String readStream(InputStream inputStream) throws IOException {
-    BufferedReader reader = null;
-    StringBuilder response = new StringBuilder();
-    try {
-      reader = new BufferedReader(new InputStreamReader(inputStream));
-      String line;
-      while ((line = reader.readLine()) != null) {
-        response.append(line);
-      }
-    } finally {
-      if (reader != null) {
-        try {
-          reader.close();
-        } catch (IOException exception) {
-          Log.e("Read stream error", exception.getMessage());
-        }
-      }
-    }
-    return response.toString();
-  }
-
-  private static final class GetProfileConnectionTask extends AsyncTask<String, Void, String> {
-    private IDmeGetProfileListener listener;
-    private boolean returnedError;
-
-    GetProfileConnectionTask(IDmeGetProfileListener listener) {
-      this.listener = listener;
-    }
-
-    @Override
-    protected String doInBackground(String... urls) {
-      HttpURLConnection urlConnection = null;
-      URL urlRequest;
-      try {
-        urlRequest = new URL(urls[0]);
-        urlConnection = (HttpURLConnection) urlRequest.openConnection();
-
-        int responseCode = urlConnection.getResponseCode();
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-          return readStream(urlConnection.getInputStream());
-        }
-      } catch (IOException exception) {
-        returnedError = true;
-        listener.onError(exception);
-      } finally {
-        if (urlConnection != null) {
-          urlConnection.disconnect();
-        }
-      }
-      return null;
-    }
-
-    @Override
-    protected void onPostExecute(String result) {
-      if (returnedError) {
-        return;
-      }
-      if (result == null) {
-        listener.onError(new IllegalStateException("Profile error"));
-      } else {
-        try {
-          listener.onSuccess(new IDmeProfile(result));
-        } catch (JSONException e) {
-          listener.onError(e);
-        }
-      }
+  private void checkPendingRequest() {
+    if (loginGetAccessTokenListener != null || registerAffiliationListener != null) {
+      throw new IllegalStateException("The activity is already initialized");
     }
   }
 }

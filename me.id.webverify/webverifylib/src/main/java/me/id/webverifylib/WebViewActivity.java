@@ -5,7 +5,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -15,7 +14,6 @@ public class WebViewActivity extends AppCompatActivity {
   public static final String EXTRA_URL = "Url";
 
   private WebView webView;
-  private Toolbar toolbar;
 
   @Override
   @SuppressLint("SetJavaScriptEnabled")
@@ -26,11 +24,8 @@ public class WebViewActivity extends AppCompatActivity {
     IDmeScope scope = getScopeFromKey(getIntent().getStringExtra(EXTRA_SCOPE_ID));
     String url = getIntent().getStringExtra(EXTRA_URL);
 
-    toolbar = (Toolbar) findViewById(R.id.toolbar);
-    setSupportActionBar(toolbar);
-
     webView = (WebView) findViewById(R.id.webView);
-    webView.setWebViewClient(new IDmeWebViewClient(scope));
+    webView.setWebViewClient(new IDmeWebViewClient(scope, IDmeWebVerify.getInstance().getPageFinishedListener()));
     webView.loadUrl(url);
     webView.getSettings().setJavaScriptEnabled(true);
   }
@@ -67,6 +62,7 @@ public class WebViewActivity extends AppCompatActivity {
   @Override
   public void onBackPressed() {
     if (webView.canGoBack()) {
+      IDmeWebVerify.getInstance().notifyFailure(new Exception("Canceled by the user"));
       webView.goBack();
     } else {
       super.onBackPressed();
@@ -75,23 +71,25 @@ public class WebViewActivity extends AppCompatActivity {
 
   private class IDmeWebViewClient extends WebViewClient {
     private final IDmeScope scope;
+    private final IDmePageFinishedListener listener;
 
-    IDmeWebViewClient(IDmeScope scope) {
+    IDmeWebViewClient(IDmeScope scope, IDmePageFinishedListener listener) {
       this.scope = scope;
+      this.listener = listener;
     }
 
     @Override
     public void onPageFinished(WebView view, final String url) {
-      if (IDmeWebVerify.getInstance().validateAndSaveAccessToken(url, scope)) {
-        IDmeWebVerify.getInstance().notifyAccessToken(scope);
+      if (listener.isCallbackUrl(url)) {
+        listener.onCallbackResponse(url, scope);
         finish();
       }
     }
 
     @Override
     @SuppressWarnings("deprecation")
-    public boolean shouldOverrideUrlLoading(WebView view, String url){
-      return IDmeWebVerify.getInstance().hasAccessToken(url);
+    public boolean shouldOverrideUrlLoading(WebView view, String url) {
+      return listener.isCallbackUrl(url);
     }
   }
 }
