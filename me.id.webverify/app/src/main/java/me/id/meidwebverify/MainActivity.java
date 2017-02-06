@@ -1,12 +1,9 @@
 package me.id.meidwebverify;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -15,7 +12,6 @@ import android.widget.Toast;
 import java.util.Locale;
 
 import me.id.webverifylib.IDmeAffiliationType;
-import me.id.webverifylib.IDmeCommonScope;
 import me.id.webverifylib.IDmeGetAccessTokenListener;
 import me.id.webverifylib.IDmeGetProfileListener;
 import me.id.webverifylib.IDmeProfile;
@@ -60,11 +56,11 @@ public class MainActivity extends ActionBarActivity {
    * Method that starts de authentication process
    */
   public void login() {
-    IDmeWebVerify.getInstance().login(this, IDmeCommonScope.WALLET, new IDmeGetAccessTokenListener() {
+    IDmeWebVerify.getInstance().login(this, Scope.getInstance(), new IDmeGetAccessTokenListener() {
       @Override
       public void onSuccess(String accessToken) {
         if (returnProperties) {
-          showUserProfileInformation(IDmeCommonScope.WALLET);
+          showUserProfileInformation(Scope.getInstance());
         } else {
           showResponse(accessToken);
         }
@@ -90,10 +86,10 @@ public class MainActivity extends ActionBarActivity {
       showError(new IllegalStateException("Affiliation Type is required"));
       return;
     }
-    IDmeWebVerify.getInstance().registerAffiliation(this, IDmeCommonScope.WALLET, affiliationType, new IDmeRegisterAffiliationListener() {
+    IDmeWebVerify.getInstance().registerAffiliation(this, Scope.getInstance(), affiliationType, new IDmeRegisterAffiliationListener() {
       @Override
       public void onSuccess() {
-        Toast.makeText(MainActivity.this, "Affiliation " + affiliationType + " was correctly added", Toast.LENGTH_LONG).show();
+        Toast.makeText(MainActivity.this, String.format("Affiliation %s was correctly added.", affiliationType.getKey()), Toast.LENGTH_LONG).show();
       }
 
       @Override

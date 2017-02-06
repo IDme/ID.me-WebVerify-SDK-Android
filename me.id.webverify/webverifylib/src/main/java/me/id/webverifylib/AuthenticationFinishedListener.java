@@ -3,7 +3,6 @@ package me.id.webverifylib;
 /**
  * Created by remer on 3/2/17.
  */
-
 final class AuthenticationFinishedListener extends PageFinishedListener{
   AuthenticationFinishedListener(IDmeWebVerify webVerify, String redirectUrl) {
     super(webVerify, redirectUrl);
@@ -13,9 +12,10 @@ final class AuthenticationFinishedListener extends PageFinishedListener{
   public void onCallbackResponse(String responseUrl, IDmeScope scope) {
     super.onCallbackResponse(responseUrl, scope);
     if (getToken() == null) {
-      getWebVerify().notifyAccessToken(scope, getToken());
+      String error = errorFromResponseUrl(responseUrl);
+      getWebVerify().notifyFailure(new IllegalStateException(error == null ? "Failed to parse server response. Invalid format received." : error));
     } else {
-      getWebVerify().notifyFailure(new Exception("Failed to parse server response. Invalid format received."));
+      getWebVerify().notifyAccessToken(getToken());
     }
   }
 }

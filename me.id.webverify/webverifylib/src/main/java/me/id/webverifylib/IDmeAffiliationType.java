@@ -1,9 +1,7 @@
 package me.id.webverifylib;
 
-import android.support.annotation.StringRes;
-
 /**
- * *
+ * The type of supported affiliations
  */
 public enum IDmeAffiliationType {
   GOVERNMENT("government"),

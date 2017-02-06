@@ -1,6 +1,7 @@
 package me.id.webverifylib;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.net.MalformedURLException;
@@ -28,12 +29,28 @@ abstract class PageFinishedListener implements IDmePageFinishedListener {
     return redirectURI;
   }
 
-  public AuthToken getToken() {
+  AuthToken getToken() {
     return token;
   }
 
-  public IDmeWebVerify getWebVerify() {
+  IDmeWebVerify getWebVerify() {
     return webVerify;
+  }
+
+  @Nullable
+  String errorFromResponseUrl(@Nullable String url) {
+    if (url == null || url.isEmpty()) {
+      return null;
+    }
+
+    Uri uri = Uri.parse(fixUrl(url));
+    String error = uri.getQueryParameter("error_description");
+
+    if (error == null) {
+      return null;
+    } else {
+      return error;
+    }
   }
 
   @Override
@@ -68,7 +85,6 @@ abstract class PageFinishedListener implements IDmePageFinishedListener {
     }
   }
 
-
   private boolean hasAccessToken(String url) {
     return url.contains(ACCESS_TOKEN_KEY);
   }
@@ -79,9 +95,7 @@ abstract class PageFinishedListener implements IDmePageFinishedListener {
    * @param url URL that contains access token
    */
   private AuthToken extractAccessToken(String url) {
-    // the service url does not respect the rfc3986, the query parameters start with "#" and it should start with "?"
-    // https://tools.ietf.org/html/rfc3986
-    Uri uri = Uri.parse(url.replace("#", "?"));
+    Uri uri = Uri.parse(fixUrl(url));
     AuthToken authToken = new AuthToken();
     authToken.setAccessToken(uri.getQueryParameter(ACCESS_TOKEN_KEY));
     try {
@@ -93,5 +107,11 @@ abstract class PageFinishedListener implements IDmePageFinishedListener {
       ex.printStackTrace();
     }
     return authToken;
+  }
+
+  private String fixUrl(String url) {
+    // the service url does not respect the rfc3986, the query parameters start with "#" and it should start with "?"
+    // https://tools.ietf.org/html/rfc3986
+    return url.replace("#", "?");
   }
 }

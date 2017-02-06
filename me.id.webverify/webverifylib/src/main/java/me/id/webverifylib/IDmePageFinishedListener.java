@@ -3,7 +3,6 @@ package me.id.webverifylib;
 /**
  * Created by remer on 3/2/17.
  */
-
 interface IDmePageFinishedListener {
   /**
    * Check if the given URL match with the redirect uri passed to the original request

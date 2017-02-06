@@ -1,6 +1,7 @@
 package me.id.webverifylib;
 
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -15,12 +16,12 @@ import java.net.URL;
 /**
  * Created by remer on 3/2/17.
  */
-
 final class GetProfileConnectionTask extends AsyncTask<String, Void, String> {
-  private IDmeGetProfileListener listener;
+  @NonNull
+  private final IDmeGetProfileListener listener;
   private boolean returnedError;
 
-  GetProfileConnectionTask(IDmeGetProfileListener listener) {
+  GetProfileConnectionTask(@NonNull IDmeGetProfileListener listener) {
     this.listener = listener;
   }
 

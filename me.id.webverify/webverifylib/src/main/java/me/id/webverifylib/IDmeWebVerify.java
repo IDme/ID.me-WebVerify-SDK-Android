@@ -3,6 +3,7 @@ package me.id.webverifylib;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 
 import java.util.Locale;
 
@@ -77,16 +78,17 @@ public final class IDmeWebVerify {
    * @param scope    The type of group verification.
    * @param listener The listener that will be called when the login process is finished.
    */
-  public void login(Activity activity, IDmeScope scope, IDmeGetAccessTokenListener listener) {
+  public void login(@NonNull Activity activity, @NonNull IDmeScope scope, @NonNull IDmeGetAccessTokenListener listener) {
     checkInitialization();
     checkPendingRequest();
 
-    Intent intent = new Intent(activity, WebViewActivity.class);
     pageFinishedListener = new AuthenticationFinishedListener(this, redirectURI);
     loginGetAccessTokenListener = listener;
     String url = createURL(scope);
-    intent.putExtra(WebViewActivity.EXTRA_URL, url);
-    intent.putExtra(WebViewActivity.EXTRA_SCOPE_ID, scope.getScopeId());
+
+    Intent intent = new Intent(activity, WebViewActivity.class)
+        .putExtra(WebViewActivity.EXTRA_URL, url)
+        .putExtra(WebViewActivity.EXTRA_SCOPE_ID, scope.getScopeId());
     activity.startActivity(intent);
   }
 
@@ -96,7 +98,8 @@ public final class IDmeWebVerify {
    * @param scope    The type of group verification.
    * @param listener The listener that will be called when the get access token process finished.
    */
-  public void getAccessToken(IDmeScope scope, IDmeGetAccessTokenListener listener) {
+  @SuppressWarnings("unused")
+  public void getAccessToken(@NonNull IDmeScope scope, @NonNull IDmeGetAccessTokenListener listener) {
     checkInitialization();
     AuthToken token = accessTokenManager.getToken(scope);
     if (token == null || !token.isValidToken()) {
@@ -113,7 +116,8 @@ public final class IDmeWebVerify {
    * @param forceReload Force to reload the access token.
    * @param listener    The listener that will be called when the get access token process finished.
    */
-  public void getAccessToken(IDmeScope scope, boolean forceReload, IDmeGetAccessTokenListener listener) {
+  @SuppressWarnings("unused")
+  public void getAccessToken(@NonNull IDmeScope scope, boolean forceReload, @NonNull IDmeGetAccessTokenListener listener) {
     throw new UnsupportedOperationException();
   }
 
@@ -123,7 +127,7 @@ public final class IDmeWebVerify {
    * @param scope    The type of group verification.
    * @param listener The listener that will be called when the get user profile process finished.
    */
-  public void getUserProfile(IDmeScope scope, IDmeGetProfileListener listener) {
+  public void getUserProfile(@NonNull IDmeScope scope, @NonNull IDmeGetProfileListener listener) {
     AuthToken token = accessTokenManager.getToken(scope);
     if (token == null) {
       String message = String.format(Locale.US, "There is not an access token related to the %s scope", scope);
@@ -137,6 +141,7 @@ public final class IDmeWebVerify {
   }
 
   /** Deletes all session information */
+  @SuppressWarnings("unused")
   public void logOut() {
     accessTokenManager.deleteSession();
   }
@@ -146,21 +151,25 @@ public final class IDmeWebVerify {
    *
    * @param scope The type of group verification.
    */
-  public void logOut(IDmeScope scope) {
+  @SuppressWarnings("unused")
+  public void logOut(@NonNull IDmeScope scope) {
     accessTokenManager.deleteToken(scope);
   }
 
   /**
    *
-   * @param scope
-   * @param affiliationType
-   * @param listener
+   * @param activity        Which will be used to start the login activity.
+   * @param scope           The type of group verification.
+   * @param affiliationType The affiliation that will be registered.
+   * @param listener        The listener that will be called when the registration process finished.
    */
-  public void registerAffiliation(Activity activity, IDmeScope scope, IDmeAffiliationType affiliationType, IDmeRegisterAffiliationListener listener) {
+  public void registerAffiliation(@NonNull Activity activity,
+                                  @NonNull IDmeScope scope,
+                                  IDmeAffiliationType affiliationType,
+                                  @NonNull IDmeRegisterAffiliationListener listener) {
     checkInitialization();
     checkPendingRequest();
 
-    Intent intent = new Intent(activity, WebViewActivity.class);
     pageFinishedListener = new RegisterAffiliationFinishedListener(this, redirectURI);
     AuthToken token = accessTokenManager.getToken(scope);
     if (token == null) {
@@ -168,9 +177,11 @@ public final class IDmeWebVerify {
       listener.onError(new IllegalStateException(message));
     } else if (token.isValidToken()) {
       registerAffiliationListener = listener;
-      String requestUrl = createRegisterAffiliationUrl(affiliationType, scope, token.getAccessToken());
-      intent.putExtra(WebViewActivity.EXTRA_URL, requestUrl);
-      intent.putExtra(WebViewActivity.EXTRA_SCOPE_ID, scope.getScopeId());
+      String requestUrl = createRegisterAffiliationUrl(affiliationType);
+
+      Intent intent = new Intent(activity, WebViewActivity.class)
+          .putExtra(WebViewActivity.EXTRA_URL, requestUrl)
+          .putExtra(WebViewActivity.EXTRA_SCOPE_ID, scope.getScopeId());
       activity.startActivity(intent);
     } else {
       listener.onError(new IllegalStateException("The access token is expired"));
@@ -183,8 +194,8 @@ public final class IDmeWebVerify {
 
   /**
    * Persists the access token for the given scope
-   * @param scope
-   * @param token
+   * @param scope The type of group verification.
+   * @param token The auth token for the given scope.
    */
   void saveAccessToken(IDmeScope scope, AuthToken token) {
     accessTokenManager.addToken(scope, token);
@@ -193,7 +204,7 @@ public final class IDmeWebVerify {
   /**
    * Sends access token to the login listener
    */
-  void notifyAccessToken(IDmeScope scope, AuthToken token) {
+  void notifyAccessToken(AuthToken token) {
     if (loginGetAccessTokenListener != null) {
       loginGetAccessTokenListener.onSuccess(token == null ? null : token.getAccessToken());
     }
@@ -212,7 +223,7 @@ public final class IDmeWebVerify {
    * Notifies to any of the available listener about the given error
    */
   void notifyFailure(Throwable throwable) {
-    if (loginGetAccessTokenListener!= null) {
+    if (loginGetAccessTokenListener != null) {
       loginGetAccessTokenListener.onError(throwable);
     } else if (registerAffiliationListener != null) {
       registerAffiliationListener.onError(throwable);
@@ -234,12 +245,11 @@ public final class IDmeWebVerify {
    * @return URl with redirect uri, client id and scope
    */
   private String createURL(IDmeScope scope) {
-    String url = idMeWebVerifyGetAuthUri;
-    url = url.replace(CLIENT_ID_KEY, clientID);
-    url = url.replace(REDIRECT_URI_KEY, redirectURI);
-    url = url.replace(RESPONSE_TYPE_KEY, "token");
-    url = url.replace(SCOPE_TYPE_KEY, scope.getScopeId());
-    return url;
+    return idMeWebVerifyGetAuthUri
+        .replace(CLIENT_ID_KEY, clientID)
+        .replace(REDIRECT_URI_KEY, redirectURI)
+        .replace(RESPONSE_TYPE_KEY, "token")
+        .replace(SCOPE_TYPE_KEY, scope.getScopeId());
   }
 
   /**
@@ -248,9 +258,8 @@ public final class IDmeWebVerify {
    * @return URL with proper formatted request
    */
   private String createRequestUrl(String accessToken) {
-    String url = idMeWebVerifyGetUserProfile;
-    url = url.replace(USER_TOKEN_KEY, accessToken);
-    return url;
+    return idMeWebVerifyGetUserProfile
+        .replace(USER_TOKEN_KEY, accessToken);
   }
 
   /**
@@ -258,13 +267,12 @@ public final class IDmeWebVerify {
    *
    * @return URL with proper formatted request
    */
-  private String createRegisterAffiliationUrl(IDmeAffiliationType affiliationType, IDmeScope scope, String accessToken) {
-    String url = idMeWebVerifyGetAuthUri;
-    url = url.replace(CLIENT_ID_KEY, clientID);
-    url = url.replace(REDIRECT_URI_KEY, redirectURI);
-    url = url.replace(RESPONSE_TYPE_KEY, "token");
-    url = url.replace(SCOPE_TYPE_KEY, affiliationType.getKey());
-    return url;
+  private String createRegisterAffiliationUrl(IDmeAffiliationType affiliationType) {
+    return idMeWebVerifyGetAuthUri
+        .replace(CLIENT_ID_KEY, clientID)
+        .replace(REDIRECT_URI_KEY, redirectURI)
+        .replace(RESPONSE_TYPE_KEY, "token")
+        .replace(SCOPE_TYPE_KEY, affiliationType.getKey());
   }
 
   private void checkPendingRequest() {
