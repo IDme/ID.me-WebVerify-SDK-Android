@@ -7,18 +7,14 @@ import me.id.webverifylib.IDmeScope;
 /**
  * Created by remer on 6/2/17.
  */
-
-class Scope implements IDmeScope {
-  private static final Scope instance = new Scope("<your_app_scope>");
+enum Scope implements IDmeScope {
+  DEFAULT("<YOUR_APP_SCOPE>"),
+  ;
 
   private final String scopeId;
 
-  private Scope(String scopeId) {
+  Scope(String scopeId) {
     this.scopeId = scopeId;
-  }
-
-  static Scope getInstance() {
-    return instance;
   }
 
   @NonNull

@@ -56,11 +56,11 @@ public class MainActivity extends ActionBarActivity {
    * Method that starts de authentication process
    */
   public void login() {
-    IDmeWebVerify.getInstance().login(this, Scope.getInstance(), new IDmeGetAccessTokenListener() {
+    IDmeWebVerify.getInstance().login(this, Scope.DEFAULT, new IDmeGetAccessTokenListener() {
       @Override
       public void onSuccess(String accessToken) {
         if (returnProperties) {
-          showUserProfileInformation(Scope.getInstance());
+          showUserProfileInformation(Scope.DEFAULT);
         } else {
           showResponse(accessToken);
         }
@@ -86,7 +86,7 @@ public class MainActivity extends ActionBarActivity {
       showError(new IllegalStateException("Affiliation Type is required"));
       return;
     }
-    IDmeWebVerify.getInstance().registerAffiliation(this, Scope.getInstance(), affiliationType, new IDmeRegisterAffiliationListener() {
+    IDmeWebVerify.getInstance().registerAffiliation(this, Scope.DEFAULT, affiliationType, new IDmeRegisterAffiliationListener() {
       @Override
       public void onSuccess() {
         Toast.makeText(MainActivity.this, String.format("Affiliation %s was correctly added.", affiliationType.getKey()), Toast.LENGTH_LONG).show();

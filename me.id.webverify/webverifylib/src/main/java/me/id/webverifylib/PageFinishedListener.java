@@ -1,6 +1,7 @@
 package me.id.webverifylib;
 
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
@@ -44,13 +45,7 @@ abstract class PageFinishedListener implements IDmePageFinishedListener {
     }
 
     Uri uri = Uri.parse(fixUrl(url));
-    String error = uri.getQueryParameter("error_description");
-
-    if (error == null) {
-      return null;
-    } else {
-      return error;
-    }
+    return uri.getQueryParameter("error_description");
   }
 
   @Override
@@ -79,14 +74,10 @@ abstract class PageFinishedListener implements IDmePageFinishedListener {
 
   @Override
   public void onCallbackResponse(String responseUrl, IDmeScope scope) {
-    if (hasAccessToken(responseUrl)) {
-      token = extractAccessToken(responseUrl);
+    token = extractAccessToken(responseUrl);
+    if (token != null) {
       getWebVerify().saveAccessToken(scope, token);
     }
-  }
-
-  private boolean hasAccessToken(String url) {
-    return url.contains(ACCESS_TOKEN_KEY);
   }
 
   /**
@@ -94,7 +85,12 @@ abstract class PageFinishedListener implements IDmePageFinishedListener {
    *
    * @param url URL that contains access token
    */
-  private AuthToken extractAccessToken(String url) {
+  @Nullable
+  private AuthToken extractAccessToken(@NonNull String url) {
+    if (!url.contains(ACCESS_TOKEN_KEY)) {
+      return null;
+    }
+
     Uri uri = Uri.parse(fixUrl(url));
     AuthToken authToken = new AuthToken();
     authToken.setAccessToken(uri.getQueryParameter(ACCESS_TOKEN_KEY));
@@ -109,7 +105,8 @@ abstract class PageFinishedListener implements IDmePageFinishedListener {
     return authToken;
   }
 
-  private String fixUrl(String url) {
+  @NonNull
+  private String fixUrl(@NonNull String url) {
     // the service url does not respect the rfc3986, the query parameters start with "#" and it should start with "?"
     // https://tools.ietf.org/html/rfc3986
     return url.replace("#", "?");
