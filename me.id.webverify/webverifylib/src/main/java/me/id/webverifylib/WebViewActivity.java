@@ -62,9 +62,9 @@ public class WebViewActivity extends AppCompatActivity {
   @Override
   public void onBackPressed() {
     if (webView.canGoBack()) {
-      IDmeWebVerify.getInstance().notifyFailure(new Exception("Canceled by the user"));
       webView.goBack();
     } else {
+      IDmeWebVerify.getInstance().notifyFailure(new RuntimeException("Canceled by the user"));
       super.onBackPressed();
     }
   }
