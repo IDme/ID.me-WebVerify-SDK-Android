@@ -12,10 +12,12 @@ import android.widget.Toast;
 import java.util.Locale;
 
 import me.id.webverifylib.IDmeAffiliationType;
+import me.id.webverifylib.IDmeConnectionType;
 import me.id.webverifylib.IDmeGetAccessTokenListener;
 import me.id.webverifylib.IDmeGetProfileListener;
 import me.id.webverifylib.IDmeProfile;
 import me.id.webverifylib.IDmeRegisterAffiliationListener;
+import me.id.webverifylib.IDmeRegisterConnectionListener;
 import me.id.webverifylib.IDmeScope;
 import me.id.webverifylib.IDmeWebVerify;
 
@@ -35,14 +37,6 @@ public class MainActivity extends ActionBarActivity {
 
     txtResult = (TextView) findViewById(R.id.txtResult);
 
-    Button btnVerify = (Button) findViewById(R.id.btnVerify);
-    btnVerify.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        verify();
-      }
-    });
-
     Button btnLogin = (Button) findViewById(R.id.btnLogin);
     btnLogin.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -50,12 +44,31 @@ public class MainActivity extends ActionBarActivity {
         login();
       }
     });
+
+    Button btnAddAffiliation = (Button) findViewById(R.id.btnAddAffiliation);
+    btnAddAffiliation.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        addAffiliation();
+      }
+    });
+
+    Button btnAddConnection = (Button) findViewById(R.id.btnAddConnection);
+    btnAddConnection.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        addConnection();
+      }
+    });
   }
 
   /**
    * Method that starts de authentication process
    */
-  public void login() {
+  void login() {
+    Spinner propRoute = (Spinner) findViewById(R.id.spnProperties);
+    returnProperties = propRoute.getSelectedItem().toString().equals("Yes");
+
     IDmeWebVerify.getInstance().login(this, Scope.DEFAULT, new IDmeGetAccessTokenListener() {
       @Override
       public void onSuccess(String accessToken) {
@@ -76,11 +89,7 @@ public class MainActivity extends ActionBarActivity {
   /**
    * Method that starts the process of adding a new Affiliation type
    */
-  public void verify() {
-    Spinner propRoute = (Spinner) findViewById(R.id.spnProperties);
-
-    returnProperties = propRoute.getSelectedItem().toString().equals("Yes");
-
+  void addAffiliation() {
     final IDmeAffiliationType affiliationType = getSelectedAffiliationType();
     if (affiliationType == null) {
       showError(new IllegalStateException("Affiliation Type is required"));
@@ -99,10 +108,32 @@ public class MainActivity extends ActionBarActivity {
     });
   }
 
+  /**
+   * Method that starts the process of adding a new Connection type
+   */
+  void addConnection() {
+    final IDmeConnectionType connectionType = getSelectedConnectionType();
+    if (connectionType == null) {
+      showError(new IllegalStateException("Connection Type is required"));
+      return;
+    }
+    IDmeWebVerify.getInstance().registerConnection(this, Scope.DEFAULT, connectionType, new IDmeRegisterConnectionListener() {
+      @Override
+      public void onSuccess() {
+        Toast.makeText(MainActivity.this, "Connection " + connectionType + " was correctly added", Toast.LENGTH_LONG).show();
+      }
+
+      @Override
+      public void onError(Throwable throwable) {
+        showError(throwable);
+      }
+    });
+  }
+
   @Nullable
   private IDmeAffiliationType getSelectedAffiliationType() {
-    Spinner spnRoute = (Spinner) findViewById(R.id.spnRoute);
-    Object selectedItem = spnRoute.getSelectedItem();
+    Spinner spinner = (Spinner) findViewById(R.id.spnAffiliation);
+    Object selectedItem = spinner.getSelectedItem();
 
     if (selectedItem == null) {
       return null;
@@ -123,6 +154,30 @@ public class MainActivity extends ActionBarActivity {
     return null;
   }
 
+  @Nullable
+  private IDmeConnectionType getSelectedConnectionType() {
+    Spinner spinner = (Spinner) findViewById(R.id.spnConnection);
+    Object selectedItem = spinner.getSelectedItem();
+
+    if (selectedItem == null) {
+      return null;
+    } else {
+      String selectedItemText = selectedItem.toString().toLowerCase();
+      if (selectedItemText.equals(IDmeConnectionType.DS_LOGON.getKey().toLowerCase())) {
+        return IDmeConnectionType.DS_LOGON;
+      } else if (selectedItemText.equals(IDmeConnectionType.FACEBOOK.getKey().toLowerCase())) {
+        return IDmeConnectionType.FACEBOOK;
+      } else if (selectedItemText.equals(IDmeConnectionType.GOOGLE_PLUS.getKey().toLowerCase())) {
+        return IDmeConnectionType.GOOGLE_PLUS;
+      } else if (selectedItemText.equals(IDmeConnectionType.LINEDIN.getKey().toLowerCase())) {
+        return IDmeConnectionType.LINEDIN;
+      } else if (selectedItemText.equals(IDmeConnectionType.PAYPAL.getKey().toLowerCase())) {
+        return IDmeConnectionType.PAYPAL;
+      }
+    }
+    return null;
+  }
+
   private void showError(Throwable throwable) {
     throwable.printStackTrace();
     Toast.makeText(MainActivity.this, throwable.getMessage(), Toast.LENGTH_LONG).show();
@@ -132,7 +187,7 @@ public class MainActivity extends ActionBarActivity {
     txtResult.setText(String.format(Locale.getDefault(), "Response : %s", object));
   }
 
-  public void showUserProfileInformation(IDmeScope scope) {
+  private void showUserProfileInformation(IDmeScope scope) {
     IDmeWebVerify.getInstance().getUserProfile(scope, new IDmeGetProfileListener() {
       @Override
       public void onSuccess(IDmeProfile profile) {

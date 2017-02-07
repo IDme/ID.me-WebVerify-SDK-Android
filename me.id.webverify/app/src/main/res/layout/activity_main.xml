@@ -10,62 +10,88 @@
     tools:context=".MainActivity"
     >
 
+    <LinearLayout
+        android:id="@+id/linearLayout_actions"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_alignParentBottom="true"
+        >
+
+        <Button
+            android:id="@+id/btnLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/login"
+            />
+
+        <Spinner
+            android:id="@+id/spnProperties"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawSelectorOnTop="true"
+            android:entries="@array/boolean_array"
+            android:layout_marginTop="10dp"
+            />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginTop="10dp"
+            />
+
+        <Spinner
+            android:id="@+id/spnAffiliation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawSelectorOnTop="true"
+            android:entries="@array/affiliations"
+            android:layout_marginTop="10dp"
+            />
+
+        <Button
+            android:id="@+id/btnAddAffiliation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/add_affiliation"
+            />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/darker_gray"
+            android:layout_marginTop="10dp"
+            />
+
+        <Spinner
+            android:id="@+id/spnConnection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawSelectorOnTop="true"
+            android:entries="@array/connections"
+            android:layout_marginTop="10dp"
+            />
+
+        <Button
+            android:id="@+id/btnAddConnection"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="@string/add_connection"
+            />
+
+    </LinearLayout>
+
     <TextView
         android:id="@+id/txtResult"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/result_text"
-        />
-
-    <Spinner
-        android:id="@+id/spnRoute"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:drawSelectorOnTop="true"
-        android:entries="@array/array_name"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="203dp"
-        />
-
-    <View
-        android:id="@+id/divider"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@android:color/darker_gray"
-        android:layout_alignTop="@id/spnRoute"
-        android:layout_marginTop="-10dp"
-        />
-
-    <Button
-        android:id="@+id/btnLogin"
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/divider"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="10dp"
-        android:text="@string/login"
-        />
-
-    <Spinner
-        android:id="@+id/spnProperties"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:drawSelectorOnTop="true"
-        android:entries="@array/boolean_array"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="163dp"
-        />
-
-    <Button
-        android:id="@+id/btnVerify"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/spnProperties"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="68dp"
-        android:text="@string/verify_me"
+        android:layout_alignTop="@id/linearLayout_actions"
+        android:layout_alignParentTop="true"
+        android:text="@string/result_text"
         />
 
 </RelativeLayout>
