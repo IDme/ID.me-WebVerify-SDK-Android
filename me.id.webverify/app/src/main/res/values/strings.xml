@@ -9,7 +9,7 @@
         <item>Military</item>
         <item>Student</item>
         <item>Teacher</item>
-        <item>First Responder</item>
+        <item>Responder</item>
         <item>Government</item>
     </string-array>
 
@@ -20,5 +20,6 @@
 
     <string name="title_activity_web_view">WebView</string>
     <string name="verify_me">Verify Me</string>
+    <string name="login">Login</string>
 
 </resources>

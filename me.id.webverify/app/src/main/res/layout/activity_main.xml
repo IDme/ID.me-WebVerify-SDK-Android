@@ -28,6 +28,25 @@
         android:layout_marginBottom="203dp"
         />
 
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"
+        android:layout_alignTop="@id/spnRoute"
+        android:layout_marginTop="-10dp"
+        />
+
+    <Button
+        android:id="@+id/btnLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/divider"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="10dp"
+        android:text="@string/login"
+        />
+
     <Spinner
         android:id="@+id/spnProperties"
         android:layout_width="wrap_content"
