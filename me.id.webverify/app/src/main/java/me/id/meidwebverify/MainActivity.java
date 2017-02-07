@@ -11,10 +11,11 @@ import android.widget.Toast;
 
 import java.util.Locale;
 
-import me.id.webverifylib.IDmeCommonScope;
+import me.id.webverifylib.IDmeAffiliationType;
 import me.id.webverifylib.IDmeGetAccessTokenListener;
 import me.id.webverifylib.IDmeGetProfileListener;
 import me.id.webverifylib.IDmeProfile;
+import me.id.webverifylib.IDmeRegisterAffiliationListener;
 import me.id.webverifylib.IDmeScope;
 import me.id.webverifylib.IDmeWebVerify;
 
@@ -27,10 +28,13 @@ public class MainActivity extends ActionBarActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+
+    IDmeWebVerify.initialize(this, clientID, redirectUri);
+
     setContentView(R.layout.activity_main);
 
     txtResult = (TextView) findViewById(R.id.txtResult);
-    IDmeWebVerify.initialize(this, clientID, redirectUri);
+
     Button btnVerify = (Button) findViewById(R.id.btnVerify);
     btnVerify.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -38,26 +42,25 @@ public class MainActivity extends ActionBarActivity {
         verify();
       }
     });
+
+    Button btnLogin = (Button) findViewById(R.id.btnLogin);
+    btnLogin.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        login();
+      }
+    });
   }
 
   /**
-   * Method that Starts the Verification Process.
+   * Method that starts de authentication process
    */
-  public void verify() {
-    Spinner propRoute = (Spinner) findViewById(R.id.spnProperties);
-
-    returnProperties = propRoute.getSelectedItem().toString().equals("Yes");
-
-    final IDmeScope affiliationType = getSelectedAffiliationType();
-    if (affiliationType == null) {
-      showError(new IllegalStateException("Affiliation Type is required"));
-      return;
-    }
-    IDmeWebVerify.getInstance().getAccessToken(affiliationType, new IDmeGetAccessTokenListener() {
+  public void login() {
+    IDmeWebVerify.getInstance().login(this, Scope.DEFAULT, new IDmeGetAccessTokenListener() {
       @Override
       public void onSuccess(String accessToken) {
         if (returnProperties) {
-          showUserProfileInformation(affiliationType);
+          showUserProfileInformation(Scope.DEFAULT);
         } else {
           showResponse(accessToken);
         }
@@ -70,8 +73,34 @@ public class MainActivity extends ActionBarActivity {
     });
   }
 
+  /**
+   * Method that starts the process of adding a new Affiliation type
+   */
+  public void verify() {
+    Spinner propRoute = (Spinner) findViewById(R.id.spnProperties);
+
+    returnProperties = propRoute.getSelectedItem().toString().equals("Yes");
+
+    final IDmeAffiliationType affiliationType = getSelectedAffiliationType();
+    if (affiliationType == null) {
+      showError(new IllegalStateException("Affiliation Type is required"));
+      return;
+    }
+    IDmeWebVerify.getInstance().registerAffiliation(this, Scope.DEFAULT, affiliationType, new IDmeRegisterAffiliationListener() {
+      @Override
+      public void onSuccess() {
+        Toast.makeText(MainActivity.this, String.format("Affiliation %s was correctly added.", affiliationType.getKey()), Toast.LENGTH_LONG).show();
+      }
+
+      @Override
+      public void onError(Throwable throwable) {
+        showError(throwable);
+      }
+    });
+  }
+
   @Nullable
-  private IDmeScope getSelectedAffiliationType() {
+  private IDmeAffiliationType getSelectedAffiliationType() {
     Spinner spnRoute = (Spinner) findViewById(R.id.spnRoute);
     Object selectedItem = spnRoute.getSelectedItem();
 
@@ -79,16 +108,16 @@ public class MainActivity extends ActionBarActivity {
       return null;
     } else {
       String selectedItemText = selectedItem.toString().toLowerCase();
-      if (selectedItemText.equals(IDmeCommonScope.MILITARY.getScopeId().toLowerCase())) {
-        return IDmeCommonScope.MILITARY;
-      } else if (selectedItemText.equals(IDmeCommonScope.STUDENT.getScopeId().toLowerCase())) {
-        return IDmeCommonScope.STUDENT;
-      } else if (selectedItemText.equals(IDmeCommonScope.TEACHER.getScopeId().toLowerCase())) {
-        return IDmeCommonScope.TEACHER;
-      } else if (selectedItemText.equals(IDmeCommonScope.FIRST_RESPONDER.getScopeId().toLowerCase())) {
-        return IDmeCommonScope.FIRST_RESPONDER;
-      } else if (selectedItemText.equals(IDmeCommonScope.GOVERNMENT.getScopeId().toLowerCase())) {
-        return IDmeCommonScope.GOVERNMENT;
+      if (selectedItemText.equals(IDmeAffiliationType.MILITARY.getKey().toLowerCase())) {
+        return IDmeAffiliationType.MILITARY;
+      } else if (selectedItemText.equals(IDmeAffiliationType.STUDENT.getKey().toLowerCase())) {
+        return IDmeAffiliationType.STUDENT;
+      } else if (selectedItemText.equals(IDmeAffiliationType.TEACHER.getKey().toLowerCase())) {
+        return IDmeAffiliationType.TEACHER;
+      } else if (selectedItemText.equals(IDmeAffiliationType.RESPONDER.getKey().toLowerCase())) {
+        return IDmeAffiliationType.RESPONDER;
+      } else if (selectedItemText.equals(IDmeAffiliationType.GOVERNMENT.getKey().toLowerCase())) {
+        return IDmeAffiliationType.GOVERNMENT;
       }
     }
     return null;
