@@ -5,7 +5,7 @@
     <string name="result_text">Respone:</string>
     <string name="action_settings">Settings</string>
 
-    <string-array name="array_name">
+    <string-array name="affiliations">
         <item>Military</item>
         <item>Student</item>
         <item>Teacher</item>
@@ -13,13 +13,22 @@
         <item>Government</item>
     </string-array>
 
+    <string-array name="connections">
+        <item>DSLogon</item>
+        <item>Facebook</item>
+        <item>Google</item>
+        <item>Linkedin</item>
+        <item>Paypal</item>
+    </string-array>
+
     <string-array name="boolean_array">
         <item>Yes</item>
         <item>No</item>
     </string-array>
 
+    <string name="add_affiliation">Add Affiliation</string>
+    <string name="add_connection">Add Connection</string>
     <string name="title_activity_web_view">WebView</string>
-    <string name="verify_me">Verify Me</string>
     <string name="login">Login</string>
 
 </resources>

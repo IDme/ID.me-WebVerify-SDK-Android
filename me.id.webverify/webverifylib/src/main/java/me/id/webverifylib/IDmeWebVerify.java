@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.Locale;
 
@@ -21,8 +22,10 @@ public final class IDmeWebVerify {
   private static String clientID;
   private static String redirectURI = "";
   private static boolean initialized;
+
   private IDmeGetAccessTokenListener loginGetAccessTokenListener = null;
   private IDmeRegisterAffiliationListener registerAffiliationListener = null;
+  private IDmeRegisterConnectionListener registerConnectionListener = null;
 
   private static final IDmeWebVerify INSTANCE = new IDmeWebVerify();
 
@@ -157,6 +160,7 @@ public final class IDmeWebVerify {
   }
 
   /**
+   * Starts the process of adding a new affiliation type
    *
    * @param activity        Which will be used to start the login activity.
    * @param scope           The type of group verification.
@@ -179,6 +183,33 @@ public final class IDmeWebVerify {
     pageFinishedListener = new RegisterAffiliationFinishedListener(this, redirectURI);
     registerAffiliationListener = listener;
     String requestUrl = createRegisterAffiliationUrl(affiliationType);
+    Intent intent = new Intent(activity, WebViewActivity.class)
+        .putExtra(WebViewActivity.EXTRA_URL, requestUrl)
+        .putExtra(WebViewActivity.EXTRA_SCOPE_ID, scope.getScopeId());
+    activity.startActivity(intent);
+  }
+
+  /**
+   * Starts the process of adding a new connection type
+   *
+   * @param activity        Which will be used to start the login activity.
+   * @param scope           The type of group verification.
+   * @param connectionType  The connection that will be registered.
+   * @param listener        The listener that will be called when the registration process finished.
+   */
+  public void registerConnection(Activity activity, IDmeScope scope, IDmeConnectionType connectionType, IDmeRegisterConnectionListener listener) {
+    checkInitialization();
+    checkPendingRequest();
+
+    /**
+     * FIXME: use the given scope to get a local token and include it in the request when the backend support this option.
+     * The registration process can proceed even if there is no token for the given scope. In such case the user must
+     * sign in when the web view is opened.
+     */
+
+    pageFinishedListener = new RegisterConnectionFinishedListener(this, redirectURI);
+    registerConnectionListener = listener;
+    String requestUrl = createRegisterConnectionUrl(connectionType, scope);
     Intent intent = new Intent(activity, WebViewActivity.class)
         .putExtra(WebViewActivity.EXTRA_URL, requestUrl)
         .putExtra(WebViewActivity.EXTRA_SCOPE_ID, scope.getScopeId());
@@ -216,6 +247,12 @@ public final class IDmeWebVerify {
     }
   }
 
+  void notifyConnectionRegistration() {
+    if (registerConnectionListener != null) {
+      registerConnectionListener.onSuccess();
+    }
+  }
+
   /**
    * Notifies to any of the available listener about the given error
    */
@@ -224,6 +261,8 @@ public final class IDmeWebVerify {
       loginGetAccessTokenListener.onError(throwable);
     } else if (registerAffiliationListener != null) {
       registerAffiliationListener.onError(throwable);
+    } else if (registerConnectionListener != null) {
+      registerConnectionListener.onError(throwable);
     }
   }
 
@@ -234,6 +273,7 @@ public final class IDmeWebVerify {
     pageFinishedListener = null;
     loginGetAccessTokenListener = null;
     registerAffiliationListener = null;
+    registerConnectionListener = null;
   }
 
   /**
@@ -271,6 +311,22 @@ public final class IDmeWebVerify {
         .replace(REDIRECT_URI_KEY, redirectURI)
         .replace(RESPONSE_TYPE_KEY, "token")
         .replace(SCOPE_TYPE_KEY, affiliationType.getKey());
+  }
+
+  /**
+   * Creates the URL for adding a new connection type
+   *
+   * @param connectionType the connection that should be added
+   * @param scope The type of group verification.
+   * @return URL: with proper formatted request
+   */
+  private String createRegisterConnectionUrl(IDmeConnectionType connectionType, IDmeScope scope) {
+    String url = idMeWebVerifyGetAuthUri
+        .replace(CLIENT_ID_KEY, clientID)
+        .replace(REDIRECT_URI_KEY, redirectURI)
+        .replace(RESPONSE_TYPE_KEY, "token")
+        .replace(SCOPE_TYPE_KEY, scope.getScopeId());
+    return String.format("%s&connect=%s", url, connectionType.getKey());
   }
 
   private void checkPendingRequest() {
