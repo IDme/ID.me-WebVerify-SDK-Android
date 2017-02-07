@@ -11,6 +11,11 @@ final class RegisterAffiliationFinishedListener extends PageFinishedListener {
   @Override
   public void onCallbackResponse(String responseUrl, IDmeScope scope) {
     super.onCallbackResponse(responseUrl, scope);
-    getWebVerify().notifyAffiliationRegistration();
+    String error = errorFromResponseUrl(responseUrl);
+    if (error == null) {
+      getWebVerify().notifyAffiliationRegistration();
+    } else {
+      getWebVerify().notifyFailure(new RuntimeException(error));
+    }
   }
 }

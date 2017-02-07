@@ -170,22 +170,19 @@ public final class IDmeWebVerify {
     checkInitialization();
     checkPendingRequest();
 
-    pageFinishedListener = new RegisterAffiliationFinishedListener(this, redirectURI);
-    AuthToken token = accessTokenManager.getToken(scope);
-    if (token == null) {
-      String message = String.format(Locale.US, "There is not an access token related to the %s scope", scope);
-      listener.onError(new IllegalStateException(message));
-    } else if (token.isValidToken()) {
-      registerAffiliationListener = listener;
-      String requestUrl = createRegisterAffiliationUrl(affiliationType);
+    /**
+     * FIXME: use the given scope to get a local token and include it in the request when the backend support this option.
+     * The registration process can proceed even if there is no token for the given scope. In such case the user must
+     * sign in when the web view is opened.
+     */
 
-      Intent intent = new Intent(activity, WebViewActivity.class)
-          .putExtra(WebViewActivity.EXTRA_URL, requestUrl)
-          .putExtra(WebViewActivity.EXTRA_SCOPE_ID, scope.getScopeId());
-      activity.startActivity(intent);
-    } else {
-      listener.onError(new IllegalStateException("The access token is expired"));
-    }
+    pageFinishedListener = new RegisterAffiliationFinishedListener(this, redirectURI);
+    registerAffiliationListener = listener;
+    String requestUrl = createRegisterAffiliationUrl(affiliationType);
+    Intent intent = new Intent(activity, WebViewActivity.class)
+        .putExtra(WebViewActivity.EXTRA_URL, requestUrl)
+        .putExtra(WebViewActivity.EXTRA_SCOPE_ID, scope.getScopeId());
+    activity.startActivity(intent);
   }
 
   IDmePageFinishedListener getPageFinishedListener() {
@@ -265,6 +262,7 @@ public final class IDmeWebVerify {
   /**
    * Creates the URL for adding a new affiliation type
    *
+   * @param affiliationType The affiliation type that should be registered
    * @return URL with proper formatted request
    */
   private String createRegisterAffiliationUrl(IDmeAffiliationType affiliationType) {
