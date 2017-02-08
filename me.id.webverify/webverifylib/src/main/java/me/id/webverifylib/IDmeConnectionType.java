@@ -4,7 +4,6 @@ package me.id.webverifylib;
  * Created by remer on 6/2/17.
  */
 public enum IDmeConnectionType {
-  DS_LOGON("dslogon"),
   FACEBOOK("facebook"),
   GOOGLE_PLUS("google"),
   LINEDIN("linkedin"),

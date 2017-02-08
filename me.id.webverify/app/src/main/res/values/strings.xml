@@ -14,7 +14,6 @@
     </string-array>
 
     <string-array name="connections">
-        <item>DSLogon</item>
         <item>Facebook</item>
         <item>Google</item>
         <item>Linkedin</item>
