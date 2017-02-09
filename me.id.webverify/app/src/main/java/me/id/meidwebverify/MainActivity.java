@@ -163,9 +163,7 @@ public class MainActivity extends ActionBarActivity {
       return null;
     } else {
       String selectedItemText = selectedItem.toString().toLowerCase();
-      if (selectedItemText.equals(IDmeConnectionType.DS_LOGON.getKey().toLowerCase())) {
-        return IDmeConnectionType.DS_LOGON;
-      } else if (selectedItemText.equals(IDmeConnectionType.FACEBOOK.getKey().toLowerCase())) {
+      if (selectedItemText.equals(IDmeConnectionType.FACEBOOK.getKey().toLowerCase())) {
         return IDmeConnectionType.FACEBOOK;
       } else if (selectedItemText.equals(IDmeConnectionType.GOOGLE_PLUS.getKey().toLowerCase())) {
         return IDmeConnectionType.GOOGLE_PLUS;
