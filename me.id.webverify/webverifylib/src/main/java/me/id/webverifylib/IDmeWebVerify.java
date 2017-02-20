@@ -91,7 +91,7 @@ public final class IDmeWebVerify {
    *
    * @param activity  which will be used to start the login activity
    * @param scope     The type of group verification.
-   * @param loginType The type of login.
+   * @param loginType The type of login. The default value is {@code LoginType.SIGN_IN}
    * @param listener  The listener that will be called when the login process is finished.
    */
   public void login(@NonNull Activity activity, @NonNull IDmeScope scope, @Nullable LoginType loginType,
