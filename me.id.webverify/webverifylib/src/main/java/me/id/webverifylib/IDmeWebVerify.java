@@ -87,7 +87,8 @@ public final class IDmeWebVerify {
   }
 
   /**
-   * Starts the login process
+   * Starts the login process.
+   * This function should be used if it is known if the user wants to sign in or sign up.
    *
    * @param activity  which will be used to start the login activity
    * @param scope     The type of group verification.
