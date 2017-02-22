@@ -64,7 +64,7 @@ public class WebViewActivity extends AppCompatActivity {
     if (webView.canGoBack()) {
       webView.goBack();
     } else {
-      IDmeWebVerify.getInstance().notifyFailure(new RuntimeException("Canceled by the user"));
+      IDmeWebVerify.getInstance().notifyFailure(new UserCanceledException());
       super.onBackPressed();
     }
   }

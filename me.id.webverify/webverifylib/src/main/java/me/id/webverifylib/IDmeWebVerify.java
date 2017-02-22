@@ -13,6 +13,7 @@ public final class IDmeWebVerify {
   private static final String REDIRECT_URI_KEY = "redirectURI";
   private static final String RESPONSE_TYPE_KEY = "responseType";
   private static final String SCOPE_TYPE_KEY = "scopeType";
+  private static final String SIGN_TYPE_KEY = "signType";
   private static final String USER_TOKEN_KEY = "user_token";
 
   private static String idMeWebVerifyGetAuthUri;
@@ -82,12 +83,29 @@ public final class IDmeWebVerify {
    * @param listener The listener that will be called when the login process is finished.
    */
   public void login(@NonNull Activity activity, @NonNull IDmeScope scope, @NonNull IDmeGetAccessTokenListener listener) {
+    login(activity, scope, null, listener);
+  }
+
+  /**
+   * Starts the login process.
+   * This function should be used if it is known if the user wants to sign in or sign up.
+   *
+   * @param activity  which will be used to start the login activity
+   * @param scope     The type of group verification.
+   * @param loginType The type of login. The default value is {@code LoginType.SIGN_IN}
+   * @param listener  The listener that will be called when the login process is finished.
+   */
+  public void login(@NonNull Activity activity, @NonNull IDmeScope scope, @Nullable LoginType loginType,
+                    @NonNull IDmeGetAccessTokenListener listener) {
     checkInitialization();
     checkPendingRequest();
 
     pageFinishedListener = new AuthenticationFinishedListener(this, redirectURI);
     loginGetAccessTokenListener = listener;
-    String url = createURL(scope);
+    if (loginType == null) {
+      loginType = LoginType.SIGN_IN;
+    }
+    String url = createURL(scope, loginType);
 
     Intent intent = new Intent(activity, WebViewActivity.class)
         .putExtra(WebViewActivity.EXTRA_URL, url)
@@ -192,12 +210,13 @@ public final class IDmeWebVerify {
   /**
    * Starts the process of adding a new connection type
    *
-   * @param activity        Which will be used to start the login activity.
-   * @param scope           The type of group verification.
-   * @param connectionType  The connection that will be registered.
-   * @param listener        The listener that will be called when the registration process finished.
+   * @param activity       Which will be used to start the login activity.
+   * @param scope          The type of group verification.
+   * @param connectionType The connection that will be registered.
+   * @param listener       The listener that will be called when the registration process finished.
    */
-  public void registerConnection(Activity activity, IDmeScope scope, IDmeConnectionType connectionType, IDmeRegisterConnectionListener listener) {
+  public void registerConnection(Activity activity, IDmeScope scope, IDmeConnectionType connectionType,
+                                 IDmeRegisterConnectionListener listener) {
     checkInitialization();
     checkPendingRequest();
 
@@ -281,12 +300,13 @@ public final class IDmeWebVerify {
    *
    * @return URl with redirect uri, client id and scope
    */
-  private String createURL(IDmeScope scope) {
+  private String createURL(@NonNull IDmeScope scope, @NonNull LoginType loginType) {
     return idMeWebVerifyGetAuthUri
         .replace(CLIENT_ID_KEY, clientID)
         .replace(REDIRECT_URI_KEY, redirectURI)
         .replace(RESPONSE_TYPE_KEY, "token")
-        .replace(SCOPE_TYPE_KEY, scope.getScopeId());
+        .replace(SCOPE_TYPE_KEY, scope.getScopeId())
+        .replace(SIGN_TYPE_KEY, loginType.getId());
   }
 
   /**
