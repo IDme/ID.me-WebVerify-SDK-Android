@@ -1,4 +1,4 @@
-package me.id.webverifylib;
+package me.id.webverifylib.listener;
 
 /**
  * Listener to register a new affiliation

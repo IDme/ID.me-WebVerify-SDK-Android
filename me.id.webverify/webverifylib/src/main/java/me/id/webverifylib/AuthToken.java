@@ -3,18 +3,21 @@ package me.id.webverifylib;
 import java.io.Serializable;
 import java.util.Calendar;
 
-final class AuthToken implements Serializable {
-  private IDmeScope scope;
+import me.id.webverifylib.listener.IDmeScope;
+
+public final class AuthToken implements Serializable {
+  private String scopeId;
   private String accessToken;
   private String refreshToken;
-  private Calendar expiration;
+  private Calendar accessTokenExpiration;
+  private Calendar refreshTokenExpiration;
 
-  public IDmeScope getScope() {
-    return scope;
+  public String getScopeId() {
+    return scopeId;
   }
 
-  public void setScope(IDmeScope scope) {
-    this.scope = scope;
+  public void setScopeId(IDmeScope scope) {
+    scopeId = scope.getScopeId();
   }
 
   public String getAccessToken() {
@@ -33,15 +36,31 @@ final class AuthToken implements Serializable {
     this.refreshToken = refreshToken;
   }
 
-  public Calendar getExpiration() {
-    return expiration;
+  public Calendar getAccessTokenExpiration() {
+    return accessTokenExpiration;
   }
 
-  public void setExpiration(Calendar expiration) {
-    this.expiration = expiration;
+  public void setAccessTokenExpiration(Calendar accessTokenExpiration) {
+    this.accessTokenExpiration = accessTokenExpiration;
   }
 
-  public boolean isValidToken() {
-    return accessToken != null && expiration != null && Calendar.getInstance().before(expiration);
+  public Calendar getRefreshTokenExpiration() {
+    return refreshTokenExpiration;
+  }
+
+  public void setRefreshTokenExpiration(Calendar refreshTokenExpiration) {
+    this.refreshTokenExpiration = refreshTokenExpiration;
+  }
+
+  private boolean isValidToken(String accessToken, Calendar accessTokenExpiration) {
+    return accessToken != null && accessTokenExpiration != null && Calendar.getInstance().before(accessTokenExpiration);
+  }
+
+  public boolean isValidAccessToken() {
+    return isValidToken(accessToken, accessTokenExpiration);
+  }
+
+  public boolean isValidRefreshToken() {
+    return isValidToken(refreshToken, refreshTokenExpiration);
   }
 }

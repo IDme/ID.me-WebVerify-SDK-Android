@@ -11,6 +11,11 @@
 
         <activity
             android:exported="false"
+            android:name=".LoginActivity"
+            />
+
+        <activity
+            android:exported="false"
             android:name=".WebViewActivity"
             />
 

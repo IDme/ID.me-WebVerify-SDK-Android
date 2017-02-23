@@ -1,4 +1,6 @@
-package me.id.webverifylib;
+package me.id.webverifylib.listener;
+
+import me.id.webverifylib.IDmeProfile;
 
 /**
  * Listener to get the user profile information
