@@ -30,7 +30,7 @@ public class AccessTokenHelper {
     try {
       JSONObject jsonObject = new JSONObject(json);
       AuthToken authToken = new AuthToken();
-      authToken.setScopeId(scope);
+      authToken.setScopeId(scope.getScopeId());
       authToken.setAccessToken(jsonObject.getString(ACCESS_TOKEN_KEY));
       authToken.setRefreshToken(jsonObject.getString(REFRESH_TOKEN_KEY));
       try {

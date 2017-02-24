@@ -3,8 +3,9 @@ package me.id.webverifylib;
 import java.io.Serializable;
 import java.util.Calendar;
 
-import me.id.webverifylib.listener.IDmeScope;
-
+/**
+ * Auth Token representation.
+ */
 public final class AuthToken implements Serializable {
   private String scopeId;
   private String accessToken;
@@ -16,8 +17,8 @@ public final class AuthToken implements Serializable {
     return scopeId;
   }
 
-  public void setScopeId(IDmeScope scope) {
-    scopeId = scope.getScopeId();
+  public void setScopeId(String scopeId) {
+    this.scopeId = scopeId;
   }
 
   public String getAccessToken() {

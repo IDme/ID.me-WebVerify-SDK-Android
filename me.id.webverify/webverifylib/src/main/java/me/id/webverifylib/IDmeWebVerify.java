@@ -24,6 +24,7 @@ import me.id.webverifylib.networking.GetProfileConnectionTask;
 public final class IDmeWebVerify {
   private static final String CLIENT_ID_KEY = "clientID";
   private static final String REDIRECT_URI_KEY = "redirectURI";
+  private static final String RESPONSE_TYPE_VALUE = "code";
   private static final String RESPONSE_TYPE_KEY = "responseType";
   private static final String SCOPE_TYPE_KEY = "scopeType";
   private static final String SIGN_TYPE_KEY = "signType";
@@ -36,8 +37,8 @@ public final class IDmeWebVerify {
   private static AccessTokenManager accessTokenManager;
   private static RefreshAccessTokenHandler refreshAccessTokenHandler;
   private static String clientId;
-  private static String redirectUri = "";
-  private static String secretId = "";
+  private static String redirectUri;
+  private static String clientSecret;
   private static boolean initialized;
 
   private IDmeGetAccessTokenListener loginGetAccessTokenListener = null;
@@ -75,7 +76,7 @@ public final class IDmeWebVerify {
    * @param secretId    Application secret id
    * @param redirectUri Application redirect uri
    */
-  public static void initialize(Context context, String clientId, String secretId, String redirectUri) {
+  public static void initialize(Context context, String clientId, String clientSecret, String redirectUri) {
     if (initialized) {
       throw new IllegalStateException("IDmeWebVerify is already initialized");
     }
@@ -85,8 +86,8 @@ public final class IDmeWebVerify {
     if (redirectUri == null) {
       throw new IllegalStateException("RedirectURI cannot be null");
     }
-    if (secretId == null) {
-      throw new IllegalStateException("SecretId cannot be null");
+    if (clientSecret == null) {
+      throw new IllegalStateException("Client secret cannot be null");
     }
     idMeWebVerifyGetAuthUri = context.getString(R.string.idme_web_verify_get_auth_code_uri);
     idMeWebVerifyGetAccessTokenUri = context.getString(R.string.idme_web_verify_get_access_token_uri);
@@ -96,7 +97,7 @@ public final class IDmeWebVerify {
     refreshAccessTokenHandler = new RefreshAccessTokenHandler(accessTokenManager);
     IDmeWebVerify.clientId = clientId;
     IDmeWebVerify.redirectUri = redirectUri;
-    IDmeWebVerify.secretId = secretId;
+    IDmeWebVerify.clientSecret = clientSecret;
   }
 
   private IDmeWebVerify() {
@@ -327,7 +328,7 @@ public final class IDmeWebVerify {
     return idMeWebVerifyGetAuthUri
         .replace(CLIENT_ID_KEY, clientId)
         .replace(REDIRECT_URI_KEY, redirectUri)
-        .replace(RESPONSE_TYPE_KEY, "code")
+        .replace(RESPONSE_TYPE_KEY, RESPONSE_TYPE_VALUE)
         .replace(SCOPE_TYPE_KEY, scope.getScopeId())
         .replace(SIGN_TYPE_KEY, loginType.getId());
   }
@@ -352,7 +353,7 @@ public final class IDmeWebVerify {
     return idMeWebVerifyGetAuthUri
         .replace(CLIENT_ID_KEY, clientId)
         .replace(REDIRECT_URI_KEY, redirectUri)
-        .replace(RESPONSE_TYPE_KEY, "code")
+        .replace(RESPONSE_TYPE_KEY, RESPONSE_TYPE_VALUE)
         .replace(SCOPE_TYPE_KEY, affiliationType.getKey());
   }
 
@@ -367,7 +368,7 @@ public final class IDmeWebVerify {
     String url = idMeWebVerifyGetAuthUri
         .replace(CLIENT_ID_KEY, clientId)
         .replace(REDIRECT_URI_KEY, redirectUri)
-        .replace(RESPONSE_TYPE_KEY, "code")
+        .replace(RESPONSE_TYPE_KEY, RESPONSE_TYPE_VALUE)
         .replace(SCOPE_TYPE_KEY, scope.getScopeId());
     return String.format("%s&connect=%s", url, connectionType.getKey());
   }
@@ -396,7 +397,7 @@ public final class IDmeWebVerify {
         .appendQueryParameter("grant_type", "authorization_code")
         .appendQueryParameter("client_id", clientId)
         .appendQueryParameter("redirect_uri", redirectUri)
-        .appendQueryParameter("client_secret", secretId)
+        .appendQueryParameter("client_secret", clientSecret)
         .build()
         .getEncodedQuery();
   }
@@ -407,7 +408,7 @@ public final class IDmeWebVerify {
         .appendQueryParameter("grant_type", "refresh_token")
         .appendQueryParameter("client_id", clientId)
         .appendQueryParameter("redirect_uri", redirectUri)
-        .appendQueryParameter("client_secret", secretId)
+        .appendQueryParameter("client_secret", clientSecret)
         .build()
         .getEncodedQuery();
   }
