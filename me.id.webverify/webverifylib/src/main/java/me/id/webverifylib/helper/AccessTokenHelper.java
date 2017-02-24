@@ -21,7 +21,7 @@ public class AccessTokenHelper {
   private static final String REFRESH_TOKEN_EXPIRE_KEY = "refresh_expires_in";
 
   /**
-   * Extracts Access Token from A json response
+   * Extracts the access token from a json response
    *
    * @param json Json that contains access token
    */
@@ -42,7 +42,6 @@ public class AccessTokenHelper {
         ex.printStackTrace();
       }
       return authToken;
-
     } catch (JSONException ex) {
       ex.printStackTrace();
     }

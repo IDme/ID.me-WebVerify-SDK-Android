@@ -5,26 +5,14 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import me.id.webverifylib.AuthToken;
-
 /**
  * Created by remer on 3/2/17.
  */
-public abstract class PageFinishedListener implements IDmePageFinishedListener {
-  private final String redirectURI;
+abstract class PageFinishedListener implements IDmePageFinishedListener {
+  private final String redirectUri;
 
-  private AuthToken token;
-
-  public PageFinishedListener(String redirectUrl) {
-    this.redirectURI = redirectUrl;
-  }
-
-  String getRedirectUrl() {
-    return redirectURI;
-  }
-
-  AuthToken getToken() {
-    return token;
+  PageFinishedListener(String redirectUrl) {
+    this.redirectUri = redirectUrl;
   }
 
   @Nullable
@@ -48,9 +36,9 @@ public abstract class PageFinishedListener implements IDmePageFinishedListener {
       Uri url = Uri.parse(fixedUrlString);
       String query = url.getQuery();
       if (query == null || query.isEmpty()) {
-        return fixedUrlString.equals(redirectURI);
+        return fixedUrlString.equals(redirectUri);
       } else {
-        return fixedUrlString.replace(Uri.parse(fixedUrlString).getQuery(), "").replace("?", "").equals(redirectURI);
+        return fixedUrlString.replace(Uri.parse(fixedUrlString).getQuery(), "").replace("?", "").equals(redirectUri);
       }
     } catch (Exception ex) {
       ex.printStackTrace();

@@ -3,7 +3,7 @@ package me.id.webverifylib.listener;
 import android.support.annotation.NonNull;
 
 /**
- * Created by remer on 3/2/17.
+ * Used for finishing the affiliation registration flow
  */
 public final class RegisterAffiliationFinishedListener extends PageFinishedListener {
   @NonNull

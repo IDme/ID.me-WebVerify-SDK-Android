@@ -5,10 +5,10 @@ import android.net.Uri;
 import me.id.webverifylib.helper.ObjectHelper;
 
 /**
- * Created by remer on 3/2/17.
+ * Used for finishing the authentication flow
  */
 public final class AuthenticationFinishedListener extends PageFinishedListener {
-  static final String CODE_QUERY_PARAMETER = "code";
+  private static final String CODE_QUERY_PARAMETER = "code";
 
   private final IDmeGetAuthCodeListener iDmeGetAuthCodeListener;
   private final String scheme;
@@ -25,14 +25,14 @@ public final class AuthenticationFinishedListener extends PageFinishedListener {
     Uri uri = Uri.parse(responseUrl);
     if (ObjectHelper.equals(uri.getScheme(), scheme)) {
       String authCode = uri.getQueryParameter(CODE_QUERY_PARAMETER);
-      if (null != authCode) {
-        iDmeGetAuthCodeListener.onSuccess(authCode);
-      } else {
+      if (authCode == null) {
         String error = errorFromResponseUrl(responseUrl);
         iDmeGetAuthCodeListener.onError(new IllegalStateException(error == null
             ? "Failed to parse server response. Invalid format received."
             : error
         ));
+      } else {
+        iDmeGetAuthCodeListener.onSuccess(authCode);
       }
     }
   }

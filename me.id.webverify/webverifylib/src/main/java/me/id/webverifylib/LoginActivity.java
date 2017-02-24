@@ -30,7 +30,7 @@ public class LoginActivity extends WebViewActivity {
     public void onSuccess(String authCode) {
       showLoadingMessage();
       new GetAccessTokenConnectionTask(IDmeWebVerify.getAccessTokenQuery(authCode), authCodeListener, scope)
-          .execute(IDmeWebVerify.getIdMeWebVerifyGetAccessTokenURI());
+          .execute(IDmeWebVerify.getIdMeWebVerifyGetAccessTokenUri());
     }
 
     @Override
@@ -47,7 +47,7 @@ public class LoginActivity extends WebViewActivity {
   protected WebViewClient getWebClient(IDmeScope scope) {
     return new LoginWebViewClient(scope, new AuthenticationFinishedListener(
         iDmeGetAuthCodeListener,
-        IDmeWebVerify.getRedirectURI()
+        IDmeWebVerify.getRedirectUri()
     ));
   }
 

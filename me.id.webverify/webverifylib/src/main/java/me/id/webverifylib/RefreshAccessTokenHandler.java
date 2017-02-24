@@ -50,7 +50,7 @@ final class RefreshAccessTokenHandler {
     }
   }
 
-  private synchronized IDmeAccessTokenManagerListener getScopeListener(IDmeScope scope) {
+  private IDmeAccessTokenManagerListener getScopeListener(IDmeScope scope) {
     final String scopeId = scope.getScopeId();
     IDmeAccessTokenManagerListener scopeListener = scopeListeners.get(scopeId);
     if (scopeListener == null) {
@@ -87,6 +87,6 @@ final class RefreshAccessTokenHandler {
   private void refreshToken(IDmeScope scope, String refreshToken) {
     IDmeAccessTokenManagerListener listener = getScopeListener(scope);
     new GetAccessTokenConnectionTask(IDmeWebVerify.getAccessTokenFromRefreshTokenQuery(refreshToken), listener, scope)
-        .execute(IDmeWebVerify.getIdMeWebVerifyGetAccessTokenURI());
+        .execute(IDmeWebVerify.getIdMeWebVerifyGetAccessTokenUri());
   }
 }
