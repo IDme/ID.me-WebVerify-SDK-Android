@@ -102,12 +102,13 @@ public final class ObjectHelper {
       while ((line = reader.readLine()) != null) {
         response.append(line);
       }
+    } catch (IOException exception) {
+      Log.e("Read stream error", exception.getMessage());
     } finally {
       if (reader != null) {
         try {
           reader.close();
-        } catch (IOException exception) {
-          Log.e("Read stream error", exception.getMessage());
+        } catch (IOException ignored) {
         }
       }
     }
