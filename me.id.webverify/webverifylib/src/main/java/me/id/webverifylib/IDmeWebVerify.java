@@ -34,6 +34,7 @@ public final class IDmeWebVerify {
   private static String idMeWebVerifyGetUserProfile;
 
   private static AccessTokenManager accessTokenManager;
+  private static RefreshAccessTokenHandler refreshAccessTokenHandler;
   private static String clientId;
   private static String redirectURI = "";
   private static String secretId = "";
@@ -89,6 +90,7 @@ public final class IDmeWebVerify {
     idMeWebVerifyGetUserProfile = context.getString(R.string.idme_web_verify_get_profile_uri);
     initialized = true;
     accessTokenManager = new AccessTokenManager(context);
+    refreshAccessTokenHandler = new RefreshAccessTokenHandler(accessTokenManager);
     IDmeWebVerify.clientId = clientID;
     IDmeWebVerify.redirectURI = redirectURI;
     IDmeWebVerify.secretId = secretId;
@@ -178,7 +180,7 @@ public final class IDmeWebVerify {
     } else if (token.isValidAccessToken() && !forceReload) {
       listener.onSuccess(token.getAccessToken());
     } else if (token.isValidRefreshToken()) {
-      RefreshAccessTokenHandler.refreshAccessToken(scope, token, listener);
+      refreshAccessTokenHandler.refreshAccessToken(scope, token, listener);
     } else {
       listener.onError(new UnauthenticatedException());
     }
