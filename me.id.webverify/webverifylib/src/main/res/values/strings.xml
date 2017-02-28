@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Webverifylib</string>
 
-    <string name="idme_web_verify_get_auth_code_uri"><![CDATA[https://api.id.me/oauth/authorize?client_id=clientID&op=signType&redirect_uri=redirectURI&response_type=token&scope=scopeType]]></string>
+    <string name="idme_web_verify_get_common_uri"><![CDATA[https://api.id.me/oauth/authorize]]></string>
     <string name="idme_web_verify_get_access_token_uri"><![CDATA[https://api.id.me/oauth/token]]></string>
-    <string name="idme_web_verify_get_profile_uri">https://api.id.me/api/public/v2/data.json?access_token=user_token</string>
+    <string name="idme_web_verify_get_profile_uri">https://api.id.me/api/public/v2/data.json</string>
 </resources>

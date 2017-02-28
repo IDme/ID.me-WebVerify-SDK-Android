@@ -87,6 +87,6 @@ final class RefreshAccessTokenHandler {
   private void refreshToken(IDmeScope scope, String refreshToken) {
     IDmeAccessTokenManagerListener listener = getScopeListener(scope);
     new GetAccessTokenConnectionTask(IDmeWebVerify.getAccessTokenFromRefreshTokenQuery(refreshToken), listener, scope)
-        .execute(IDmeWebVerify.getIdMeWebVerifyGetAccessTokenUri());
+        .execute(IDmeWebVerify.getIdMeWebVerifyAccessTokenUri());
   }
 }

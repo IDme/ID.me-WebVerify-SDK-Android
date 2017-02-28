@@ -31,6 +31,7 @@ public class WebViewActivity extends AppCompatActivity {
     url = getIntent().getStringExtra(EXTRA_URL);
 
     webView = (WebView) findViewById(R.id.webView);
+    clearWebViewCacheAndHistory();
     webView.setWebViewClient(getWebClient(scope));
     webView.loadUrl(url);
     webView.getSettings().setJavaScriptEnabled(true);
@@ -63,11 +64,15 @@ public class WebViewActivity extends AppCompatActivity {
     } else {
       cookieManager.removeAllCookies(null);
     }
+    clearWebViewCacheAndHistory();
+    webView.destroy();
+    IDmeWebVerify.getInstance().clearSignInListener();
+  }
+
+  protected void clearWebViewCacheAndHistory() {
     webView.clearCache(true);
     webView.clearHistory();
     webView.clearFormData();
-    webView.destroy();
-    IDmeWebVerify.getInstance().clearSignInListener();
   }
 
   @Override
