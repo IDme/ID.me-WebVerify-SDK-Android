@@ -345,8 +345,8 @@ public final class IDmeWebVerify {
   private String createGetProfileRequestUrl(String accessToken) {
     return new Uri.Builder()
         .scheme(idMeWebVerifyGetUserProfileUri.getScheme())
-        .path(idMeWebVerifyGetUserProfileUri.getPath())
         .authority(idMeWebVerifyGetUserProfileUri.getHost())
+        .path(idMeWebVerifyGetUserProfileUri.getPath())
         .appendQueryParameter(ACCESS_TOKEN_KEY, accessToken)
         .build()
         .toString();
@@ -374,8 +374,8 @@ public final class IDmeWebVerify {
    */
   private String createRegisterConnectionUrl(IDmeConnectionType connectionType, IDmeScope scope) {
     return getCommonUri()
-        .appendQueryParameter(SCOPE_TYPE_KEY, scope.getScopeId())
         .appendQueryParameter(CONNECT_TYPE_KEY, connectionType.getKey())
+        .appendQueryParameter(SCOPE_TYPE_KEY, scope.getScopeId())
         .build()
         .toString();
   }
@@ -386,8 +386,8 @@ public final class IDmeWebVerify {
   private Uri.Builder getCommonUri() {
     return new Uri.Builder()
         .scheme(idMeWebVerifyGetCommonUri.getScheme())
-        .path(idMeWebVerifyGetCommonUri.getPath())
         .authority(idMeWebVerifyGetCommonUri.getHost())
+        .path(idMeWebVerifyGetCommonUri.getPath())
         .appendQueryParameter(CLIENT_ID_KEY, clientId)
         .appendQueryParameter(REDIRECT_URI_KEY, redirectUri)
         .appendQueryParameter(RESPONSE_TYPE_KEY, RESPONSE_TYPE_VALUE);
@@ -413,22 +413,22 @@ public final class IDmeWebVerify {
 
   static String getAccessTokenQuery(@NonNull String code) {
     return new Uri.Builder()
+        .appendQueryParameter(CLIENT_ID_KEY, clientId)
+        .appendQueryParameter(CLIENT_SECRET_KEY, clientSecret)
         .appendQueryParameter(CODE_KEY, code)
         .appendQueryParameter(GRANT_TYPE_KEY, "authorization_code")
-        .appendQueryParameter(CLIENT_ID_KEY, clientId)
         .appendQueryParameter(REDIRECT_URI_KEY, redirectUri)
-        .appendQueryParameter(CLIENT_SECRET_KEY, clientSecret)
         .build()
         .getEncodedQuery();
   }
 
   static String getAccessTokenFromRefreshTokenQuery(@NonNull String refreshToken) {
     return new Uri.Builder()
-        .appendQueryParameter(REFRESH_TOKEN_KEY, refreshToken)
-        .appendQueryParameter(GRANT_TYPE_KEY, "refresh_token")
         .appendQueryParameter(CLIENT_ID_KEY, clientId)
-        .appendQueryParameter(REDIRECT_URI_KEY, redirectUri)
         .appendQueryParameter(CLIENT_SECRET_KEY, clientSecret)
+        .appendQueryParameter(GRANT_TYPE_KEY, "refresh_token")
+        .appendQueryParameter(REDIRECT_URI_KEY, redirectUri)
+        .appendQueryParameter(REFRESH_TOKEN_KEY, refreshToken)
         .build()
         .getEncodedQuery();
   }
