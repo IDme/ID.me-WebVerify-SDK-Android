@@ -5,6 +5,7 @@ package me.id.webverifylib;
  */
 public enum IDmeAffiliationType {
   GOVERNMENT("government"),
+  LEGAL("identity"),
   MILITARY("military"),
   RESPONDER("responder"),
   STUDENT("student"),
