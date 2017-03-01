@@ -12,11 +12,13 @@
         <activity
             android:exported="false"
             android:name=".LoginActivity"
+            android:theme="@style/IDmeSdkAppTheme"
             />
 
         <activity
             android:exported="false"
             android:name=".WebViewActivity"
+            android:theme="@style/IDmeSdkAppTheme"
             />
 
     </application>
