@@ -1,17 +1,21 @@
-package me.id.webverifylib;
+package me.id.webverifylib.helper;
 
 import android.support.annotation.Nullable;
 import android.util.Base64;
 import android.util.Base64InputStream;
 import android.util.Base64OutputStream;
+import android.util.Log;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-final class ObjectHelper {
+public final class ObjectHelper {
   private ObjectHelper() {
   }
 
@@ -81,5 +85,33 @@ final class ObjectHelper {
    */
   public static boolean equals(Object a, Object b) {
     return (a == b) || (a != null && a.equals(b));
+  }
+
+  /**
+   * This converts the InputStream to a String
+   *
+   * @param inputStream from the Web Request
+   * @return the converted string
+   */
+  public static String readStream(InputStream inputStream) throws IOException {
+    BufferedReader reader = null;
+    StringBuilder response = new StringBuilder();
+    try {
+      reader = new BufferedReader(new InputStreamReader(inputStream));
+      String line;
+      while ((line = reader.readLine()) != null) {
+        response.append(line);
+      }
+    } catch (IOException exception) {
+      Log.e("Read stream error", exception.getMessage());
+    } finally {
+      if (reader != null) {
+        try {
+          reader.close();
+        } catch (IOException ignored) {
+        }
+      }
+    }
+    return response.toString();
   }
 }

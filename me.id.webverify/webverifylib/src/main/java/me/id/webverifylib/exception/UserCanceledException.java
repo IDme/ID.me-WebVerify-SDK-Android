@@ -1,4 +1,4 @@
-package me.id.webverifylib;
+package me.id.webverifylib.exception;
 
 /**
  * Created by mirland on 21/02/17.

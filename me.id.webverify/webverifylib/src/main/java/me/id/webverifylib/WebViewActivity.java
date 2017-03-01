@@ -9,11 +9,17 @@ import android.webkit.CookieManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import me.id.webverifylib.exception.UserCanceledException;
+import me.id.webverifylib.listener.IDmePageFinishedListener;
+import me.id.webverifylib.listener.IDmeScope;
+
 public class WebViewActivity extends AppCompatActivity {
   public static final String EXTRA_SCOPE_ID = "scope";
-  public static final String EXTRA_URL = "Url";
+  public static final String EXTRA_URL = "url";
 
-  private WebView webView;
+  protected WebView webView;
+  protected IDmeScope scope;
+  protected String url;
 
   @Override
   @SuppressLint("SetJavaScriptEnabled")
@@ -21,13 +27,19 @@ public class WebViewActivity extends AppCompatActivity {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_web_view);
 
-    IDmeScope scope = getScopeFromKey(getIntent().getStringExtra(EXTRA_SCOPE_ID));
-    String url = getIntent().getStringExtra(EXTRA_URL);
+    scope = getScopeFromKey(getIntent().getStringExtra(EXTRA_SCOPE_ID));
+    url = getIntent().getStringExtra(EXTRA_URL);
 
     webView = (WebView) findViewById(R.id.webView);
-    webView.setWebViewClient(new IDmeWebViewClient(scope, IDmeWebVerify.getInstance().getPageFinishedListener()));
+    clearWebViewCacheAndHistory();
+    webView.setWebViewClient(getWebClient(scope));
     webView.loadUrl(url);
     webView.getSettings().setJavaScriptEnabled(true);
+  }
+
+  @NonNull
+  protected WebViewClient getWebClient(IDmeScope scope) {
+    return new IDmeWebViewClient(scope, IDmeWebVerify.getInstance().getPageFinishedListener());
   }
 
   @NonNull
@@ -52,11 +64,15 @@ public class WebViewActivity extends AppCompatActivity {
     } else {
       cookieManager.removeAllCookies(null);
     }
+    clearWebViewCacheAndHistory();
+    webView.destroy();
+    IDmeWebVerify.getInstance().clearSignInListener();
+  }
+
+  protected void clearWebViewCacheAndHistory() {
     webView.clearCache(true);
     webView.clearHistory();
     webView.clearFormData();
-    webView.destroy();
-    IDmeWebVerify.getInstance().clearSignInListener();
   }
 
   @Override
@@ -69,9 +85,9 @@ public class WebViewActivity extends AppCompatActivity {
     }
   }
 
-  private class IDmeWebViewClient extends WebViewClient {
-    private final IDmeScope scope;
-    private final IDmePageFinishedListener listener;
+  protected class IDmeWebViewClient extends WebViewClient {
+    protected final IDmeScope scope;
+    protected final IDmePageFinishedListener listener;
 
     IDmeWebViewClient(IDmeScope scope, IDmePageFinishedListener listener) {
       this.scope = scope;

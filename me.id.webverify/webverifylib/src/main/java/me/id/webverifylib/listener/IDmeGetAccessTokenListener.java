@@ -1,4 +1,4 @@
-package me.id.webverifylib;
+package me.id.webverifylib.listener;
 
 /**
  * Listener to get the access token

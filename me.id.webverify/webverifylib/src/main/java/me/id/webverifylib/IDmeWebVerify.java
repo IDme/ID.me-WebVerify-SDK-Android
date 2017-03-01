@@ -3,25 +3,47 @@ package me.id.webverifylib;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.util.Locale;
 
-public final class IDmeWebVerify {
-  private static final String CLIENT_ID_KEY = "clientID";
-  private static final String REDIRECT_URI_KEY = "redirectURI";
-  private static final String RESPONSE_TYPE_KEY = "responseType";
-  private static final String SCOPE_TYPE_KEY = "scopeType";
-  private static final String SIGN_TYPE_KEY = "signType";
-  private static final String USER_TOKEN_KEY = "user_token";
+import me.id.webverifylib.exception.UnauthenticatedException;
+import me.id.webverifylib.listener.IDmeAccessTokenManagerListener;
+import me.id.webverifylib.listener.IDmeGetAccessTokenListener;
+import me.id.webverifylib.listener.IDmeGetProfileListener;
+import me.id.webverifylib.listener.IDmePageFinishedListener;
+import me.id.webverifylib.listener.IDmeRegisterAffiliationListener;
+import me.id.webverifylib.listener.IDmeRegisterConnectionListener;
+import me.id.webverifylib.listener.IDmeScope;
+import me.id.webverifylib.listener.RegisterAffiliationFinishedListener;
+import me.id.webverifylib.listener.RegisterConnectionFinishedListener;
+import me.id.webverifylib.networking.GetProfileConnectionTask;
 
-  private static String idMeWebVerifyGetAuthUri;
-  private static String idMeWebVerifyGetUserProfile;
+public final class IDmeWebVerify {
+  private static final String ACCESS_TOKEN_KEY = "access_token";
+  private static final String CLIENT_ID_KEY = "client_id";
+  private static final String CLIENT_SECRET_KEY = "client_secret";
+  private static final String CODE_KEY = "code";
+  private static final String CONNECT_TYPE_KEY = "connect";
+  private static final String GRANT_TYPE_KEY = "grant_type";
+  private static final String REDIRECT_URI_KEY = "redirect_uri";
+  private static final String REFRESH_TOKEN_KEY = "refresh_token";
+  private static final String RESPONSE_TYPE_KEY = "response_type";
+  private static final String RESPONSE_TYPE_VALUE = "code";
+  private static final String SCOPE_TYPE_KEY = "scope";
+  private static final String SIGN_TYPE_KEY = "op";
+
+  private static Uri idMeWebVerifyAccessTokenUri;
+  private static Uri idMeWebVerifyGetCommonUri;
+  private static Uri idMeWebVerifyGetUserProfileUri;
 
   private static AccessTokenManager accessTokenManager;
-  private static String clientID;
-  private static String redirectURI = "";
+  private static RefreshAccessTokenHandler refreshAccessTokenHandler;
+  private static String clientId;
+  private static String redirectUri;
+  private static String clientSecret;
   private static boolean initialized;
 
   private IDmeGetAccessTokenListener loginGetAccessTokenListener = null;
@@ -31,29 +53,56 @@ public final class IDmeWebVerify {
   private static final IDmeWebVerify INSTANCE = new IDmeWebVerify();
 
   private IDmePageFinishedListener pageFinishedListener;
+  private final IDmeAccessTokenManagerListener accessTokenManagerListener = new IDmeAccessTokenManagerListener() {
+    @Override
+    public void onSuccess(AuthToken authToken) {
+      saveAccessToken(authToken);
+      if (loginGetAccessTokenListener != null) {
+        loginGetAccessTokenListener.onSuccess(authToken.getAccessToken());
+      }
+      loginGetAccessTokenListener = null;
+    }
+
+    @Override
+    public void onError(Throwable throwable) {
+      if (loginGetAccessTokenListener != null) {
+        loginGetAccessTokenListener.onError(throwable);
+      }
+      loginGetAccessTokenListener = null;
+    }
+  };
 
   /**
    * This method needs to be called before IDmeWebVerify can be used.
    * Typically it will be called from your Application class's onCreate method.
    *
-   * @param context Application context
+   * @param context      Application context
+   * @param clientId     Application client id
+   * @param clientSecret Application client secret
+   * @param redirectUri  Application redirect uri
    */
-  public static void initialize(Context context, String clientID, String redirectURI) {
+  public static void initialize(Context context, String clientId, String clientSecret, String redirectUri) {
     if (initialized) {
       throw new IllegalStateException("IDmeWebVerify is already initialized");
     }
-    if (clientID == null) {
+    if (clientId == null) {
       throw new IllegalStateException("ClientId cannot be null");
     }
-    if (redirectURI == null) {
+    if (redirectUri == null) {
       throw new IllegalStateException("RedirectURI cannot be null");
     }
-    idMeWebVerifyGetAuthUri = context.getString(R.string.idme_web_verify_get_auth_uri);
-    idMeWebVerifyGetUserProfile = context.getString(R.string.idme_web_verify_get_profile_uri);
+    if (clientSecret == null) {
+      throw new IllegalStateException("Client secret cannot be null");
+    }
+    idMeWebVerifyGetCommonUri = Uri.parse(context.getString(R.string.idme_web_verify_get_common_uri));
+    idMeWebVerifyAccessTokenUri = Uri.parse(context.getString(R.string.idme_web_verify_get_access_token_uri));
+    idMeWebVerifyGetUserProfileUri = Uri.parse(context.getString(R.string.idme_web_verify_get_profile_uri));
     initialized = true;
     accessTokenManager = new AccessTokenManager(context);
-    IDmeWebVerify.clientID = clientID;
-    IDmeWebVerify.redirectURI = redirectURI;
+    refreshAccessTokenHandler = new RefreshAccessTokenHandler(accessTokenManager);
+    IDmeWebVerify.clientId = clientId;
+    IDmeWebVerify.redirectUri = redirectUri;
+    IDmeWebVerify.clientSecret = clientSecret;
   }
 
   private IDmeWebVerify() {
@@ -66,7 +115,7 @@ public final class IDmeWebVerify {
 
   /**
    * Checks if the application is already initialized
-
+   *
    * @throws IllegalStateException Throws exception if the library hasn't been initialized yet
    */
   private void checkInitialization() {
@@ -100,14 +149,13 @@ public final class IDmeWebVerify {
     checkInitialization();
     checkPendingRequest();
 
-    pageFinishedListener = new AuthenticationFinishedListener(this, redirectURI);
     loginGetAccessTokenListener = listener;
     if (loginType == null) {
       loginType = LoginType.SIGN_IN;
     }
     String url = createURL(scope, loginType);
 
-    Intent intent = new Intent(activity, WebViewActivity.class)
+    Intent intent = new Intent(activity, LoginActivity.class)
         .putExtra(WebViewActivity.EXTRA_URL, url)
         .putExtra(WebViewActivity.EXTRA_SCOPE_ID, scope.getScopeId());
     activity.startActivity(intent);
@@ -120,14 +168,8 @@ public final class IDmeWebVerify {
    * @param listener The listener that will be called when the get access token process finished.
    */
   @SuppressWarnings("unused")
-  public void getAccessToken(@NonNull IDmeScope scope, @NonNull IDmeGetAccessTokenListener listener) {
-    checkInitialization();
-    AuthToken token = accessTokenManager.getToken(scope);
-    if (token == null || !token.isValidToken()) {
-      listener.onError(new UnauthenticatedException());
-    } else {
-      listener.onSuccess(token.getAccessToken());
-    }
+  public void getAccessToken(@NonNull IDmeScope scope, @NonNull final IDmeGetAccessTokenListener listener) {
+    getAccessToken(scope, false, listener);
   }
 
   /**
@@ -138,8 +180,19 @@ public final class IDmeWebVerify {
    * @param listener    The listener that will be called when the get access token process finished.
    */
   @SuppressWarnings("unused")
-  public void getAccessToken(@NonNull IDmeScope scope, boolean forceReload, @NonNull IDmeGetAccessTokenListener listener) {
-    throw new UnsupportedOperationException();
+  public void getAccessToken(@NonNull IDmeScope scope, boolean forceReload,
+                             @NonNull IDmeGetAccessTokenListener listener) {
+    checkInitialization();
+    AuthToken token = accessTokenManager.getToken(scope);
+    if (token == null) {
+      listener.onError(new UnauthenticatedException());
+    } else if (token.isValidAccessToken() && !forceReload) {
+      listener.onSuccess(token.getAccessToken());
+    } else if (token.isValidRefreshToken()) {
+      refreshAccessTokenHandler.refreshAccessToken(scope, token, listener);
+    } else {
+      listener.onError(new UnauthenticatedException());
+    }
   }
 
   /**
@@ -153,8 +206,8 @@ public final class IDmeWebVerify {
     if (token == null) {
       String message = String.format(Locale.US, "There is not an access token related to the %s scope", scope);
       listener.onError(new IllegalStateException(message));
-    } else if (token.isValidToken()) {
-      String requestUrl = createRequestUrl(token.getAccessToken());
+    } else if (token.isValidAccessToken()) {
+      String requestUrl = createGetProfileRequestUrl(token.getAccessToken());
       new GetProfileConnectionTask(listener).execute(requestUrl);
     } else {
       listener.onError(new IllegalStateException("The access token is expired"));
@@ -198,7 +251,7 @@ public final class IDmeWebVerify {
      * sign in when the web view is opened.
      */
 
-    pageFinishedListener = new RegisterAffiliationFinishedListener(this, redirectURI);
+    pageFinishedListener = new RegisterAffiliationFinishedListener(listener, redirectUri);
     registerAffiliationListener = listener;
     String requestUrl = createRegisterAffiliationUrl(affiliationType);
     Intent intent = new Intent(activity, WebViewActivity.class)
@@ -226,7 +279,7 @@ public final class IDmeWebVerify {
      * sign in when the web view is opened.
      */
 
-    pageFinishedListener = new RegisterConnectionFinishedListener(this, redirectURI);
+    pageFinishedListener = new RegisterConnectionFinishedListener(listener, redirectUri);
     registerConnectionListener = listener;
     String requestUrl = createRegisterConnectionUrl(connectionType, scope);
     Intent intent = new Intent(activity, WebViewActivity.class)
@@ -240,36 +293,12 @@ public final class IDmeWebVerify {
   }
 
   /**
-   * Persists the access token for the given scope
-   * @param scope The type of group verification.
+   * Persists the access token
+   *
    * @param token The auth token for the given scope.
    */
-  void saveAccessToken(IDmeScope scope, AuthToken token) {
-    accessTokenManager.addToken(scope, token);
-  }
-
-  /**
-   * Sends access token to the login listener
-   */
-  void notifyAccessToken(AuthToken token) {
-    if (loginGetAccessTokenListener != null) {
-      loginGetAccessTokenListener.onSuccess(token == null ? null : token.getAccessToken());
-    }
-  }
-
-  /**
-   * Sends data to the register affiliation listener
-   */
-  void notifyAffiliationRegistration() {
-    if (registerAffiliationListener != null) {
-      registerAffiliationListener.onSuccess();
-    }
-  }
-
-  void notifyConnectionRegistration() {
-    if (registerConnectionListener != null) {
-      registerConnectionListener.onSuccess();
-    }
+  void saveAccessToken(AuthToken token) {
+    accessTokenManager.addToken(token);
   }
 
   /**
@@ -301,22 +330,26 @@ public final class IDmeWebVerify {
    * @return URl with redirect uri, client id and scope
    */
   private String createURL(@NonNull IDmeScope scope, @NonNull LoginType loginType) {
-    return idMeWebVerifyGetAuthUri
-        .replace(CLIENT_ID_KEY, clientID)
-        .replace(REDIRECT_URI_KEY, redirectURI)
-        .replace(RESPONSE_TYPE_KEY, "token")
-        .replace(SCOPE_TYPE_KEY, scope.getScopeId())
-        .replace(SIGN_TYPE_KEY, loginType.getId());
+    return getCommonUri()
+        .appendQueryParameter(SCOPE_TYPE_KEY, scope.getScopeId())
+        .appendQueryParameter(SIGN_TYPE_KEY, loginType.getId())
+        .build()
+        .toString();
   }
 
   /**
-   * Creates the URL for the Web Request
+   * Creates the URL for getting the user profile
    *
    * @return URL with proper formatted request
    */
-  private String createRequestUrl(String accessToken) {
-    return idMeWebVerifyGetUserProfile
-        .replace(USER_TOKEN_KEY, accessToken);
+  private String createGetProfileRequestUrl(String accessToken) {
+    return new Uri.Builder()
+        .scheme(idMeWebVerifyGetUserProfileUri.getScheme())
+        .authority(idMeWebVerifyGetUserProfileUri.getHost())
+        .path(idMeWebVerifyGetUserProfileUri.getPath())
+        .appendQueryParameter(ACCESS_TOKEN_KEY, accessToken)
+        .build()
+        .toString();
   }
 
   /**
@@ -326,32 +359,77 @@ public final class IDmeWebVerify {
    * @return URL with proper formatted request
    */
   private String createRegisterAffiliationUrl(IDmeAffiliationType affiliationType) {
-    return idMeWebVerifyGetAuthUri
-        .replace(CLIENT_ID_KEY, clientID)
-        .replace(REDIRECT_URI_KEY, redirectURI)
-        .replace(RESPONSE_TYPE_KEY, "token")
-        .replace(SCOPE_TYPE_KEY, affiliationType.getKey());
+    return getCommonUri()
+        .appendQueryParameter(SCOPE_TYPE_KEY, affiliationType.getKey())
+        .build()
+        .toString();
   }
 
   /**
    * Creates the URL for adding a new connection type
    *
    * @param connectionType the connection that should be added
-   * @param scope The type of group verification.
+   * @param scope          The type of group verification.
    * @return URL: with proper formatted request
    */
   private String createRegisterConnectionUrl(IDmeConnectionType connectionType, IDmeScope scope) {
-    String url = idMeWebVerifyGetAuthUri
-        .replace(CLIENT_ID_KEY, clientID)
-        .replace(REDIRECT_URI_KEY, redirectURI)
-        .replace(RESPONSE_TYPE_KEY, "token")
-        .replace(SCOPE_TYPE_KEY, scope.getScopeId());
-    return String.format("%s&connect=%s", url, connectionType.getKey());
+    return getCommonUri()
+        .appendQueryParameter(CONNECT_TYPE_KEY, connectionType.getKey())
+        .appendQueryParameter(SCOPE_TYPE_KEY, scope.getScopeId())
+        .build()
+        .toString();
+  }
+
+  /**
+   * Creates the common URL which contains the client id, the client, the redirect uri and the response type
+   */
+  private Uri.Builder getCommonUri() {
+    return new Uri.Builder()
+        .scheme(idMeWebVerifyGetCommonUri.getScheme())
+        .authority(idMeWebVerifyGetCommonUri.getHost())
+        .path(idMeWebVerifyGetCommonUri.getPath())
+        .appendQueryParameter(CLIENT_ID_KEY, clientId)
+        .appendQueryParameter(REDIRECT_URI_KEY, redirectUri)
+        .appendQueryParameter(RESPONSE_TYPE_KEY, RESPONSE_TYPE_VALUE);
   }
 
   private void checkPendingRequest() {
     if (loginGetAccessTokenListener != null || registerAffiliationListener != null) {
       throw new IllegalStateException("The activity is already initialized");
     }
+  }
+
+  IDmeAccessTokenManagerListener getAccessTokenManagerListener() {
+    return accessTokenManagerListener;
+  }
+
+  static String getIdMeWebVerifyAccessTokenUri() {
+    return idMeWebVerifyAccessTokenUri.toString();
+  }
+
+  static String getRedirectUri() {
+    return redirectUri;
+  }
+
+  static String getAccessTokenQuery(@NonNull String code) {
+    return new Uri.Builder()
+        .appendQueryParameter(CLIENT_ID_KEY, clientId)
+        .appendQueryParameter(CLIENT_SECRET_KEY, clientSecret)
+        .appendQueryParameter(CODE_KEY, code)
+        .appendQueryParameter(GRANT_TYPE_KEY, "authorization_code")
+        .appendQueryParameter(REDIRECT_URI_KEY, redirectUri)
+        .build()
+        .getEncodedQuery();
+  }
+
+  static String getAccessTokenFromRefreshTokenQuery(@NonNull String refreshToken) {
+    return new Uri.Builder()
+        .appendQueryParameter(CLIENT_ID_KEY, clientId)
+        .appendQueryParameter(CLIENT_SECRET_KEY, clientSecret)
+        .appendQueryParameter(GRANT_TYPE_KEY, "refresh_token")
+        .appendQueryParameter(REDIRECT_URI_KEY, redirectUri)
+        .appendQueryParameter(REFRESH_TOKEN_KEY, refreshToken)
+        .build()
+        .getEncodedQuery();
   }
 }

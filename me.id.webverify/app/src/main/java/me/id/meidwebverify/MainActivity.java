@@ -13,16 +13,17 @@ import java.util.Locale;
 
 import me.id.webverifylib.IDmeAffiliationType;
 import me.id.webverifylib.IDmeConnectionType;
-import me.id.webverifylib.IDmeGetAccessTokenListener;
-import me.id.webverifylib.IDmeGetProfileListener;
 import me.id.webverifylib.IDmeProfile;
-import me.id.webverifylib.IDmeRegisterAffiliationListener;
-import me.id.webverifylib.IDmeRegisterConnectionListener;
-import me.id.webverifylib.IDmeScope;
 import me.id.webverifylib.IDmeWebVerify;
+import me.id.webverifylib.listener.IDmeGetAccessTokenListener;
+import me.id.webverifylib.listener.IDmeGetProfileListener;
+import me.id.webverifylib.listener.IDmeRegisterAffiliationListener;
+import me.id.webverifylib.listener.IDmeRegisterConnectionListener;
+import me.id.webverifylib.listener.IDmeScope;
 
 public class MainActivity extends ActionBarActivity {
-  private String clientID = null;
+  private String clientId = null;
+  private String secretId = null;
   private String redirectUri = null;
   private boolean returnProperties = true;
   private TextView txtResult;
@@ -31,7 +32,7 @@ public class MainActivity extends ActionBarActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    IDmeWebVerify.initialize(this, clientID, redirectUri);
+    IDmeWebVerify.initialize(this, clientId, secretId, redirectUri);
 
     setContentView(R.layout.activity_main);
 

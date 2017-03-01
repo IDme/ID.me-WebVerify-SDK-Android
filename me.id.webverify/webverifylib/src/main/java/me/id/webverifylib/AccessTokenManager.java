@@ -7,6 +7,9 @@ import android.support.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.id.webverifylib.helper.ObjectHelper;
+import me.id.webverifylib.listener.IDmeScope;
+
 final class AccessTokenManager {
   private SharedPreferences preferences;
   private final AsyncSharedPreferenceLoader preferenceLoader;
@@ -45,11 +48,12 @@ final class AccessTokenManager {
     return tokens.get(scope.getScopeId());
   }
 
-  void addToken(IDmeScope scope, AuthToken token) {
+  void addToken(AuthToken token) {
     waitForTokenLoad();
-    tokens.put(scope.getScopeId(), token);
+    String scopeId = token.getScopeId();
+    tokens.put(scopeId, token);
     preferences.edit()
-        .putString(scope.getScopeId(), ObjectHelper.toStringByteArray(token))
+        .putString(scopeId, ObjectHelper.toStringByteArray(token))
         .apply();
   }
 
