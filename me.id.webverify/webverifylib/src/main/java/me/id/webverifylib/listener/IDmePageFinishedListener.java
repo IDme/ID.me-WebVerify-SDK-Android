@@ -1,9 +1,9 @@
-package me.id.webverifylib;
+package me.id.webverifylib.listener;
 
 /**
  * Created by remer on 3/2/17.
  */
-interface IDmePageFinishedListener {
+public interface IDmePageFinishedListener {
   /**
    * Check if the given URL match with the redirect uri passed to the original request
    * @param url - an url string about to be loaded from the web view.

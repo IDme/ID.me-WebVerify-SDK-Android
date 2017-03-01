@@ -20,7 +20,7 @@ public final class IDmeProfile implements Parcelable {
   private String uuid;
   private String group;
 
-  IDmeProfile(@NonNull String json) throws JSONException {
+  public IDmeProfile(@NonNull String json) throws JSONException {
     JSONObject jsonProfile = new JSONObject(json);
     id = getJsonField(jsonProfile, "id");
     verified = jsonProfile.getBoolean("verified");

@@ -1,4 +1,4 @@
-package me.id.webverifylib;
+package me.id.webverifylib.networking;
 
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
@@ -13,15 +13,18 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import me.id.webverifylib.IDmeProfile;
+import me.id.webverifylib.listener.IDmeGetProfileListener;
+
 /**
  * Created by remer on 3/2/17.
  */
-final class GetProfileConnectionTask extends AsyncTask<String, Void, String> {
+public final class GetProfileConnectionTask extends AsyncTask<String, Void, String> {
   @NonNull
   private final IDmeGetProfileListener listener;
   private boolean returnedError;
 
-  GetProfileConnectionTask(@NonNull IDmeGetProfileListener listener) {
+  public GetProfileConnectionTask(@NonNull IDmeGetProfileListener listener) {
     this.listener = listener;
   }
 
