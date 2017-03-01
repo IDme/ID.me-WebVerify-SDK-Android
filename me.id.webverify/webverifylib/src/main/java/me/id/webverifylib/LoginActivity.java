@@ -57,10 +57,8 @@ public class LoginActivity extends WebViewActivity {
     }
 
     @Override
-    public void onPageFinished(WebView view, final String url) {
-      if (listener.isCallbackUrl(url)) {
-        listener.onCallbackResponse(url, scope);
-      }
+    protected void onCallbackCalled(WebView view, final String url) {
+      listener.onCallbackResponse(url, scope);
     }
   }
 }

@@ -94,18 +94,19 @@ public class WebViewActivity extends AppCompatActivity {
       this.listener = listener;
     }
 
-    @Override
-    public void onPageFinished(WebView view, final String url) {
-      if (listener.isCallbackUrl(url)) {
-        listener.onCallbackResponse(url, scope);
-        finish();
-      }
+    protected void onCallbackCalled(WebView view, final String url) {
+      listener.onCallbackResponse(url, scope);
+      finish();
     }
 
     @Override
     @SuppressWarnings("deprecation")
     public boolean shouldOverrideUrlLoading(WebView view, String url) {
-      return listener.isCallbackUrl(url);
+      if (listener.isCallbackUrl(url)) {
+        onCallbackCalled(view, url);
+        return true;
+      }
+      return false;
     }
   }
 }
