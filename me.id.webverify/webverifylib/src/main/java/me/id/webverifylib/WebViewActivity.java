@@ -164,7 +164,7 @@ public class WebViewActivity extends AppCompatActivity {
   protected void clearWebViewCacheAndHistory() {
     webView.clearCache(true);
     webView.clearHistory();
-    webView.clearFormData();;
+    webView.clearFormData();
 
     CookieManager cookieManager = CookieManager.getInstance();
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
