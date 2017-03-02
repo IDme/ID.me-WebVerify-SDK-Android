@@ -33,7 +33,7 @@
         android:paddingStart="20dp"
         android:text="@string/id_me_sdk_requires_internet_connection"
         android:textColor="@color/idme_black"
-        android:textSize="20sp"
+        android:textSize="16sp"
         />
 
 

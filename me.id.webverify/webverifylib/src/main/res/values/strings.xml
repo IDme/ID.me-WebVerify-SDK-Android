@@ -7,6 +7,6 @@
     <string name="close">Close</string>
     <string name="no_internet_connection">No internet connection</string>
     <string name="unavailable">Unavailable</string>
-    <string name="id_me_sdk_requires_internet_connection">ID.me Wallet requires a \n connection to the internet.</string>
+    <string name="id_me_sdk_requires_internet_connection">ID.me Wallet requires an \n internet connection.</string>
     <string name="retry">Retry</string>
 </resources>
