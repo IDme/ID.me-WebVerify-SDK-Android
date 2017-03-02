@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Webverifylib</string>
+    <string name="id_me_sdk_app_name">ID.me Wallet</string>
 
     <string name="idme_web_verify_get_common_uri"><![CDATA[https://api.id.me/oauth/authorize]]></string>
     <string name="idme_web_verify_get_access_token_uri"><![CDATA[https://api.id.me/oauth/token]]></string>
@@ -7,6 +7,6 @@
     <string name="close">Close</string>
     <string name="no_internet_connection">No internet connection</string>
     <string name="unavailable">Unavailable</string>
-    <string name="id_me_sdk_requires_internet_connection">ID.me requires a \n connection to the internet.</string>
+    <string name="id_me_sdk_requires_internet_connection">ID.me Wallet requires a \n connection to the internet.</string>
     <string name="retry">Retry</string>
 </resources>
