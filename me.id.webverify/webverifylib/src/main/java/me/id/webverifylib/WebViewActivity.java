@@ -15,7 +15,6 @@ import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.WebResourceError;
 import android.webkit.WebResourceRequest;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -53,8 +52,6 @@ public class WebViewActivity extends AppCompatActivity {
   @SuppressLint("SetJavaScriptEnabled")
   private void initializeWebView() {
     webView = (WebView) findViewById(R.id.webView);
-    webView.getSettings().setAppCacheEnabled(false);
-    webView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
     webView.getSettings().setJavaScriptEnabled(true);
     clearWebViewCacheAndHistory();
     webView.setWebViewClient(getWebClient(scope));
@@ -167,7 +164,8 @@ public class WebViewActivity extends AppCompatActivity {
   protected void clearWebViewCacheAndHistory() {
     webView.clearCache(true);
     webView.clearHistory();
-    webView.clearFormData();
+    webView.clearFormData();;
+
     CookieManager cookieManager = CookieManager.getInstance();
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
       //noinspection deprecation
