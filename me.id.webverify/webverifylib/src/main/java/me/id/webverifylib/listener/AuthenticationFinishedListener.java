@@ -26,11 +26,8 @@ public final class AuthenticationFinishedListener extends PageFinishedListener {
     if (ObjectHelper.equals(uri.getScheme(), scheme)) {
       String authCode = uri.getQueryParameter(CODE_QUERY_PARAMETER);
       if (authCode == null) {
-        String error = errorFromResponseUrl(responseUrl);
-        iDmeGetAuthCodeListener.onError(new IllegalStateException(error == null
-            ? "Failed to parse server response. Invalid format received."
-            : error
-        ));
+        Throwable error = getErrorFromResponseUrl(responseUrl);
+        iDmeGetAuthCodeListener.onError(error);
       } else {
         iDmeGetAuthCodeListener.onSuccess(authCode);
       }

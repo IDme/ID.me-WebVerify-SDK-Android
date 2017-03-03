@@ -3,7 +3,7 @@ package me.id.webverifylib.exception;
 /**
  * This exception will be thrown when the session doesn't exist or when the session isn't valid.
  */
-public final class UnauthenticatedException extends RuntimeException {
+public final class UnauthenticatedException extends IDmeException {
   public UnauthenticatedException() {
   }
 

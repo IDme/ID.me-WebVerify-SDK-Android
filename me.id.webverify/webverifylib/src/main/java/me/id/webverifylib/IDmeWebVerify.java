@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 
 import java.util.Locale;
 
+import me.id.webverifylib.exception.IDmeException;
 import me.id.webverifylib.exception.UnauthenticatedException;
 import me.id.webverifylib.listener.IDmeAccessTokenManagerListener;
 import me.id.webverifylib.listener.IDmeGetAccessTokenListener;
@@ -83,16 +84,16 @@ public final class IDmeWebVerify {
    */
   public static void initialize(Context context, String clientId, String clientSecret, String redirectUri) {
     if (initialized) {
-      throw new IllegalStateException("IDmeWebVerify is already initialized");
+      throw new IDmeException("IDmeWebVerify is already initialized");
     }
     if (clientId == null) {
-      throw new IllegalStateException("ClientId cannot be null");
+      throw new IDmeException("ClientId cannot be null");
     }
     if (redirectUri == null) {
-      throw new IllegalStateException("RedirectURI cannot be null");
+      throw new IDmeException("RedirectURI cannot be null");
     }
     if (clientSecret == null) {
-      throw new IllegalStateException("Client secret cannot be null");
+      throw new IDmeException("Client secret cannot be null");
     }
     idMeWebVerifyGetCommonUri = Uri.parse(context.getString(R.string.idme_web_verify_get_common_uri));
     idMeWebVerifyAccessTokenUri = Uri.parse(context.getString(R.string.idme_web_verify_get_access_token_uri));
@@ -116,11 +117,11 @@ public final class IDmeWebVerify {
   /**
    * Checks if the application is already initialized
    *
-   * @throws IllegalStateException Throws exception if the library hasn't been initialized yet
+   * @throws IDmeException Throws exception if the library hasn't been initialized yet
    */
   private void checkInitialization() {
     if (!initialized) {
-      throw new IllegalStateException("IDmeWebVerify has to be initialized before use any operation");
+      throw new IDmeException("IDmeWebVerify has to be initialized before use any operation");
     }
   }
 
@@ -205,12 +206,12 @@ public final class IDmeWebVerify {
     AuthToken token = accessTokenManager.getToken(scope);
     if (token == null) {
       String message = String.format(Locale.US, "There is not an access token related to the %s scope", scope);
-      listener.onError(new IllegalStateException(message));
+      listener.onError(new IDmeException(message));
     } else if (token.isValidAccessToken()) {
       String requestUrl = createGetProfileRequestUrl(token.getAccessToken());
       new GetProfileConnectionTask(listener).execute(requestUrl);
     } else {
-      listener.onError(new IllegalStateException("The access token is expired"));
+      listener.onError(new IDmeException("The access token is expired"));
     }
   }
 
@@ -395,7 +396,7 @@ public final class IDmeWebVerify {
 
   private void checkPendingRequest() {
     if (loginGetAccessTokenListener != null || registerAffiliationListener != null) {
-      throw new IllegalStateException("The activity is already initialized");
+      throw new IDmeException("The activity is already initialized");
     }
   }
 

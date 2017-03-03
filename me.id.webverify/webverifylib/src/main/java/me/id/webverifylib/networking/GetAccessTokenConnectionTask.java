@@ -8,6 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import me.id.webverifylib.AuthToken;
+import me.id.webverifylib.exception.IDmeException;
 import me.id.webverifylib.exception.UnauthenticatedException;
 import me.id.webverifylib.helper.AccessTokenHelper;
 import me.id.webverifylib.helper.ObjectHelper;
@@ -70,11 +71,11 @@ public final class GetAccessTokenConnectionTask extends AsyncTask<String, Void, 
       return;
     }
     if (result == null) {
-      listener.onError(new IllegalStateException("Get Access Token error"));
+      listener.onError(new IDmeException("Get Access Token error"));
     } else {
       AuthToken authToken = AccessTokenHelper.extractAccessTokenFromJson(scope, result);
       if (authToken == null) {
-        listener.onError(new IllegalStateException("Get Access Token error"));
+        listener.onError(new IDmeException("Get Access Token error"));
       } else {
         listener.onSuccess(authToken);
       }
