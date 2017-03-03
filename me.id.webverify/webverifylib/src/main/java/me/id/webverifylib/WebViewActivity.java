@@ -13,8 +13,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.webkit.CookieManager;
-import android.webkit.WebResourceError;
-import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -227,11 +225,6 @@ public class WebViewActivity extends AppCompatActivity {
         default:
           super.onReceivedError(view, errorCode, description, failingUrl);
       }
-    }
-
-    @Override
-    public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
-      super.onReceivedError(view, request, error);
     }
 
     @Override
