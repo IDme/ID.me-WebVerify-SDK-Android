@@ -36,6 +36,7 @@ public class LoginActivity extends WebViewActivity {
     @Override
     public void onError(Throwable throwable) {
       IDmeWebVerify.getInstance().getAccessTokenManagerListener().onError(throwable);
+      finish();
     }
   };
 
