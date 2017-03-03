@@ -1,13 +1,21 @@
 package me.id.webverifylib;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 import android.webkit.CookieManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 
 import me.id.webverifylib.exception.UserCanceledException;
 import me.id.webverifylib.listener.IDmePageFinishedListener;
@@ -18,11 +26,14 @@ public class WebViewActivity extends AppCompatActivity {
   public static final String EXTRA_URL = "url";
 
   protected WebView webView;
+  protected Toolbar toolbar;
+  protected WebView progressBarWebView;
+  protected Button networkErrorButton;
+  protected View internetConnectionErrorView;
   protected IDmeScope scope;
   protected String url;
 
   @Override
-  @SuppressLint("SetJavaScriptEnabled")
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_web_view);
@@ -30,11 +41,98 @@ public class WebViewActivity extends AppCompatActivity {
     scope = getScopeFromKey(getIntent().getStringExtra(EXTRA_SCOPE_ID));
     url = getIntent().getStringExtra(EXTRA_URL);
 
+    initializeNoInternetConnectionView();
+    initializeProgressBar();
+    initializeToolbar();
+    initializeWebView();
+  }
+
+  @SuppressLint("SetJavaScriptEnabled")
+  private void initializeWebView() {
     webView = (WebView) findViewById(R.id.webView);
+    webView.getSettings().setJavaScriptEnabled(true);
     clearWebViewCacheAndHistory();
     webView.setWebViewClient(getWebClient(scope));
     webView.loadUrl(url);
-    webView.getSettings().setJavaScriptEnabled(true);
+  }
+
+  private void initializeToolbar() {
+    toolbar = (Toolbar) findViewById(R.id.toolbar);
+    setSupportActionBar(toolbar);
+    //noinspection ConstantConditions
+    getSupportActionBar().setTitle("");
+    supportInvalidateOptionsMenu();
+  }
+
+  private void hideProgressBar(int startDelayInSeconds) {
+    if (progressBarWebView != null) {
+      progressBarWebView.animate()
+          .alpha(0.0f)
+          .setDuration(1000)
+          .setStartDelay(startDelayInSeconds * 1000)
+          .setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+              super.onAnimationEnd(animation);
+              progressBarWebView.setVisibility(View.GONE);
+            }
+          });
+    }
+  }
+
+  private void hideInternetConnectionErrorView(int startDelayInSeconds) {
+    if (progressBarWebView != null) {
+      internetConnectionErrorView.animate()
+          .alpha(0.0f)
+          .setDuration(500)
+          .setStartDelay(startDelayInSeconds * 1000)
+          .setListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+              super.onAnimationEnd(animation);
+              progressBarWebView.setVisibility(View.GONE);
+            }
+          });
+    }
+  }
+
+  private void initializeProgressBar() {
+    progressBarWebView = (WebView) findViewById(R.id.progress_bar_webView);
+    progressBarWebView.getSettings().setLoadWithOverviewMode(true);
+    progressBarWebView.getSettings().setUseWideViewPort(true);
+    progressBarWebView.setBackgroundColor(Color.TRANSPARENT);
+    progressBarWebView.setLayerType(WebView.LAYER_TYPE_SOFTWARE, null);
+    progressBarWebView.loadUrl("file:///android_asset/image/spinner.gif");
+  }
+
+  private void initializeNoInternetConnectionView() {
+    internetConnectionErrorView = findViewById(R.id.internet_connection_error_layout);
+    networkErrorButton = (Button) findViewById(R.id.network_error_button);
+    networkErrorButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        webView.reload();
+        progressBarWebView.setAlpha(1);
+        progressBarWebView.setVisibility(View.VISIBLE);
+        hideInternetConnectionErrorView(4);
+      }
+    });
+  }
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    getMenuInflater().inflate(R.menu.idme_menu_main, menu);
+    return true;
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    if (item.getItemId() == R.id.close) {
+      finish();
+      return true;
+    } else {
+      return super.onOptionsItemSelected(item);
+    }
   }
 
   @NonNull
@@ -56,14 +154,6 @@ public class WebViewActivity extends AppCompatActivity {
   @Override
   public void onDestroy() {
     super.onDestroy();
-    CookieManager cookieManager = CookieManager.getInstance();
-
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-      //noinspection deprecation
-      cookieManager.removeAllCookie();
-    } else {
-      cookieManager.removeAllCookies(null);
-    }
     clearWebViewCacheAndHistory();
     webView.destroy();
     IDmeWebVerify.getInstance().clearSignInListener();
@@ -73,6 +163,14 @@ public class WebViewActivity extends AppCompatActivity {
     webView.clearCache(true);
     webView.clearHistory();
     webView.clearFormData();
+
+    CookieManager cookieManager = CookieManager.getInstance();
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+      //noinspection deprecation
+      cookieManager.removeAllCookie();
+    } else {
+      cookieManager.removeAllCookies(null);
+    }
   }
 
   @Override
@@ -94,9 +192,39 @@ public class WebViewActivity extends AppCompatActivity {
       this.listener = listener;
     }
 
+    @Override
+    public void onPageFinished(WebView view, final String url) {
+      if (internetConnectionErrorView.getVisibility() == View.GONE) {
+        hideProgressBar(1);
+      }
+    }
+
     protected void onCallbackCalled(WebView view, final String url) {
       listener.onCallbackResponse(url, scope);
       finish();
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+      switch (errorCode) {
+        case WebViewClient.ERROR_AUTHENTICATION:
+        case WebViewClient.ERROR_HOST_LOOKUP:
+        case WebViewClient.ERROR_BAD_URL:
+        case WebViewClient.ERROR_CONNECT:
+        case WebViewClient.ERROR_FAILED_SSL_HANDSHAKE:
+        case WebViewClient.ERROR_IO:
+        case WebViewClient.ERROR_PROXY_AUTHENTICATION:
+        case WebViewClient.ERROR_TIMEOUT:
+        case WebViewClient.ERROR_UNKNOWN:
+          internetConnectionErrorView.clearAnimation();
+          internetConnectionErrorView.animate().cancel();
+          internetConnectionErrorView.setAlpha(1);
+          internetConnectionErrorView.setVisibility(View.VISIBLE);
+          hideProgressBar(0);
+        default:
+          super.onReceivedError(view, errorCode, description, failingUrl);
+      }
     }
 
     @Override

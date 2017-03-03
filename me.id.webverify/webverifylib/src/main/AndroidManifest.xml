@@ -5,18 +5,18 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
         >
 
         <activity
             android:exported="false"
             android:name=".LoginActivity"
+            android:theme="@style/IDmeSdkAppTheme"
             />
 
         <activity
             android:exported="false"
             android:name=".WebViewActivity"
+            android:theme="@style/IDmeSdkAppTheme"
             />
 
     </application>
