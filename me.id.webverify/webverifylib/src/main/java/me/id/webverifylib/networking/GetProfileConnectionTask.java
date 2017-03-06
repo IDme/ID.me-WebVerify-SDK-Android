@@ -14,6 +14,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import me.id.webverifylib.IDmeProfile;
+import me.id.webverifylib.exception.IDmeException;
 import me.id.webverifylib.listener.IDmeGetProfileListener;
 
 /**
@@ -57,7 +58,7 @@ public final class GetProfileConnectionTask extends AsyncTask<String, Void, Stri
       return;
     }
     if (result == null) {
-      listener.onError(new IllegalStateException("Profile error"));
+      listener.onError(new IDmeException("Profile error"));
     } else {
       try {
         listener.onSuccess(new IDmeProfile(result));

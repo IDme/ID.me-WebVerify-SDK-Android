@@ -9,7 +9,9 @@ import android.support.annotation.Nullable;
 
 import java.util.Locale;
 
+import me.id.webverifylib.exception.IDmeException;
 import me.id.webverifylib.exception.UnauthenticatedException;
+import me.id.webverifylib.exception.UserCanceledException;
 import me.id.webverifylib.listener.IDmeAccessTokenManagerListener;
 import me.id.webverifylib.listener.IDmeGetAccessTokenListener;
 import me.id.webverifylib.listener.IDmeGetProfileListener;
@@ -80,19 +82,20 @@ public final class IDmeWebVerify {
    * @param clientId     Application client id
    * @param clientSecret Application client secret
    * @param redirectUri  Application redirect uri
+   * @throws IDmeException if something went wrong
    */
   public static void initialize(Context context, String clientId, String clientSecret, String redirectUri) {
     if (initialized) {
-      throw new IllegalStateException("IDmeWebVerify is already initialized");
+      throw new IDmeException("IDmeWebVerify is already initialized");
     }
     if (clientId == null) {
-      throw new IllegalStateException("ClientId cannot be null");
+      throw new IDmeException("ClientId cannot be null");
     }
     if (redirectUri == null) {
-      throw new IllegalStateException("RedirectURI cannot be null");
+      throw new IDmeException("RedirectURI cannot be null");
     }
     if (clientSecret == null) {
-      throw new IllegalStateException("Client secret cannot be null");
+      throw new IDmeException("Client secret cannot be null");
     }
     idMeWebVerifyGetCommonUri = Uri.parse(context.getString(R.string.idme_web_verify_get_common_uri));
     idMeWebVerifyAccessTokenUri = Uri.parse(context.getString(R.string.idme_web_verify_get_access_token_uri));
@@ -116,11 +119,11 @@ public final class IDmeWebVerify {
   /**
    * Checks if the application is already initialized
    *
-   * @throws IllegalStateException Throws exception if the library hasn't been initialized yet
+   * @throws IDmeException Throws exception if the library hasn't been initialized yet
    */
   private void checkInitialization() {
     if (!initialized) {
-      throw new IllegalStateException("IDmeWebVerify has to be initialized before use any operation");
+      throw new IDmeException("IDmeWebVerify has to be initialized before use any operation");
     }
   }
 
@@ -143,6 +146,9 @@ public final class IDmeWebVerify {
    * @param scope     The type of group verification.
    * @param loginType The type of login. The default value is {@code LoginType.SIGN_IN}
    * @param listener  The listener that will be called when the login process is finished.
+   * @throws UserCanceledException    if the user cancel the action
+   * @throws UnauthenticatedException if the auth information is not valid
+   * @throws IDmeException            if something went wrong
    */
   public void login(@NonNull Activity activity, @NonNull IDmeScope scope, @Nullable LoginType loginType,
                     @NonNull IDmeGetAccessTokenListener listener) {
@@ -166,6 +172,8 @@ public final class IDmeWebVerify {
    *
    * @param scope    The type of group verification.
    * @param listener The listener that will be called when the get access token process finished.
+   * @throws UnauthenticatedException if the auth information is not valid
+   * @throws IDmeException            if something went wrong
    */
   @SuppressWarnings("unused")
   public void getAccessToken(@NonNull IDmeScope scope, @NonNull final IDmeGetAccessTokenListener listener) {
@@ -178,6 +186,8 @@ public final class IDmeWebVerify {
    * @param scope       The type of group verification.
    * @param forceReload Force to reload the access token.
    * @param listener    The listener that will be called when the get access token process finished.
+   * @throws UnauthenticatedException if the auth information is not valid
+   * @throws IDmeException            if something went wrong
    */
   @SuppressWarnings("unused")
   public void getAccessToken(@NonNull IDmeScope scope, boolean forceReload,
@@ -200,17 +210,18 @@ public final class IDmeWebVerify {
    *
    * @param scope    The type of group verification.
    * @param listener The listener that will be called when the get user profile process finished.
+   * @throws IDmeException if something went wrong
    */
   public void getUserProfile(@NonNull IDmeScope scope, @NonNull IDmeGetProfileListener listener) {
     AuthToken token = accessTokenManager.getToken(scope);
     if (token == null) {
       String message = String.format(Locale.US, "There is not an access token related to the %s scope", scope);
-      listener.onError(new IllegalStateException(message));
+      listener.onError(new IDmeException(message));
     } else if (token.isValidAccessToken()) {
       String requestUrl = createGetProfileRequestUrl(token.getAccessToken());
       new GetProfileConnectionTask(listener).execute(requestUrl);
     } else {
-      listener.onError(new IllegalStateException("The access token is expired"));
+      listener.onError(new IDmeException("The access token is expired"));
     }
   }
 
@@ -237,6 +248,9 @@ public final class IDmeWebVerify {
    * @param scope           The type of group verification.
    * @param affiliationType The affiliation that will be registered.
    * @param listener        The listener that will be called when the registration process finished.
+   * @throws UserCanceledException if the user cancel the action
+   * @throws UnauthenticatedException if the auth information is not valid
+   * @throws IDmeException if something went wrong
    */
   public void registerAffiliation(@NonNull Activity activity,
                                   @NonNull IDmeScope scope,
@@ -267,6 +281,9 @@ public final class IDmeWebVerify {
    * @param scope          The type of group verification.
    * @param connectionType The connection that will be registered.
    * @param listener       The listener that will be called when the registration process finished.
+   * @throws UserCanceledException if the user cancel the action
+   * @throws UnauthenticatedException if the auth information is not valid
+   * @throws IDmeException if something went wrong
    */
   public void registerConnection(Activity activity, IDmeScope scope, IDmeConnectionType connectionType,
                                  IDmeRegisterConnectionListener listener) {
@@ -395,7 +412,7 @@ public final class IDmeWebVerify {
 
   private void checkPendingRequest() {
     if (loginGetAccessTokenListener != null || registerAffiliationListener != null) {
-      throw new IllegalStateException("The activity is already initialized");
+      throw new IDmeException("The activity is already initialized");
     }
   }
 

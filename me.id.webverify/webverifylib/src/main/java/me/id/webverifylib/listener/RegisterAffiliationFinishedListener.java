@@ -18,11 +18,11 @@ public final class RegisterAffiliationFinishedListener extends PageFinishedListe
   @Override
   public void onCallbackResponse(String responseUrl, IDmeScope scope) {
     super.onCallbackResponse(responseUrl, scope);
-    String error = errorFromResponseUrl(responseUrl);
-    if (error == null) {
+    if (hasError(responseUrl)) {
       registerConnectionListener.onSuccess();
     } else {
-      registerConnectionListener.onError(new RuntimeException(error));
+      Throwable error = getErrorFromResponseUrl(responseUrl);
+      registerConnectionListener.onError(error);
     }
   }
 }

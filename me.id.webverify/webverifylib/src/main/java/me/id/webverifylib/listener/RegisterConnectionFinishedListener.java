@@ -17,11 +17,11 @@ public class RegisterConnectionFinishedListener extends PageFinishedListener {
   @Override
   public void onCallbackResponse(String responseUrl, IDmeScope scope) {
     super.onCallbackResponse(responseUrl, scope);
-    String error = errorFromResponseUrl(responseUrl);
-    if (error == null) {
+    if (hasError(responseUrl)) {
       listener.onSuccess();
     } else {
-      listener.onError(new RuntimeException(error));
+      Throwable error = getErrorFromResponseUrl(responseUrl);
+      listener.onError(error);
     }
   }
 }
