@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.webkit.CookieManager;
 
 import java.util.Locale;
 
@@ -229,6 +231,13 @@ public final class IDmeWebVerify {
   @SuppressWarnings("unused")
   public void logOut() {
     accessTokenManager.deleteSession();
+    CookieManager cookieManager = CookieManager.getInstance();
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+      //noinspection deprecation
+      cookieManager.removeAllCookie();
+    } else {
+      cookieManager.removeAllCookies(null);
+    }
   }
 
   /**

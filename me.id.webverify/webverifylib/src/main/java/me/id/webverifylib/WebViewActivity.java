@@ -4,7 +4,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.SuppressLint;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -12,7 +11,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.CookieManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -51,7 +49,6 @@ public class WebViewActivity extends AppCompatActivity {
   private void initializeWebView() {
     webView = (WebView) findViewById(R.id.webView);
     webView.getSettings().setJavaScriptEnabled(true);
-    clearWebViewCacheAndHistory();
     webView.setWebViewClient(getWebClient(scope));
     webView.loadUrl(url);
   }
@@ -111,10 +108,10 @@ public class WebViewActivity extends AppCompatActivity {
     networkErrorButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
+        hideInternetConnectionErrorView(4);
         webView.reload();
         progressBarWebView.setAlpha(1);
         progressBarWebView.setVisibility(View.VISIBLE);
-        hideInternetConnectionErrorView(4);
       }
     });
   }
@@ -154,23 +151,8 @@ public class WebViewActivity extends AppCompatActivity {
   @Override
   public void onDestroy() {
     super.onDestroy();
-    clearWebViewCacheAndHistory();
     webView.destroy();
     IDmeWebVerify.getInstance().clearSignInListener();
-  }
-
-  protected void clearWebViewCacheAndHistory() {
-    webView.clearCache(true);
-    webView.clearHistory();
-    webView.clearFormData();
-
-    CookieManager cookieManager = CookieManager.getInstance();
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-      //noinspection deprecation
-      cookieManager.removeAllCookie();
-    } else {
-      cookieManager.removeAllCookies(null);
-    }
   }
 
   @Override
