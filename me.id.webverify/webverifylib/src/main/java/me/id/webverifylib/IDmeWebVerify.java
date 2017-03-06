@@ -11,6 +11,7 @@ import java.util.Locale;
 
 import me.id.webverifylib.exception.IDmeException;
 import me.id.webverifylib.exception.UnauthenticatedException;
+import me.id.webverifylib.exception.UserCanceledException;
 import me.id.webverifylib.listener.IDmeAccessTokenManagerListener;
 import me.id.webverifylib.listener.IDmeGetAccessTokenListener;
 import me.id.webverifylib.listener.IDmeGetProfileListener;
@@ -81,6 +82,7 @@ public final class IDmeWebVerify {
    * @param clientId     Application client id
    * @param clientSecret Application client secret
    * @param redirectUri  Application redirect uri
+   * @throws IDmeException if something went wrong
    */
   public static void initialize(Context context, String clientId, String clientSecret, String redirectUri) {
     if (initialized) {
@@ -144,6 +146,9 @@ public final class IDmeWebVerify {
    * @param scope     The type of group verification.
    * @param loginType The type of login. The default value is {@code LoginType.SIGN_IN}
    * @param listener  The listener that will be called when the login process is finished.
+   * @throws UserCanceledException    if the user cancel the action
+   * @throws UnauthenticatedException if the auth information is not valid
+   * @throws IDmeException            if something went wrong
    */
   public void login(@NonNull Activity activity, @NonNull IDmeScope scope, @Nullable LoginType loginType,
                     @NonNull IDmeGetAccessTokenListener listener) {
@@ -167,6 +172,8 @@ public final class IDmeWebVerify {
    *
    * @param scope    The type of group verification.
    * @param listener The listener that will be called when the get access token process finished.
+   * @throws UnauthenticatedException if the auth information is not valid
+   * @throws IDmeException            if something went wrong
    */
   @SuppressWarnings("unused")
   public void getAccessToken(@NonNull IDmeScope scope, @NonNull final IDmeGetAccessTokenListener listener) {
@@ -179,6 +186,8 @@ public final class IDmeWebVerify {
    * @param scope       The type of group verification.
    * @param forceReload Force to reload the access token.
    * @param listener    The listener that will be called when the get access token process finished.
+   * @throws UnauthenticatedException if the auth information is not valid
+   * @throws IDmeException            if something went wrong
    */
   @SuppressWarnings("unused")
   public void getAccessToken(@NonNull IDmeScope scope, boolean forceReload,
@@ -201,6 +210,7 @@ public final class IDmeWebVerify {
    *
    * @param scope    The type of group verification.
    * @param listener The listener that will be called when the get user profile process finished.
+   * @throws IDmeException if something went wrong
    */
   public void getUserProfile(@NonNull IDmeScope scope, @NonNull IDmeGetProfileListener listener) {
     AuthToken token = accessTokenManager.getToken(scope);
@@ -238,6 +248,9 @@ public final class IDmeWebVerify {
    * @param scope           The type of group verification.
    * @param affiliationType The affiliation that will be registered.
    * @param listener        The listener that will be called when the registration process finished.
+   * @throws UserCanceledException if the user cancel the action
+   * @throws UnauthenticatedException if the auth information is not valid
+   * @throws IDmeException if something went wrong
    */
   public void registerAffiliation(@NonNull Activity activity,
                                   @NonNull IDmeScope scope,
@@ -268,6 +281,9 @@ public final class IDmeWebVerify {
    * @param scope          The type of group verification.
    * @param connectionType The connection that will be registered.
    * @param listener       The listener that will be called when the registration process finished.
+   * @throws UserCanceledException if the user cancel the action
+   * @throws UnauthenticatedException if the auth information is not valid
+   * @throws IDmeException if something went wrong
    */
   public void registerConnection(Activity activity, IDmeScope scope, IDmeConnectionType connectionType,
                                  IDmeRegisterConnectionListener listener) {
