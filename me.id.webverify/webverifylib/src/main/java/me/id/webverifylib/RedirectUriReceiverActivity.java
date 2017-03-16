@@ -43,7 +43,7 @@ public class RedirectUriReceiverActivity extends Activity {
       throw new IDmeException("Current state cannot be null");
     }
 
-    String code = getIntent().getData().getQueryParameter(IDmeWebVerify.CODE_KEY);
+    String code = getIntent().getData().getQueryParameter(IDmeWebVerify.PARAM_CODE_KEY);
     if (code == null || code.isEmpty()) {
       IDmeWebVerify.getInstance().notifyFailure(new IDmeException("An error has occurred getting the auth token"));
       sendResult(Activity.RESULT_CANCELED);

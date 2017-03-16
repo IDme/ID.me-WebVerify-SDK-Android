@@ -1,5 +1,8 @@
 package me.id.webverifylib;
 
+import android.support.annotation.NonNull;
+
+import me.id.webverifylib.helper.CodeVerifierUtil;
 import me.id.webverifylib.listener.IDmeScope;
 
 /**
@@ -11,13 +14,34 @@ enum State {
   REGISTER_CONNECTION,
   ;
 
-  private IDmeScope scope;
+  private static final String CODE_VERIFIER_METHOD = CodeVerifierUtil.getCodeVerifierChallengeMethod();
 
-  public IDmeScope getScope() {
+  private IDmeScope scope;
+  private String codeVerifier;
+  private String codeVerifierChallenge;
+
+  IDmeScope getScope() {
     return scope;
   }
 
-  public void setScope(IDmeScope scope) {
+  void setScope(IDmeScope scope) {
     this.scope = scope;
+  }
+
+  String getCodeChallenge() {
+    return codeVerifier;
+  }
+
+  String getCodeVerifier() {
+    return codeVerifierChallenge;
+  }
+
+  String getCodeVerifierMethod() {
+    return CODE_VERIFIER_METHOD;
+  }
+
+  void setCodeVerifier(@NonNull String codeVerifier) {
+    this.codeVerifier = codeVerifier;
+    codeVerifierChallenge = CodeVerifierUtil.deriveCodeVerifierChallenge(codeVerifier);
   }
 }

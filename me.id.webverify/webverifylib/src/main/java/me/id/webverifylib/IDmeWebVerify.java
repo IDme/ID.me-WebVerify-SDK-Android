@@ -12,6 +12,8 @@ import java.util.Locale;
 import me.id.webverifylib.exception.IDmeException;
 import me.id.webverifylib.exception.UnauthenticatedException;
 import me.id.webverifylib.exception.UserCanceledException;
+import me.id.webverifylib.helper.CodeVerifierUtil;
+import me.id.webverifylib.helper.Preconditions;
 import me.id.webverifylib.listener.IDmeGetAccessTokenListener;
 import me.id.webverifylib.listener.IDmeGetProfileListener;
 import me.id.webverifylib.listener.IDmeRegisterAffiliationListener;
@@ -20,18 +22,21 @@ import me.id.webverifylib.listener.IDmeScope;
 import me.id.webverifylib.networking.GetProfileConnectionTask;
 
 public final class IDmeWebVerify {
-  private static final String ACCESS_TOKEN_KEY = "access_token";
-  private static final String CLIENT_ID_KEY = "client_id";
-  private static final String CLIENT_SECRET_KEY = "client_secret";
-  private static final String CONNECT_TYPE_KEY = "connect";
-  private static final String GRANT_TYPE_KEY = "grant_type";
-  private static final String REDIRECT_URI_KEY = "redirect_uri";
-  private static final String REFRESH_TOKEN_KEY = "refresh_token";
-  private static final String RESPONSE_TYPE_KEY = "response_type";
-  private static final String RESPONSE_TYPE_VALUE = "code";
-  private static final String SCOPE_TYPE_KEY = "scope";
+  private static final String PARAM_ACCESS_TOKEN = "access_token";
+  private static final String PARAM_CLIENT_ID = "client_id";
+  private static final String PARAM_CLIENT_SECRET = "client_secret";
+  private static final String PARAM_CODE_CHALLENGE = "code_challenge";
+  private static final String PARAM_CODE_CHALLENGE_METHOD = "code_challenge_method";
+  private static final String PARAM_CODE_VERIFIER = "code_verifier";
+  private static final String PARAM_CONNECT_TYPE = "connect";
+  private static final String PARAM_GRANT_TYPE = "grant_type";
+  private static final String PARAM_REDIRECT_URI = "redirect_uri";
+  private static final String PARAM_REFRESH_TOKEN = "refresh_token";
+  private static final String PARAM_SCOPE_TYPE = "scope";
+  private static final String PARAM_TYPE = "response_type";
+  private static final String TYPE_VALUE = "code";
   private static final String SIGN_TYPE_KEY = "op";
-  static final String CODE_KEY = "code";
+  static final String PARAM_CODE_KEY = "code";
 
   private static Uri idMeWebVerifyAccessTokenUri;
   private static Uri idMeWebVerifyGetCommonUri;
@@ -65,15 +70,9 @@ public final class IDmeWebVerify {
     if (initialized) {
       throw new IDmeException("IDmeWebVerify is already initialized");
     }
-    if (clientId == null) {
-      throw new IDmeException("ClientId cannot be null");
-    }
-    if (redirectUri == null) {
-      throw new IDmeException("RedirectURI cannot be null");
-    }
-    if (clientSecret == null) {
-      throw new IDmeException("Client secret cannot be null");
-    }
+    Preconditions.checkNotNull(clientId, "ClientId cannot be null");
+    Preconditions.checkNotNull(redirectUri, "RedirectURI cannot be null");
+    Preconditions.checkNotNull(clientSecret, "Client secret cannot be null");
     if (!isRedirectUriRegistered(context, redirectUri)) {
       throw new IDmeException(
           "redirect_uri is not handled by any activity in this app! "
@@ -354,7 +353,9 @@ public final class IDmeWebVerify {
    */
   private String createURL(@NonNull IDmeScope scope, @NonNull LoginType loginType) {
     return getCommonUri()
-        .appendQueryParameter(SCOPE_TYPE_KEY, scope.getScopeId())
+        .appendQueryParameter(PARAM_CODE_CHALLENGE, currentState.getCodeChallenge())
+        .appendQueryParameter(PARAM_CODE_CHALLENGE_METHOD, currentState.getCodeVerifierMethod())
+        .appendQueryParameter(PARAM_SCOPE_TYPE, scope.getScopeId())
         .appendQueryParameter(SIGN_TYPE_KEY, loginType.getId())
         .build()
         .toString();
@@ -370,7 +371,7 @@ public final class IDmeWebVerify {
         .scheme(idMeWebVerifyGetUserProfileUri.getScheme())
         .authority(idMeWebVerifyGetUserProfileUri.getHost())
         .path(idMeWebVerifyGetUserProfileUri.getPath())
-        .appendQueryParameter(ACCESS_TOKEN_KEY, accessToken)
+        .appendQueryParameter(PARAM_ACCESS_TOKEN, accessToken)
         .build()
         .toString();
   }
@@ -383,7 +384,9 @@ public final class IDmeWebVerify {
    */
   private String createRegisterAffiliationUrl(IDmeAffiliationType affiliationType) {
     return getCommonUri()
-        .appendQueryParameter(SCOPE_TYPE_KEY, affiliationType.getKey())
+        .appendQueryParameter(PARAM_CODE_CHALLENGE, currentState.getCodeChallenge())
+        .appendQueryParameter(PARAM_CODE_CHALLENGE_METHOD, currentState.getCodeVerifierMethod())
+        .appendQueryParameter(PARAM_SCOPE_TYPE, affiliationType.getKey())
         .build()
         .toString();
   }
@@ -397,8 +400,10 @@ public final class IDmeWebVerify {
    */
   private String createRegisterConnectionUrl(IDmeConnectionType connectionType, IDmeScope scope) {
     return getCommonUri()
-        .appendQueryParameter(CONNECT_TYPE_KEY, connectionType.getKey())
-        .appendQueryParameter(SCOPE_TYPE_KEY, scope.getScopeId())
+        .appendQueryParameter(PARAM_CODE_CHALLENGE, currentState.getCodeChallenge())
+        .appendQueryParameter(PARAM_CODE_CHALLENGE_METHOD, currentState.getCodeVerifierMethod())
+        .appendQueryParameter(PARAM_CONNECT_TYPE, connectionType.getKey())
+        .appendQueryParameter(PARAM_SCOPE_TYPE, scope.getScopeId())
         .build()
         .toString();
   }
@@ -411,15 +416,16 @@ public final class IDmeWebVerify {
         .scheme(idMeWebVerifyGetCommonUri.getScheme())
         .authority(idMeWebVerifyGetCommonUri.getHost())
         .path(idMeWebVerifyGetCommonUri.getPath())
-        .appendQueryParameter(CLIENT_ID_KEY, clientId)
-        .appendQueryParameter(REDIRECT_URI_KEY, redirectUri)
-        .appendQueryParameter(RESPONSE_TYPE_KEY, RESPONSE_TYPE_VALUE);
+        .appendQueryParameter(PARAM_CLIENT_ID, clientId)
+        .appendQueryParameter(PARAM_REDIRECT_URI, redirectUri)
+        .appendQueryParameter(PARAM_TYPE, TYPE_VALUE);
   }
 
   private synchronized void setCurrentState(State state, IDmeScope scope) {
     if (currentState == null) {
       currentState = state;
       currentState.setScope(scope);
+      currentState.setCodeVerifier(CodeVerifierUtil.generateRandomCodeVerifier());
     } else {
       throw new IDmeException("A process is already initialized");
     }
@@ -436,22 +442,23 @@ public final class IDmeWebVerify {
 
   static String getAccessTokenQuery(@NonNull String code) {
     return new Uri.Builder()
-        .appendQueryParameter(CLIENT_ID_KEY, clientId)
-        .appendQueryParameter(CLIENT_SECRET_KEY, clientSecret)
-        .appendQueryParameter(CODE_KEY, code)
-        .appendQueryParameter(GRANT_TYPE_KEY, "authorization_code")
-        .appendQueryParameter(REDIRECT_URI_KEY, redirectUri)
+        .appendQueryParameter(PARAM_CLIENT_ID, clientId)
+        .appendQueryParameter(PARAM_CLIENT_SECRET, clientSecret)
+        .appendQueryParameter(PARAM_CODE_KEY, code)
+        .appendQueryParameter(PARAM_CODE_VERIFIER, currentState.getCodeVerifier())
+        .appendQueryParameter(PARAM_GRANT_TYPE, "authorization_code")
+        .appendQueryParameter(PARAM_REDIRECT_URI, redirectUri)
         .build()
         .getEncodedQuery();
   }
 
   static String getAccessTokenFromRefreshTokenQuery(@NonNull String refreshToken) {
     return new Uri.Builder()
-        .appendQueryParameter(CLIENT_ID_KEY, clientId)
-        .appendQueryParameter(CLIENT_SECRET_KEY, clientSecret)
-        .appendQueryParameter(GRANT_TYPE_KEY, "refresh_token")
-        .appendQueryParameter(REDIRECT_URI_KEY, redirectUri)
-        .appendQueryParameter(REFRESH_TOKEN_KEY, refreshToken)
+        .appendQueryParameter(PARAM_CLIENT_ID, clientId)
+        .appendQueryParameter(PARAM_CLIENT_SECRET, clientSecret)
+        .appendQueryParameter(PARAM_GRANT_TYPE, "refresh_token")
+        .appendQueryParameter(PARAM_REDIRECT_URI, redirectUri)
+        .appendQueryParameter(PARAM_REFRESH_TOKEN, refreshToken)
         .build()
         .getEncodedQuery();
   }
