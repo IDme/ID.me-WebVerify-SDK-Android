@@ -25,12 +25,12 @@ public class CustomTabsHelper {
   private static final String ACTION_CUSTOM_TABS_CONNECTION = "android.support.customtabs.action.CustomTabsService";
 
   public static CustomTabsIntent getCustomTabIntent(Context context, String url) {
-    CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
     //noinspection deprecation
-    builder.setToolbarColor(context.getResources().getColor(R.color.idme_blue_dark));
-    builder.enableUrlBarHiding();
-    builder.setShowTitle(false);
-    CustomTabsIntent customTabsIntent = builder.build();
+    CustomTabsIntent customTabsIntent = new CustomTabsIntent.Builder()
+        .setToolbarColor(context.getResources().getColor(R.color.idme_blue_dark))
+        .enableUrlBarHiding()
+        .setShowTitle(false)
+        .build();
     String packageName = CustomTabsHelper.getBestPackageNameToUse(context, url);
     if (packageName != null) {
       customTabsIntent.intent.setPackage(packageName);
@@ -105,7 +105,7 @@ public class CustomTabsHelper {
         }
         return true;
       }
-    } catch (RuntimeException e) {
+    } catch (RuntimeException ignored) {
 
     }
     return false;
