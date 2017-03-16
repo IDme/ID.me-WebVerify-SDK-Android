@@ -25,6 +25,7 @@ public final class IDmeWebVerify {
   private static final String PARAM_ACCESS_TOKEN = "access_token";
   private static final String PARAM_CLIENT_ID = "client_id";
   private static final String PARAM_CLIENT_SECRET = "client_secret";
+  static final String PARAM_CODE = "code";
   private static final String PARAM_CODE_CHALLENGE = "code_challenge";
   private static final String PARAM_CODE_CHALLENGE_METHOD = "code_challenge_method";
   private static final String PARAM_CODE_VERIFIER = "code_verifier";
@@ -34,9 +35,8 @@ public final class IDmeWebVerify {
   private static final String PARAM_REFRESH_TOKEN = "refresh_token";
   private static final String PARAM_SCOPE_TYPE = "scope";
   private static final String PARAM_TYPE = "response_type";
-  private static final String TYPE_VALUE = "code";
   private static final String SIGN_TYPE_KEY = "op";
-  static final String PARAM_CODE_KEY = "code";
+  private static final String TYPE_VALUE = "code";
 
   private static Uri idMeWebVerifyAccessTokenUri;
   private static Uri idMeWebVerifyGetCommonUri;
@@ -444,7 +444,7 @@ public final class IDmeWebVerify {
     return new Uri.Builder()
         .appendQueryParameter(PARAM_CLIENT_ID, clientId)
         .appendQueryParameter(PARAM_CLIENT_SECRET, clientSecret)
-        .appendQueryParameter(PARAM_CODE_KEY, code)
+        .appendQueryParameter(PARAM_CODE, code)
         .appendQueryParameter(PARAM_CODE_VERIFIER, currentState.getCodeVerifier())
         .appendQueryParameter(PARAM_GRANT_TYPE, "authorization_code")
         .appendQueryParameter(PARAM_REDIRECT_URI, redirectUri)
