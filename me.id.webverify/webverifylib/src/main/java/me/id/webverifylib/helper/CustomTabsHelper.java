@@ -106,7 +106,7 @@ public class CustomTabsHelper {
         return true;
       }
     } catch (RuntimeException ignored) {
-
+      // The os will define the resolver application
     }
     return false;
   }
