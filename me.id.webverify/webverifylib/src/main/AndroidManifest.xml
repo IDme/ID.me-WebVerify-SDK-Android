@@ -8,15 +8,29 @@
         >
 
         <activity
-            android:exported="false"
-            android:name=".LoginActivity"
-            android:theme="@style/IDmeSdkAppTheme"
-            />
+            android:exported="true"
+            android:name=".RedirectUriReceiverActivity"
+            >
+
+            <intent-filter>
+
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="${idmeAuthRedirectScheme}" />
+
+            </intent-filter>
+
+        </activity>
 
         <activity
             android:exported="false"
-            android:name=".WebViewActivity"
-            android:theme="@style/IDmeSdkAppTheme"
+            android:launchMode="singleTask"
+            android:name=".IDmeCustomTabsActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
             />
 
     </application>
