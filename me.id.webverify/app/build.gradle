@@ -6,6 +6,9 @@ android {
 
     defaultConfig {
         applicationId "me.id.meidwebverify"
+        manifestPlaceholders = [
+                idmeAuthRedirectScheme: "" // todo: add the redirect scheme
+        ]
         minSdkVersion rootProject.ext.minSdk
         targetSdkVersion rootProject.ext.targetSdk
         versionName project.VERSION_NAME
