@@ -29,11 +29,11 @@ enum State {
   }
 
   String getCodeChallenge() {
-    return codeVerifier;
+    return codeVerifierChallenge;
   }
 
   String getCodeVerifier() {
-    return codeVerifierChallenge;
+    return codeVerifier;
   }
 
   String getCodeVerifierMethod() {
