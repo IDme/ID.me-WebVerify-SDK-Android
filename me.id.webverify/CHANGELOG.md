@@ -2,6 +2,8 @@
 
 ### UNRELEASED
 
+- MOB-693: Fix pkce issue
+- MOB-687: Using Custom tabs to authenticate the user
 - MOB-587: Store session cookies
 - MOB-653: Identify user cancellation exception
 - MOB-643: Add loading and no internet connection error views
