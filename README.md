@@ -14,7 +14,7 @@ Android API 16 (Jellybean) and above is supported.
 For more information please email us at mobile@id.me or visit us at http://developer.id.me.
 
 ## Changelog
-- The changelog can be found in [/CHANGELOG.md](CHANGELOG.md)
+- The changelog can be found in [CHANGELOG.md](me.id.webverify/CHANGELOG.md)
  
 ## Installation Instructions
 ### Gradle
