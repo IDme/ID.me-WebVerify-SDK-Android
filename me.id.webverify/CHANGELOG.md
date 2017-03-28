@@ -4,6 +4,7 @@
 
 ### v2.0.0 (2016-08-22)
 
+- MOB-696: Update readme and version bump
 - MOB-693: Fix pkce issue
 - MOB-687: Using Custom tabs to authenticate the user
 - MOB-587: Store session cookies
