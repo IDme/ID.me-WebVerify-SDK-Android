@@ -1,5 +1,6 @@
 # ID.me WebVerify SDK (Android)
-The ID.me WebVerify SDK for Android is a library that allows you to verify a user's group affiliation status using ID.me's platform. A sample project has been provided to delineate the integration process.
+The ID.me WebVerify SDK for Android is a library that allows you to verify a user's group affiliation status using 
+ID.me's platform. A sample project has been provided to delineate the integration process.
 
 ## Specification
 ### Supported Android Versions
@@ -56,7 +57,7 @@ dependencies {
 ### Step 1
 #### Using gradle
 You have to declare you redirect url in your application `build.gradle` file.
-In order to do that, you have to add the following code replacing `CUSTOM_SCHEME` with the redirect custom scheme inside `android.defaultConfig` block
+In order to do that, you have to add the following code replacing `CUSTOM_SCHEME` with the redirect custom scheme inside `android.defaultConfig` block.
 
 
 ```groovy
@@ -71,15 +72,11 @@ android {
     // ...
 }
 ```
-
-<!--
-#### Using manual way
-- TODO
--->
+For example: if your redirectUri is `my_custom_scheme://callback`, replace `CUSTOM_SCHEME` with `my_custom_scheme`.
 
 ### Step 2
 You must call `IDmeWebVerify.initialize(Context appContext, String clientId, String clientSecret, String redirectUri)` before using the SDK. 
-This method should be called only once. You should do it in your Application initialization method (`onCreate` method) or if you haven't got defined an Application class, you can invoke it in your `MainActivity` initialization method.
+This method should only be called once. It should be called in your Application initialization method (`onCreate` method) or if you haven't defined an Application class, you can invoke it in your `MainActivity` initialization method.
 
 The params in the initializer are as follows:
 - `appContext`: The application context.
@@ -135,7 +132,7 @@ In order to get the user profile you have to call `IDmeWebVerify.getInstance().g
 All results will be passed in the functions callbacks.
 
 ## Internet Connectivity
-Internet connectivity is required, as the verificaiton occurs through the device browser.
+Internet connectivity is required, as the verification occurs through the device browser.
 
 ## License
 ```   
