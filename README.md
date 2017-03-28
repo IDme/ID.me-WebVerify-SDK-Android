@@ -13,6 +13,9 @@ Android API 16 (Jellybean) and above is supported.
 
 For more information please email us at mobile@id.me or visit us at http://developer.id.me.
 
+## Changelog
+- The changelog can be found in [/CHANGELOG.md](CHANGELOG.md)
+ 
 ## Installation Instructions
 ### Gradle
 
@@ -36,7 +39,8 @@ repositories {
 ```
 
 ### Manual
-Copy the `.aar` file into your project's `libs` folder.
+Copy the last stable version `.aar` file into your project's `libs` folder.
+You can get it from the [maven repository](https://repo1.maven.org/maven2/me/id/webverify/webverifylib/) or you can compile the project.
 
 Add the following to gradle 
 
@@ -55,7 +59,6 @@ dependencies {
 
 ## Setup
 ### Step 1
-#### Using gradle
 You have to declare you redirect url in your application `build.gradle` file.
 In order to do that, you have to add the following code replacing `CUSTOM_SCHEME` with the redirect custom scheme inside `android.defaultConfig` block.
 
@@ -86,7 +89,7 @@ The params in the initializer are as follows:
 
 
 ## Execution
-Both the OAuth flow and verification occur through a device browser that initialized from within the SDK.
+Both the OAuth flow and verification occur through a device browser that initialized from within the SDK following the modern OAuth [best practices for native apps](https://tools.ietf.org/html/draft-ietf-oauth-native-apps-03).
 The SDK provides a bunch of functions that will use a callback parameter to send back the result of them. 
 
 ### Login
@@ -116,6 +119,11 @@ That is why you have to call `IDmeWebVerify.getInstance().getAccessToken()` whic
 ### Get user profile
 In order to get the user profile you have to call `IDmeWebVerify.getInstance().getUserProfile()` function
 
+### Results and Error Handling
+All results will be passed in the functions callbacks.
+
+### Internet Connectivity
+Internet connectivity is required, as the verification occurs through the device browser.
 
 ## Sample Project Setup
 
@@ -128,11 +136,6 @@ In order to get the user profile you have to call `IDmeWebVerify.getInstance().g
     ]
     ```
 - Replace the app scope in the [Scope class](me.id.webverify/app/src/main/java/me/id/meidwebverify/Scope.java) with the one defined for the application. 
-## Results and Error Handling
-All results will be passed in the functions callbacks.
-
-## Internet Connectivity
-Internet connectivity is required, as the verification occurs through the device browser.
 
 ## License
 ```   
