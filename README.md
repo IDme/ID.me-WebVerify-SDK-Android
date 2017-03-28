@@ -17,15 +17,15 @@ For more information please email us at mobile@id.me or visit us at http://devel
 
 Add a library dependency to your app module's `build.gradle`:
 
-```
+```groovy
 dependencies {
     compile 'me.id.webverify:webverifylib:2.0.0'
 }
 ```
 
-You'll need to have the `sonatype` repository in your list of repositories
+You'll need to have the Sonatype repository in your list of repositories
 
-```
+```groovy
 repositories {
     maven {
         url 'https://oss.sonatype.org/content/groups/public'
@@ -39,7 +39,7 @@ Copy the `.aar` file into your project's `libs` folder.
 
 Add the following to gradle 
 
-```
+```groovy
 repositories {
     flatDir {
         dirs 'libs'
@@ -59,16 +59,16 @@ You have to declare you redirect url in your application `build.gradle` file.
 In order to do that, you have to add the following code replacing `CUSTOM_SCHEME` with the redirect custom scheme inside `android.defaultConfig` block
 
 
-```
+```groovy
 android {
-    ...
+    // ...
     defaultConfig {
-        ...,
+        // ...,
         manifestPlaceholders = [
             idmeAuthRedirectScheme: "CUSTOM_SCHEME"
         ]
     }
-    ...
+    // ...
 }
 ```
 
@@ -79,7 +79,7 @@ android {
 
 ### Step 2
 You must call `IDmeWebVerify.initialize(Context appContext, String clientId, String clientSecret, String redirectUri)` before using the SDK. 
-This method should be called only one time. You should do it in your Application initialization method (`onCreate` method) or if you haven't got defined an Application class, you can invoke it in your `MainActivity` initialization method.
+This method should be called only once. You should do it in your Application initialization method (`onCreate` method) or if you haven't got defined an Application class, you can invoke it in your `MainActivity` initialization method.
 
 The params in the initializer are as follows:
 - `appContext`: The application context.
@@ -95,12 +95,12 @@ The SDK provides a bunch of functions that will use a callback parameter to send
 ### Login
 In order to login a user in the ID.me system you have to use one of the following functions.
 
-```
+```java
 IDmeWebVerify.getInstance().login(@NonNull Activity activity, @NonNull IDmeScope scope, @NonNull IDmeGetAccessTokenListener listener)
 ```
 
 or 
-```
+```java
 IDmeWebVerify.getInstance().login(@NonNull Activity activity, @NonNull IDmeScope scope, @Nullable LoginType loginType, @NonNull IDmeGetAccessTokenListener listener) 
 ```
 
@@ -125,7 +125,7 @@ In order to get the user profile you have to call `IDmeWebVerify.getInstance().g
 - To run the sample project you'll need to replace the `clientId`, `secretId` and `redirectUri` values in `MainActivity.java` with those values that are stored withing your registered app at [http://developer.id.me](http://developer.id.me).
 - Also you need to register your `redirectUri` schema in the sample gradle application file.
 
-    ```
+    ```groovy
     manifestPlaceholders = [
         idmeAuthRedirectScheme: "CUSTOM_SCHEME"
     ]
