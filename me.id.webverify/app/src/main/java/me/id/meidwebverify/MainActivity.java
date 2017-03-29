@@ -1,88 +1,202 @@
 package me.id.meidwebverify;
 
-import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.util.Locale;
+
+import me.id.webverifylib.IDmeAffiliationType;
+import me.id.webverifylib.IDmeConnectionType;
+import me.id.webverifylib.IDmeProfile;
 import me.id.webverifylib.IDmeWebVerify;
+import me.id.webverifylib.listener.IDmeGetAccessTokenListener;
+import me.id.webverifylib.listener.IDmeGetProfileListener;
+import me.id.webverifylib.listener.IDmeRegisterAffiliationListener;
+import me.id.webverifylib.listener.IDmeRegisterConnectionListener;
+import me.id.webverifylib.listener.IDmeScope;
 
-public class MainActivity extends ActionBarActivity
-{
-    private IDmeWebVerify webVerify;
-    private String clientID = null;
-    private String redirectUri = null;
-    private boolean returnProperties = true;
+public class MainActivity extends ActionBarActivity {
+  private String clientId = null;
+  private String secretId = null;
+  private String redirectUri = null;
+  private boolean returnProperties = true;
+  private TextView txtResult;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
 
-        Button btnVerify = (Button) findViewById(R.id.btnVerify);
+    IDmeWebVerify.initialize(this, clientId, secretId, redirectUri);
 
-        btnVerify.setOnClickListener(new View.OnClickListener()
-        {
-            @Override public void onClick(View v)
-            {
-                Verify();
-            }
-        });
+    setContentView(R.layout.activity_main);
+
+    txtResult = (TextView) findViewById(R.id.txtResult);
+
+    Button btnLogin = (Button) findViewById(R.id.btnLogin);
+    btnLogin.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        login();
+      }
+    });
+
+    Button btnAddAffiliation = (Button) findViewById(R.id.btnAddAffiliation);
+    btnAddAffiliation.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        addAffiliation();
+      }
+    });
+
+    Button btnAddConnection = (Button) findViewById(R.id.btnAddConnection);
+    btnAddConnection.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        addConnection();
+      }
+    });
+  }
+
+  /**
+   * Method that starts de authentication process
+   */
+  void login() {
+    Spinner propRoute = (Spinner) findViewById(R.id.spnProperties);
+    returnProperties = propRoute.getSelectedItem().toString().equals("Yes");
+
+    IDmeWebVerify.getInstance().login(this, Scope.DEFAULT, new IDmeGetAccessTokenListener() {
+      @Override
+      public void onSuccess(String accessToken) {
+        if (returnProperties) {
+          showUserProfileInformation(Scope.DEFAULT);
+        } else {
+          showResponse(accessToken);
+        }
+      }
+
+      @Override
+      public void onError(Throwable throwable) {
+        showError(throwable);
+      }
+    });
+  }
+
+  /**
+   * Method that starts the process of adding a new Affiliation type
+   */
+  void addAffiliation() {
+    final IDmeAffiliationType affiliationType = getSelectedAffiliationType();
+    if (affiliationType == null) {
+      showError(new IllegalStateException("Affiliation Type is required"));
+      return;
     }
+    IDmeWebVerify.getInstance().registerAffiliation(this, Scope.DEFAULT, affiliationType, new IDmeRegisterAffiliationListener() {
+      @Override
+      public void onSuccess() {
+        Toast.makeText(MainActivity.this, String.format("Affiliation %s was correctly added.", affiliationType.getKey()), Toast.LENGTH_LONG).show();
+      }
 
-    /**
-     * Method that Starts the Verification Process.
-     */
-    public void Verify()
-    {
-        Spinner spnRoute = (Spinner) findViewById(R.id.spnRoute);
-        Spinner propRoute = (Spinner) findViewById(R.id.spnProperties);
-        String affiliationType = "";
+      @Override
+      public void onError(Throwable throwable) {
+        showError(throwable);
+      }
+    });
+  }
 
-        returnProperties = propRoute.getSelectedItem().toString().equals("Yes");
-
-        if (spnRoute.getSelectedItem().toString().equals("Military"))
-        {
-            affiliationType = IDmeWebVerify.MILITARY;
-        }
-        else if (spnRoute.getSelectedItem().toString().equals("Student"))
-        {
-            affiliationType = IDmeWebVerify.STUDENT;
-        }
-        else if (spnRoute.getSelectedItem().toString().equals("Teacher"))
-        {
-            affiliationType = IDmeWebVerify.TEACHER;
-        }
-        else if (spnRoute.getSelectedItem().toString().equals("First Responder"))
-        {
-            affiliationType = IDmeWebVerify.FIRST_RESPONDER;
-        }
-        else if (spnRoute.getSelectedItem().toString().equals("Government")) {
-            affiliationType = IDmeWebVerify.GOVERNMENT;
-        }
-
-        webVerify = new IDmeWebVerify(clientID, redirectUri, affiliationType, this, returnProperties);
-        webVerify.StartWebView();
+  /**
+   * Method that starts the process of adding a new Connection type
+   */
+  void addConnection() {
+    final IDmeConnectionType connectionType = getSelectedConnectionType();
+    if (connectionType == null) {
+      showError(new IllegalStateException("Connection Type is required"));
+      return;
     }
+    IDmeWebVerify.getInstance().registerConnection(this, Scope.DEFAULT, connectionType, new IDmeRegisterConnectionListener() {
+      @Override
+      public void onSuccess() {
+        Toast.makeText(MainActivity.this, "Connection " + connectionType + " was correctly added", Toast.LENGTH_LONG).show();
+      }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK)
-        {
-            if (requestCode == IDmeWebVerify.WEB_REQUEST_CODE)
-            {
-                String response = data.getStringExtra(IDmeWebVerify.IDME_WEB_VERIFY_RESPONSE);
+      @Override
+      public void onError(Throwable throwable) {
+        showError(throwable);
+      }
+    });
+  }
 
-                TextView txtResult = (TextView) findViewById(R.id.txtResult);
-                txtResult.setText("Response : " + response);
-            }
-        }
+  @Nullable
+  private IDmeAffiliationType getSelectedAffiliationType() {
+    Spinner spinner = (Spinner) findViewById(R.id.spnAffiliation);
+    Object selectedItem = spinner.getSelectedItem();
 
+    if (selectedItem == null) {
+      return null;
+    } else {
+      String selectedItemText = selectedItem.toString().toLowerCase();
+      if (selectedItemText.equals(IDmeAffiliationType.MILITARY.getKey().toLowerCase())) {
+        return IDmeAffiliationType.MILITARY;
+      } else if (selectedItemText.equals(IDmeAffiliationType.STUDENT.getKey().toLowerCase())) {
+        return IDmeAffiliationType.STUDENT;
+      } else if (selectedItemText.equals(IDmeAffiliationType.TEACHER.getKey().toLowerCase())) {
+        return IDmeAffiliationType.TEACHER;
+      } else if (selectedItemText.equals(IDmeAffiliationType.RESPONDER.getKey().toLowerCase())) {
+        return IDmeAffiliationType.RESPONDER;
+      } else if (selectedItemText.equals(IDmeAffiliationType.GOVERNMENT.getKey().toLowerCase())) {
+        return IDmeAffiliationType.GOVERNMENT;
+      }
     }
+    return null;
+  }
+
+  @Nullable
+  private IDmeConnectionType getSelectedConnectionType() {
+    Spinner spinner = (Spinner) findViewById(R.id.spnConnection);
+    Object selectedItem = spinner.getSelectedItem();
+
+    if (selectedItem == null) {
+      return null;
+    } else {
+      String selectedItemText = selectedItem.toString().toLowerCase();
+      if (selectedItemText.equals(IDmeConnectionType.FACEBOOK.getKey().toLowerCase())) {
+        return IDmeConnectionType.FACEBOOK;
+      } else if (selectedItemText.equals(IDmeConnectionType.GOOGLE_PLUS.getKey().toLowerCase())) {
+        return IDmeConnectionType.GOOGLE_PLUS;
+      } else if (selectedItemText.equals(IDmeConnectionType.LINEDIN.getKey().toLowerCase())) {
+        return IDmeConnectionType.LINEDIN;
+      } else if (selectedItemText.equals(IDmeConnectionType.PAYPAL.getKey().toLowerCase())) {
+        return IDmeConnectionType.PAYPAL;
+      }
+    }
+    return null;
+  }
+
+  private void showError(Throwable throwable) {
+    throwable.printStackTrace();
+    Toast.makeText(MainActivity.this, throwable.getMessage(), Toast.LENGTH_LONG).show();
+  }
+
+  private void showResponse(Object object) {
+    txtResult.setText(String.format(Locale.getDefault(), "Response : %s", object));
+  }
+
+  private void showUserProfileInformation(IDmeScope scope) {
+    IDmeWebVerify.getInstance().getUserProfile(scope, new IDmeGetProfileListener() {
+      @Override
+      public void onSuccess(IDmeProfile profile) {
+        showResponse(profile);
+      }
+
+      @Override
+      public void onError(Throwable throwable) {
+        showError(throwable);
+      }
+    });
+  }
 }

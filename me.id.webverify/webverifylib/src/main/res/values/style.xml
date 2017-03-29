@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="IDmeSdkAppTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:background">@android:color/white</item>
+        <item name="android:colorBackground">@android:color/white</item>
+        <item name="android:windowBackground">@android:color/white</item>
+        <item name="colorPrimary">@color/idme_blue</item>
+        <item name="colorPrimaryDark">@color/idme_blue_dark</item>
+    </style>
+</resources>
