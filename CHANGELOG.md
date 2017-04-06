@@ -2,6 +2,8 @@
 
 ### UNRELEASED
 
+### v2.0.1 (2017-04-06)
+
 - MOB-724: Remove loading spinner
 
 ### v2.0.0 (2016-08-22)
