@@ -3,13 +3,12 @@
     package="me.id.webverifylib"
     >
 
-    <application
-        android:allowBackup="true"
-        >
+    <application android:allowBackup="true">
 
         <activity
             android:exported="true"
             android:name=".RedirectUriReceiverActivity"
+            android:theme="@style/IDmeSdkAppTheme.Transparent"
             >
 
             <intent-filter>

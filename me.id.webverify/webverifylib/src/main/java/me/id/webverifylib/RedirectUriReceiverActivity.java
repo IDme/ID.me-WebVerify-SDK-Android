@@ -26,18 +26,9 @@ public class RedirectUriReceiverActivity extends Activity {
     }
   };
 
-  private void initializeProgressBar() {
-    progressBarWebView = (WebView) findViewById(R.id.progress_bar_webView);
-    progressBarWebView.getSettings().setLoadWithOverviewMode(true);
-    progressBarWebView.getSettings().setUseWideViewPort(true);
-    progressBarWebView.loadUrl("file:///android_asset/image/spinner.gif");
-  }
-
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_loading);
-    initializeProgressBar();
     State currentState = IDmeWebVerify.getCurrentState();
     if (currentState == null) {
       throw new IDmeException("Current state cannot be null");
