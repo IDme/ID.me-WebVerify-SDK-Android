@@ -1,8 +1,10 @@
 package me.id.webverifylib;
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.customtabs.CustomTabsIntent;
 
 import me.id.webverifylib.exception.UserCanceledException;
 import me.id.webverifylib.helper.CustomTabsHelper;
@@ -20,8 +22,15 @@ public class IDmeCustomTabsActivity extends Activity {
 
     if (savedInstanceState == null) {
       shouldCloseCustomTab = false;
-      CustomTabsHelper.getCustomTabIntent(this, url)
-          .launchUrl(this, Uri.parse(url));
+      try {
+        CustomTabsHelper.getCustomTabIntent(this, url)
+            .launchUrl(this, Uri.parse(url));
+      } catch (ActivityNotFoundException exception) {
+        IDmeWebVerify.getInstance().notifyFailure(
+            new ActivityNotFoundException("There isn't a available browser to handle the ID.me oauth flow")
+        );
+        finish();
+      }
     }
   }
 

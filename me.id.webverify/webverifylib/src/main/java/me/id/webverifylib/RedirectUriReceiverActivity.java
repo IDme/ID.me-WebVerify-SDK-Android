@@ -10,8 +10,6 @@ import me.id.webverifylib.listener.IDmeAccessTokenManagerListener;
 import me.id.webverifylib.networking.GetAccessTokenConnectionTask;
 
 public class RedirectUriReceiverActivity extends Activity {
-  private WebView progressBarWebView;
-
   private final IDmeAccessTokenManagerListener authCodeListener = new IDmeAccessTokenManagerListener() {
     @Override
     public void onSuccess(AuthToken authToken) {
