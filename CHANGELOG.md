@@ -2,7 +2,7 @@
 
 ### UNRELEASED
 
-- MOB-724: Throw an error when there isn't a available browser to handle the oauth flow
+- MOB-724: Throw an error when there isn’t an available browser to handle the oauth flow
 
 ### v2.0.1 (2017-04-06)
 
