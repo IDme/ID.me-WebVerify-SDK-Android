@@ -3,7 +3,7 @@
 ### UNRELEASED
 
 ### v2.0.2 (2017-05-05)
-
+- MOB-772: Update changelog with the release information
 - MOB-724: Throw an error when there isn’t an available browser to handle the oauth flow
 
 ### v2.0.1 (2017-04-06)
