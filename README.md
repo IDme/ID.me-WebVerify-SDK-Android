@@ -8,7 +8,7 @@ ID.me's platform. A sample project has been provided to delineate the integratio
 Android API 16 (Jellybean) and above is supported.
 
 ## Release Information 
-- **SDK Version:** 2.0.0 (March 28, 2017)
+- **SDK Version:** 2.0.2 (May 5, 2017)
 - **Maintained By:** [ID.me](http://github.com/IDme)
 
 For more information please email us at mobile@id.me or visit us at http://developer.id.me.
@@ -23,7 +23,7 @@ Add a library dependency to your app module's `build.gradle`:
 
 ```groovy
 dependencies {
-    compile 'me.id.webverify:webverifylib:2.0.0'
+    compile 'me.id.webverify:webverifylib:2.0.2'
 }
 ```
 
