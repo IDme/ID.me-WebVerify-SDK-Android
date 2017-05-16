@@ -2,6 +2,8 @@
 
 ### UNRELEASED
 
+- MOB-777: Update sdk gradle dependency
+
 ### v2.0.2 (2017-05-05)
 - MOB-772: Update changelog with the release information
 - MOB-724: Throw an error when there isn’t an available browser to handle the oauth flow
