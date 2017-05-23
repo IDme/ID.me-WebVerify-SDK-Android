@@ -3,7 +3,6 @@ package me.id.webverifylib;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.webkit.WebView;
 
 import me.id.webverifylib.exception.IDmeException;
 import me.id.webverifylib.listener.IDmeAccessTokenManagerListener;
@@ -14,13 +13,13 @@ public class RedirectUriReceiverActivity extends Activity {
     @Override
     public void onSuccess(AuthToken authToken) {
       IDmeWebVerify.getInstance().notifySuccess(authToken);
-      sendResult(Activity.RESULT_OK);
+      sendResult(RESULT_OK);
     }
 
     @Override
     public void onError(Throwable throwable) {
       IDmeWebVerify.getInstance().notifyFailure(throwable);
-      sendResult(Activity.RESULT_CANCELED);
+      sendResult(RESULT_CANCELED);
     }
   };
 
@@ -32,10 +31,16 @@ public class RedirectUriReceiverActivity extends Activity {
       throw new IDmeException("Current state cannot be null");
     }
 
+    if (currentState == State.LOGOUT) {
+      IDmeWebVerify.getInstance().notifyLogoutSuccess();
+      sendResult(RESULT_OK);
+      return;
+    }
+
     String code = getIntent().getData().getQueryParameter(IDmeWebVerify.PARAM_CODE);
     if (code == null || code.isEmpty()) {
       IDmeWebVerify.getInstance().notifyFailure(new IDmeException("An error has occurred getting the auth token"));
-      sendResult(Activity.RESULT_CANCELED);
+      sendResult(RESULT_CANCELED);
     } else {
       new GetAccessTokenConnectionTask(IDmeWebVerify.getAccessTokenQuery(code), authCodeListener, currentState.getScope())
           .execute(IDmeWebVerify.getIdMeWebVerifyAccessTokenUri());
