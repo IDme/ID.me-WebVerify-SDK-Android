@@ -230,7 +230,7 @@ public final class IDmeWebVerify {
   /**
    * Deletes all session information
    *
-   * @param activity Context used to start  the logout activity
+   * @param activity Context used to start the logout activity
    * @param listener The listener that will be called when the logout process finished.
    */
   @SuppressWarnings("unused")
@@ -248,7 +248,7 @@ public final class IDmeWebVerify {
   /**
    * Deletes all session information regarding to the given scope
    *
-   * @param activity Context used to start  the logout activity
+   * @param activity Context used to start the logout activity
    * @param scope    The type of group verification.
    * @param listener The listener that will be called when the logout process finished.
    */
@@ -318,9 +318,7 @@ public final class IDmeWebVerify {
     accessTokenManager.addToken(token);
   }
 
-  /**
-   * Notifies the error to the appropriate listener
-   */
+  /** Notifies the error to the appropriate listener */
   synchronized void notifyFailure(Throwable throwable) {
     if (currentState == null) {
       return;
@@ -338,9 +336,7 @@ public final class IDmeWebVerify {
     clearListenersAndClearState();
   }
 
-  /**
-   * Notifies the success to the appropriate listener
-   */
+  /** Notifies the success to the appropriate listener */
   void notifySuccess(AuthToken authToken) {
     saveAccessToken(authToken);
     switch (currentState) {
@@ -356,9 +352,7 @@ public final class IDmeWebVerify {
     clearListenersAndClearState();
   }
 
-  /**
-   * Notifies the logout success to the appropriate listener
-   */
+  /** Notifies the logout success to the appropriate listener */
   void notifyLogoutSuccess() {
     switch (currentState) {
       case LOGOUT:
@@ -370,9 +364,7 @@ public final class IDmeWebVerify {
     clearListenersAndClearState();
   }
 
-  /**
-   * Removes all listeners
-   */
+  /** Removes all listeners */
   private void clearListenersAndClearState() {
     accessTokenCallback = null;
     completableCallback = null;
