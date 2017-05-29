@@ -1,8 +1,6 @@
 package me.id.webverifylib.exception;
 
-/**
- * Created by mirland on 21/02/17.
- */
+/** Exception thrown when the user cancels the current action */
 public class UserCanceledException extends IDmeException {
   public UserCanceledException() {
     super();

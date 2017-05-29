@@ -10,6 +10,7 @@ import android.util.Log;
 
 import java.util.Locale;
 
+import me.id.webverifylib.exception.ConcurrentOperationNotSupportedException;
 import me.id.webverifylib.exception.IDmeException;
 import me.id.webverifylib.exception.UnauthenticatedException;
 import me.id.webverifylib.exception.UserCanceledException;
@@ -147,15 +148,21 @@ public final class IDmeWebVerify {
    * @param scope     The type of group verification.
    * @param loginType The type of login. The default value is {@code LoginType.SIGN_IN}
    * @param listener  The listener that will be called when the login process is finished.
-   * @throws UserCanceledException    if the user cancel the action
-   * @throws UnauthenticatedException if the auth information is not valid
-   * @throws IDmeException            if something went wrong
+   * @throws UserCanceledException                    if the user cancel the action
+   * @throws UnauthenticatedException                 if the auth information is not valid
+   * @throws ConcurrentOperationNotSupportedException if exist an initialized process
+   * @throws IDmeException                            if something went wrong
    */
   public void login(@NonNull Activity activity, @NonNull IDmeScope scope, @Nullable LoginType loginType,
                     @NonNull IDmeGetAccessTokenListener listener) {
     checkInitialization();
-    setCurrentState(State.LOGIN, scope);
-    accessTokenCallback = listener;
+    try {
+      setCurrentState(State.LOGIN, scope);
+      accessTokenCallback = listener;
+    } catch (ConcurrentOperationNotSupportedException exception) {
+      listener.onError(exception);
+      return;
+    }
     if (loginType == null) {
       loginType = LoginType.SIGN_IN;
     }
@@ -274,16 +281,22 @@ public final class IDmeWebVerify {
    * @param scope           The type of group verification.
    * @param affiliationType The affiliation that will be registered.
    * @param listener        The listener that will be called when the registration process finished.
-   * @throws UserCanceledException    if the user cancel the action
-   * @throws UnauthenticatedException if the auth information is not valid
-   * @throws IDmeException            if something went wrong
+   * @throws UserCanceledException                    if the user cancel the action
+   * @throws UnauthenticatedException                 if the auth information is not valid
+   * @throws ConcurrentOperationNotSupportedException if exist an initialized process
+   * @throws IDmeException                            if something went wrong
    */
   public void registerAffiliation(@NonNull Activity activity,
                                   @NonNull IDmeScope scope,
                                   IDmeAffiliationType affiliationType,
                                   @NonNull IDmeCompletableListener listener) {
     checkInitialization();
-    setCurrentState(State.REGISTER_AFFILIATION, scope);
+    try {
+      setCurrentState(State.REGISTER_AFFILIATION, scope);
+    } catch (ConcurrentOperationNotSupportedException exception) {
+      listener.onError(exception);
+      return;
+    }
 
     completableCallback = listener;
     String requestUrl = createRegisterAffiliationUrl(affiliationType);
@@ -297,15 +310,21 @@ public final class IDmeWebVerify {
    * @param scope          The type of group verification.
    * @param connectionType The connection that will be registered.
    * @param listener       The listener that will be called when the registration process finished.
-   * @throws UserCanceledException    if the user cancel the action
-   * @throws UnauthenticatedException if the auth information is not valid
-   * @throws IDmeException            if something went wrong
+   * @throws UserCanceledException                    if the user cancel the action
+   * @throws UnauthenticatedException                 if the auth information is not valid
+   * @throws ConcurrentOperationNotSupportedException if exist an initialized process
+   * @throws IDmeException                            if something went wrong
    */
   public void registerConnection(@NonNull Activity activity, @NonNull IDmeScope scope,
                                  @NonNull IDmeConnectionType connectionType,
                                  @NonNull IDmeCompletableListener listener) {
     checkInitialization();
-    setCurrentState(State.REGISTER_CONNECTION, scope);
+    try {
+      setCurrentState(State.REGISTER_CONNECTION, scope);
+    } catch (ConcurrentOperationNotSupportedException exception) {
+      listener.onError(exception);
+      return;
+    }
 
     completableCallback = listener;
     String requestUrl = createRegisterConnectionUrl(connectionType, scope);
@@ -467,13 +486,13 @@ public final class IDmeWebVerify {
         .appendQueryParameter(PARAM_RESPONSE_TYPE, RESPONSE_TYPE_VALUE);
   }
 
-  private synchronized void setCurrentState(State state, IDmeScope scope) {
+  private synchronized void setCurrentState(State state, IDmeScope scope) throws ConcurrentOperationNotSupportedException {
     if (currentState == null) {
       currentState = state;
       currentState.setScope(scope);
       currentState.setCodeVerifier(CodeVerifierUtil.generateRandomCodeVerifier());
     } else {
-      throw new IDmeException("A process is already initialized");
+      throw new ConcurrentOperationNotSupportedException("A process is already initialized.");
     }
   }
 
