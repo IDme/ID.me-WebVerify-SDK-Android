@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import java.util.Locale;
 
@@ -22,6 +23,7 @@ import me.id.webverifylib.listener.IDmeScope;
 import me.id.webverifylib.networking.GetProfileConnectionTask;
 
 public final class IDmeWebVerify {
+  private static final String TAG = "ID.me";
   private static final String PARAM_ACCESS_TOKEN = "access_token";
   private static final String PARAM_CLIENT_ID = "client_id";
   private static final String PARAM_CLIENT_SECRET = "client_secret";
@@ -74,11 +76,10 @@ public final class IDmeWebVerify {
     Preconditions.checkNotNull(redirectUri, "RedirectURI cannot be null");
     Preconditions.checkNotNull(clientSecret, "Client secret cannot be null");
     if (!isRedirectUriRegistered(context, redirectUri)) {
-      throw new IDmeException(
-          "redirect_uri is not handled by any activity in this app! "
-              + "Ensure that the appAuthRedirectScheme in your build.gradle file "
-              + "is correctly configured, or that an appropriate intent filter "
-              + "exists in your app manifest.");
+      Log.e(TAG, "redirect_uri is not handled by any activity in this app! "
+          + "Ensure that the idmeAuthRedirectScheme in your build.gradle file "
+          + "is correctly configured, or that an appropriate intent filter "
+          + "exists in your app manifest.");
     }
     idMeWebVerifyGetCommonUri = Uri.parse(context.getString(R.string.idme_web_verify_get_common_uri));
     idMeWebVerifyAccessTokenUri = Uri.parse(context.getString(R.string.idme_web_verify_get_access_token_uri));
