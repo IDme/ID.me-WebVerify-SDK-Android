@@ -2,6 +2,9 @@
 
 ### UNRELEASED
 
+### v2.0.3 (2017-05-30)
+
+- MOB-795: Remove sdk exception when redirect url is not detected
 - MOB-777: Update sdk gradle dependency
 
 ### v2.0.2 (2017-05-05)
