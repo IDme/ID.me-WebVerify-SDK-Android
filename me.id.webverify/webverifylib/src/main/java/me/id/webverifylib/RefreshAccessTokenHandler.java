@@ -34,8 +34,10 @@ final class RefreshAccessTokenHandler {
         AuthToken token = accessTokenManager.getToken(scope);
         if (token == null) {
           listener.onError(new UnauthenticatedException());
-        } else {
+          return;
+        } else if (token.isValidAccessToken()) {
           listener.onSuccess(token.getAccessToken());
+          return;
         }
       }
       List<IDmeGetAccessTokenListener> scopeListeners = listeners.get(scopeId);
@@ -43,7 +45,7 @@ final class RefreshAccessTokenHandler {
         scopeListeners = new ArrayList<>();
         listeners.put(scopeId, scopeListeners);
       }
-      if (scopeListeners.size() == 0) {
+      if (scopeListeners.isEmpty()) {
         refreshToken(scope, authToken.getRefreshToken());
       }
       scopeListeners.add(listener);

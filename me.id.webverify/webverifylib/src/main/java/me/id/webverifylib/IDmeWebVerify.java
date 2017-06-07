@@ -202,6 +202,7 @@ public final class IDmeWebVerify {
     } else if (token.isValidAccessToken() && !forceReload) {
       listener.onSuccess(token.getAccessToken());
     } else if (token.isValidRefreshToken()) {
+      token.invalidateAccessToken();
       refreshAccessTokenHandler.refreshAccessToken(scope, token, listener);
     } else {
       listener.onError(new UnauthenticatedException());

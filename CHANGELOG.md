@@ -2,6 +2,8 @@
 
 ### UNRELEASED
 
+- MOB-835: Fix refresh token issue
+
 ### v2.0.3 (2017-05-30)
 
 - MOB-795: Remove sdk exception when redirect url is not detected

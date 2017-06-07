@@ -12,6 +12,7 @@ public final class AuthToken implements Serializable {
   private String refreshToken;
   private Calendar accessTokenExpiration;
   private Calendar refreshTokenExpiration;
+  private boolean wasForcedlyInvalidated;
 
   public String getScopeId() {
     return scopeId;
@@ -58,10 +59,14 @@ public final class AuthToken implements Serializable {
   }
 
   public boolean isValidAccessToken() {
-    return isValidToken(accessToken, accessTokenExpiration);
+    return !wasForcedlyInvalidated && isValidToken(accessToken, accessTokenExpiration);
   }
 
   public boolean isValidRefreshToken() {
     return isValidToken(refreshToken, refreshTokenExpiration);
+  }
+
+  public void invalidateAccessToken() {
+    wasForcedlyInvalidated = true;
   }
 }
