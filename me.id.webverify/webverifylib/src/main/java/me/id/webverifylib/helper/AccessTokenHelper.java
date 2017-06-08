@@ -15,7 +15,7 @@ import me.id.webverifylib.listener.IDmeScope;
  * Created by mirland on 22/02/17.
  */
 public class AccessTokenHelper {
-  public static final String ACCESS_TOKEN_KEY = "access_token";
+  private static final String ACCESS_TOKEN_KEY = "access_token";
   private static final String ACCESS_TOKEN_EXPIRE_KEY = "expires_in";
   private static final String REFRESH_TOKEN_KEY = "refresh_token";
   private static final String REFRESH_TOKEN_EXPIRE_KEY = "refresh_expires_in";
