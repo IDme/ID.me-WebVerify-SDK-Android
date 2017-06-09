@@ -10,6 +10,7 @@ import me.id.webverifylib.listener.IDmeScope;
  */
 enum State {
   LOGIN,
+  LOGOUT,
   REGISTER_AFFILIATION,
   REGISTER_CONNECTION,
   ;

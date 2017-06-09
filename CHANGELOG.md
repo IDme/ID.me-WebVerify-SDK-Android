@@ -6,6 +6,7 @@
 
 - MOB-795: Remove sdk exception when redirect url is not detected
 - MOB-777: Update sdk gradle dependency
+- MOB-779: Remove os cookies in the logout process and clean up the code
 
 ### v2.0.2 (2017-05-05)
 - MOB-772: Update changelog with the release information

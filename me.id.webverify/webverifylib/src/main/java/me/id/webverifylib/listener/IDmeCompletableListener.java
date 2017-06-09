@@ -1,9 +1,9 @@
 package me.id.webverifylib.listener;
 
 /**
- * Created by remer on 6/2/17.
+ * A completable listener
  */
-public interface IDmeRegisterConnectionListener {
+public interface IDmeCompletableListener {
   void onSuccess();
   void onError(Throwable throwable);
 }

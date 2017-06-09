@@ -15,10 +15,9 @@ import me.id.webverifylib.IDmeAffiliationType;
 import me.id.webverifylib.IDmeConnectionType;
 import me.id.webverifylib.IDmeProfile;
 import me.id.webverifylib.IDmeWebVerify;
+import me.id.webverifylib.listener.IDmeCompletableListener;
 import me.id.webverifylib.listener.IDmeGetAccessTokenListener;
 import me.id.webverifylib.listener.IDmeGetProfileListener;
-import me.id.webverifylib.listener.IDmeRegisterAffiliationListener;
-import me.id.webverifylib.listener.IDmeRegisterConnectionListener;
 import me.id.webverifylib.listener.IDmeScope;
 
 public class MainActivity extends ActionBarActivity {
@@ -96,7 +95,7 @@ public class MainActivity extends ActionBarActivity {
       showError(new IllegalStateException("Affiliation Type is required"));
       return;
     }
-    IDmeWebVerify.getInstance().registerAffiliation(this, Scope.DEFAULT, affiliationType, new IDmeRegisterAffiliationListener() {
+    IDmeWebVerify.getInstance().registerAffiliation(this, Scope.DEFAULT, affiliationType, new IDmeCompletableListener() {
       @Override
       public void onSuccess() {
         Toast.makeText(MainActivity.this, String.format("Affiliation %s was correctly added.", affiliationType.getKey()), Toast.LENGTH_LONG).show();
@@ -118,7 +117,7 @@ public class MainActivity extends ActionBarActivity {
       showError(new IllegalStateException("Connection Type is required"));
       return;
     }
-    IDmeWebVerify.getInstance().registerConnection(this, Scope.DEFAULT, connectionType, new IDmeRegisterConnectionListener() {
+    IDmeWebVerify.getInstance().registerConnection(this, Scope.DEFAULT, connectionType, new IDmeCompletableListener() {
       @Override
       public void onSuccess() {
         Toast.makeText(MainActivity.this, "Connection " + connectionType + " was correctly added", Toast.LENGTH_LONG).show();

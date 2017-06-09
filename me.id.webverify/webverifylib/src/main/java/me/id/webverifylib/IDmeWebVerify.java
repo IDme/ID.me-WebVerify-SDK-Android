@@ -15,10 +15,9 @@ import me.id.webverifylib.exception.UnauthenticatedException;
 import me.id.webverifylib.exception.UserCanceledException;
 import me.id.webverifylib.helper.CodeVerifierUtil;
 import me.id.webverifylib.helper.Preconditions;
+import me.id.webverifylib.listener.IDmeCompletableListener;
 import me.id.webverifylib.listener.IDmeGetAccessTokenListener;
 import me.id.webverifylib.listener.IDmeGetProfileListener;
-import me.id.webverifylib.listener.IDmeRegisterAffiliationListener;
-import me.id.webverifylib.listener.IDmeRegisterConnectionListener;
 import me.id.webverifylib.listener.IDmeScope;
 import me.id.webverifylib.networking.GetProfileConnectionTask;
 
@@ -36,12 +35,15 @@ public final class IDmeWebVerify {
   private static final String PARAM_REDIRECT_URI = "redirect_uri";
   private static final String PARAM_REFRESH_TOKEN = "refresh_token";
   private static final String PARAM_SCOPE_TYPE = "scope";
-  private static final String PARAM_TYPE = "response_type";
+  private static final String PARAM_RESPONSE_TYPE = "response_type";
+  private static final String PARAM_TYPE = "type";
   private static final String SIGN_TYPE_KEY = "op";
-  private static final String TYPE_VALUE = "code";
+  private static final String RESPONSE_TYPE_VALUE = "code";
+  private static final String LOGOUT_TYPE_VALUE = "logout";
 
   private static Uri idMeWebVerifyAccessTokenUri;
   private static Uri idMeWebVerifyGetCommonUri;
+  private static Uri idMeWebVerifyGetLogoutUri;
   private static Uri idMeWebVerifyGetUserProfileUri;
 
   private static AccessTokenManager accessTokenManager;
@@ -52,9 +54,8 @@ public final class IDmeWebVerify {
   private static boolean initialized;
   private static State currentState;
 
-  private IDmeGetAccessTokenListener loginGetAccessTokenListener = null;
-  private IDmeRegisterAffiliationListener registerAffiliationListener = null;
-  private IDmeRegisterConnectionListener registerConnectionListener = null;
+  private IDmeGetAccessTokenListener accessTokenCallback = null;
+  private IDmeCompletableListener completableCallback = null;
 
   private static final IDmeWebVerify INSTANCE = new IDmeWebVerify();
 
@@ -81,8 +82,9 @@ public final class IDmeWebVerify {
           + "is correctly configured, or that an appropriate intent filter "
           + "exists in your app manifest.");
     }
-    idMeWebVerifyGetCommonUri = Uri.parse(context.getString(R.string.idme_web_verify_get_common_uri));
     idMeWebVerifyAccessTokenUri = Uri.parse(context.getString(R.string.idme_web_verify_get_access_token_uri));
+    idMeWebVerifyGetCommonUri = Uri.parse(context.getString(R.string.idme_web_verify_get_common_uri));
+    idMeWebVerifyGetLogoutUri = Uri.parse(context.getString(R.string.idme_web_verify_get_logout_uri));
     idMeWebVerifyGetUserProfileUri = Uri.parse(context.getString(R.string.idme_web_verify_get_profile_uri));
     initialized = true;
     accessTokenManager = new AccessTokenManager(context);
@@ -152,7 +154,7 @@ public final class IDmeWebVerify {
                     @NonNull IDmeGetAccessTokenListener listener) {
     checkInitialization();
     setCurrentState(State.LOGIN, scope);
-    loginGetAccessTokenListener = listener;
+    accessTokenCallback = listener;
     if (loginType == null) {
       loginType = LoginType.SIGN_IN;
     }
@@ -226,20 +228,41 @@ public final class IDmeWebVerify {
     }
   }
 
-  /** Deletes all session information */
+  /**
+   * Deletes all session information
+   *
+   * @param activity Context used to start the logout activity
+   * @param listener The listener that will be called when the logout process finished.
+   */
   @SuppressWarnings("unused")
-  public void logOut() {
+  public void logOut(@NonNull Activity activity, @NonNull IDmeCompletableListener listener) {
+    checkInitialization();
+    setCurrentState(State.LOGOUT, null);
+
     accessTokenManager.deleteSession();
+    completableCallback = listener;
+
+    String requestUrl = createLogoutRequestUrl(null);
+    openCustomTabActivity(activity, requestUrl);
   }
 
   /**
    * Deletes all session information regarding to the given scope
    *
-   * @param scope The type of group verification.
+   * @param activity Context used to start the logout activity
+   * @param scope    The type of group verification.
+   * @param listener The listener that will be called when the logout process finished.
    */
   @SuppressWarnings("unused")
-  public void logOut(@NonNull IDmeScope scope) {
+  public void logOut(@NonNull Activity activity, @NonNull IDmeScope scope, @NonNull IDmeCompletableListener listener) {
+    checkInitialization();
+    setCurrentState(State.LOGOUT, scope);
+
     accessTokenManager.deleteToken(scope);
+    completableCallback = listener;
+
+    String requestUrl = createLogoutRequestUrl(null);
+    openCustomTabActivity(activity, requestUrl);
   }
 
   /**
@@ -256,11 +279,11 @@ public final class IDmeWebVerify {
   public void registerAffiliation(@NonNull Activity activity,
                                   @NonNull IDmeScope scope,
                                   IDmeAffiliationType affiliationType,
-                                  @NonNull IDmeRegisterAffiliationListener listener) {
+                                  @NonNull IDmeCompletableListener listener) {
     checkInitialization();
     setCurrentState(State.REGISTER_AFFILIATION, scope);
 
-    registerAffiliationListener = listener;
+    completableCallback = listener;
     String requestUrl = createRegisterAffiliationUrl(affiliationType);
     openCustomTabActivity(activity, requestUrl);
   }
@@ -276,12 +299,13 @@ public final class IDmeWebVerify {
    * @throws UnauthenticatedException if the auth information is not valid
    * @throws IDmeException            if something went wrong
    */
-  public void registerConnection(Activity activity, IDmeScope scope, IDmeConnectionType connectionType,
-                                 IDmeRegisterConnectionListener listener) {
+  public void registerConnection(@NonNull Activity activity, @NonNull IDmeScope scope,
+                                 @NonNull IDmeConnectionType connectionType,
+                                 @NonNull IDmeCompletableListener listener) {
     checkInitialization();
     setCurrentState(State.REGISTER_CONNECTION, scope);
 
-    registerConnectionListener = listener;
+    completableCallback = listener;
     String requestUrl = createRegisterConnectionUrl(connectionType, scope);
     openCustomTabActivity(activity, requestUrl);
   }
@@ -295,55 +319,56 @@ public final class IDmeWebVerify {
     accessTokenManager.addToken(token);
   }
 
-  /**
-   * Notifies the error to the appropriate listener
-   */
+  /** Notifies the error to the appropriate listener */
   synchronized void notifyFailure(Throwable throwable) {
     if (currentState == null) {
       return;
     }
     switch (currentState) {
       case LOGIN:
-        loginGetAccessTokenListener.onError(throwable);
+        accessTokenCallback.onError(throwable);
         break;
+      case LOGOUT:
       case REGISTER_AFFILIATION:
-        registerAffiliationListener.onError(throwable);
-        break;
       case REGISTER_CONNECTION:
-        registerConnectionListener.onError(throwable);
+        completableCallback.onError(throwable);
         break;
-      default:
     }
     clearListenersAndClearState();
   }
 
-  /**
-   * Notifies the success to the appropriate listener
-   */
+  /** Notifies the success to the appropriate listener */
   void notifySuccess(AuthToken authToken) {
     saveAccessToken(authToken);
     switch (currentState) {
       case LOGIN:
-        loginGetAccessTokenListener.onSuccess(authToken.getAccessToken());
+        accessTokenCallback.onSuccess(authToken.getAccessToken());
         break;
       case REGISTER_AFFILIATION:
-        registerAffiliationListener.onSuccess();
-        break;
       case REGISTER_CONNECTION:
-        registerConnectionListener.onSuccess();
+        completableCallback.onSuccess();
         break;
       default:
     }
     clearListenersAndClearState();
   }
 
-  /**
-   * Removes all listeners
-   */
+  /** Notifies the logout success to the appropriate listener */
+  void notifyLogoutSuccess() {
+    switch (currentState) {
+      case LOGOUT:
+        completableCallback.onSuccess();
+        break;
+      default:
+        throw new IDmeException("Current state is not recognized");
+    }
+    clearListenersAndClearState();
+  }
+
+  /** Removes all listeners */
   private void clearListenersAndClearState() {
-    loginGetAccessTokenListener = null;
-    registerAffiliationListener = null;
-    registerConnectionListener = null;
+    accessTokenCallback = null;
+    completableCallback = null;
     currentState = null;
   }
 
@@ -373,6 +398,26 @@ public final class IDmeWebVerify {
         .authority(idMeWebVerifyGetUserProfileUri.getHost())
         .path(idMeWebVerifyGetUserProfileUri.getPath())
         .appendQueryParameter(PARAM_ACCESS_TOKEN, accessToken)
+        .build()
+        .toString();
+  }
+
+  /**
+   * Creates the URL for delete the custom tab session
+   *
+   * @param scope An optional scope param
+   * @return URL with proper formatted request
+   */
+  private String createLogoutRequestUrl(@Nullable IDmeScope scope) {
+    Uri.Builder urlBuilder = idMeWebVerifyGetLogoutUri
+        .buildUpon()
+        .appendQueryParameter(PARAM_CLIENT_ID, clientId)
+        .appendQueryParameter(PARAM_REDIRECT_URI, redirectUri)
+        .appendQueryParameter(PARAM_TYPE, LOGOUT_TYPE_VALUE);
+    if (scope != null) {
+      urlBuilder.appendQueryParameter(PARAM_SCOPE_TYPE, scope.getScopeId());
+    }
+    return urlBuilder
         .build()
         .toString();
   }
@@ -413,13 +458,11 @@ public final class IDmeWebVerify {
    * Creates the common URL which contains the client id, the client, the redirect uri and the response type
    */
   private Uri.Builder getCommonUri() {
-    return new Uri.Builder()
-        .scheme(idMeWebVerifyGetCommonUri.getScheme())
-        .authority(idMeWebVerifyGetCommonUri.getHost())
-        .path(idMeWebVerifyGetCommonUri.getPath())
+    return idMeWebVerifyGetCommonUri
+        .buildUpon()
         .appendQueryParameter(PARAM_CLIENT_ID, clientId)
         .appendQueryParameter(PARAM_REDIRECT_URI, redirectUri)
-        .appendQueryParameter(PARAM_TYPE, TYPE_VALUE);
+        .appendQueryParameter(PARAM_RESPONSE_TYPE, RESPONSE_TYPE_VALUE);
   }
 
   private synchronized void setCurrentState(State state, IDmeScope scope) {
