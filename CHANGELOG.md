@@ -3,6 +3,7 @@
 ### UNRELEASED
 
 - MOB-835: Fix refresh token issue
+- MOB-944: keep browser in stack to take pictures
 
 ### v2.0.3 (2017-05-30)
 

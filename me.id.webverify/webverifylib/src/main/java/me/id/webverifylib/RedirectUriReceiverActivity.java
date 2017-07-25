@@ -1,6 +1,8 @@
 package me.id.webverifylib;
 
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -59,6 +61,12 @@ public class RedirectUriReceiverActivity extends Activity {
 
   private void sendResult(int resultCode) {
     setResult(resultCode);
+    try {
+      Intent intent = new Intent(this, IDmeCustomTabsActivity.class);
+      PendingIntent.getActivity(this, 0, intent, 0).send();
+    } catch (PendingIntent.CanceledException ex) {
+      ex.printStackTrace();
+    }
     finish();
   }
 }
