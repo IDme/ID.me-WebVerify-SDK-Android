@@ -27,8 +27,17 @@ public class RedirectUriReceiverActivity extends Activity {
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     State currentState = IDmeWebVerify.getCurrentState();
+
     if (currentState == null) {
-      throw new IDmeException("Current state cannot be null");
+      IDmeWebVerify.getInstance().notifyFailure(new IDmeException("Current state cannot be null"));
+      sendResult(RESULT_CANCELED);
+      return;
+    }
+
+    if (getIntent() == null || getIntent().getData() == null) {
+      IDmeWebVerify.getInstance().notifyFailure(new IDmeException("Null intent or invalid data was received"));
+      sendResult(RESULT_CANCELED);
+      return;
     }
 
     if (currentState == State.LOGOUT) {
