@@ -3,12 +3,15 @@ package me.id.webverifylib;
 import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import me.id.webverifylib.exception.IDmeException;
 import me.id.webverifylib.listener.IDmeAccessTokenManagerListener;
 import me.id.webverifylib.networking.GetAccessTokenConnectionTask;
 
 public class RedirectUriReceiverActivity extends Activity {
+  private static final String TAG = "Idme SDK";
+
   private final IDmeAccessTokenManagerListener authCodeListener = new IDmeAccessTokenManagerListener() {
     @Override
     public void onSuccess(AuthToken authToken) {
@@ -29,7 +32,7 @@ public class RedirectUriReceiverActivity extends Activity {
     State currentState = IDmeWebVerify.getCurrentState();
 
     if (currentState == null) {
-      IDmeWebVerify.getInstance().notifyFailure(new IDmeException("Current state cannot be null"));
+      Log.w(TAG, "Activity was created but there is not an initialized process");
       sendResult(RESULT_CANCELED);
       return;
     }
