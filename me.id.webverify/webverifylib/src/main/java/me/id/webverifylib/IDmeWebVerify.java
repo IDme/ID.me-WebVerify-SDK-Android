@@ -22,7 +22,8 @@ import me.id.webverifylib.listener.IDmeScope;
 import me.id.webverifylib.networking.GetProfileConnectionTask;
 
 public final class IDmeWebVerify {
-  private static final String TAG = "ID.me";
+  public static final String TAG = "ID.me SDK";
+
   private static final String PARAM_ACCESS_TOKEN = "access_token";
   private static final String PARAM_CLIENT_ID = "client_id";
   private static final String PARAM_CLIENT_SECRET = "client_secret";
