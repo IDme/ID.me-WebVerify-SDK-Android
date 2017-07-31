@@ -9,6 +9,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.regex.Pattern;
 
+import me.id.webverifylib.IDmeWebVerify;
+
 /**
  * Generates code verifiers and challenges for PKCE exchange.
  *
@@ -18,8 +20,6 @@ import java.util.regex.Pattern;
  * <https://tools.ietf.org/html/rfc7636>"
  */
 public class CodeVerifierUtil {
-  private static final String TAG = "Idme SDK";
-
   /**
    * SHA-256 based code verifier challenge method.
    *
@@ -139,7 +139,7 @@ public class CodeVerifierUtil {
       byte[] digestBytes = sha256Digester.digest();
       return Base64.encodeToString(digestBytes, PKCE_BASE64_ENCODE_SETTINGS);
     } catch (NoSuchAlgorithmException e) {
-      Log.d(TAG, "SHA-256 is not supported on this device! Using plain challenge");
+      Log.d(IDmeWebVerify.TAG, "SHA-256 is not supported on this device! Using plain challenge");
       return codeVerifier;
     } catch (UnsupportedEncodingException e) {
       throw new IllegalStateException("ISO-8859-1 encoding not supported", e);

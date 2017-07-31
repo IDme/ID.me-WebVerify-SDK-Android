@@ -14,6 +14,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import me.id.webverifylib.IDmeProfile;
+import me.id.webverifylib.IDmeWebVerify;
 import me.id.webverifylib.exception.IDmeException;
 import me.id.webverifylib.listener.IDmeGetProfileListener;
 
@@ -88,7 +89,7 @@ public final class GetProfileConnectionTask extends AsyncTask<String, Void, Stri
         try {
           reader.close();
         } catch (IOException exception) {
-          Log.e("Read stream error", exception.getMessage());
+          Log.e(IDmeWebVerify.TAG, "Read stream error", exception);
         }
       }
     }

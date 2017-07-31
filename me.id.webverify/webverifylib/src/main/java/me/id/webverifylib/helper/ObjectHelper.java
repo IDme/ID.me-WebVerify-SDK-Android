@@ -15,6 +15,8 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
+import me.id.webverifylib.IDmeWebVerify;
+
 public final class ObjectHelper {
   private ObjectHelper() {
   }
@@ -103,7 +105,7 @@ public final class ObjectHelper {
         response.append(line);
       }
     } catch (IOException exception) {
-      Log.e("Read stream error", exception.getMessage());
+      Log.e(IDmeWebVerify.TAG, "Read stream error", exception);
     } finally {
       if (reader != null) {
         try {
