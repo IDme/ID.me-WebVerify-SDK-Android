@@ -12,8 +12,9 @@ public final class AuthToken implements Serializable {
   private String refreshToken;
   private Calendar accessTokenExpiration;
   private Calendar refreshTokenExpiration;
+  private boolean wasForcedlyInvalidated;
 
-  public String getScopeId() {
+  String getScopeId() {
     return scopeId;
   }
 
@@ -21,7 +22,7 @@ public final class AuthToken implements Serializable {
     this.scopeId = scopeId;
   }
 
-  public String getAccessToken() {
+  String getAccessToken() {
     return accessToken;
   }
 
@@ -29,7 +30,7 @@ public final class AuthToken implements Serializable {
     this.accessToken = accessToken;
   }
 
-  public String getRefreshToken() {
+  String getRefreshToken() {
     return refreshToken;
   }
 
@@ -37,16 +38,8 @@ public final class AuthToken implements Serializable {
     this.refreshToken = refreshToken;
   }
 
-  public Calendar getAccessTokenExpiration() {
-    return accessTokenExpiration;
-  }
-
   public void setAccessTokenExpiration(Calendar accessTokenExpiration) {
     this.accessTokenExpiration = accessTokenExpiration;
-  }
-
-  public Calendar getRefreshTokenExpiration() {
-    return refreshTokenExpiration;
   }
 
   public void setRefreshTokenExpiration(Calendar refreshTokenExpiration) {
@@ -57,11 +50,15 @@ public final class AuthToken implements Serializable {
     return accessToken != null && accessTokenExpiration != null && Calendar.getInstance().before(accessTokenExpiration);
   }
 
-  public boolean isValidAccessToken() {
-    return isValidToken(accessToken, accessTokenExpiration);
+  boolean isValidAccessToken() {
+    return !wasForcedlyInvalidated && isValidToken(accessToken, accessTokenExpiration);
   }
 
-  public boolean isValidRefreshToken() {
+  boolean isValidRefreshToken() {
     return isValidToken(refreshToken, refreshTokenExpiration);
+  }
+
+  void invalidateAccessToken() {
+    wasForcedlyInvalidated = true;
   }
 }
