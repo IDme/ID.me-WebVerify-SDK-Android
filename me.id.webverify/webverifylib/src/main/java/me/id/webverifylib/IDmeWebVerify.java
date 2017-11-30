@@ -109,7 +109,7 @@ public final class IDmeWebVerify {
   }
 
   @NonNull
-  public IDmePreferences getPreferences() {
+  IDmePreferences getPreferences() {
     return preferences;
   }
 
