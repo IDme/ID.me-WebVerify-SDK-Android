@@ -4,6 +4,7 @@
 
 - MOB-835: Fix refresh token issue
 - MOB-944: keep browser in stack to take pictures
+- MOB-1029: notify failure if no state was set
 
 ### v2.0.3 (2017-05-30)
 

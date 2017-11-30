@@ -324,6 +324,7 @@ public final class IDmeWebVerify {
   /** Notifies the error to the appropriate listener */
   synchronized void notifyFailure(Throwable throwable) {
     if (currentState == null) {
+      Log.e(TAG, "Cannot notify failure due to there is not state set.", throwable);
       return;
     }
     switch (currentState) {

@@ -32,7 +32,7 @@ public class RedirectUriReceiverActivity extends Activity {
     State currentState = IDmeWebVerify.getCurrentState();
 
     if (currentState == null) {
-      Log.w(IDmeWebVerify.TAG, "Activity was created but there is not an initialized process");
+      IDmeWebVerify.getInstance().notifyFailure(new IDmeException("Activity was created but there is not an initialized process"));
       sendResult(RESULT_CANCELED);
       return;
     }
