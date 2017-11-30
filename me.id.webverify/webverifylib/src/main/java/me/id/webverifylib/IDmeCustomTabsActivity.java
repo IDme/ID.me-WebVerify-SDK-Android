@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 
 import me.id.webverifylib.exception.UserCanceledException;
 import me.id.webverifylib.helper.CustomTabsHelper;
@@ -18,6 +19,13 @@ public class IDmeCustomTabsActivity extends Activity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     url = getIntent().getStringExtra(EXTRA_URL);
+
+    if (url == null) {
+      // MOB-1029: if coming with not current state, url will be null and crash the app
+      Log.d(IDmeWebVerify.TAG, "Null url value received");
+      finish();
+      return;
+    }
 
     if (savedInstanceState == null) {
       shouldCloseCustomTab = false;

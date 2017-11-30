@@ -6,6 +6,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.widget.Toast;
+
+import java.util.Locale;
 
 import me.id.webverifylib.exception.IDmeException;
 import me.id.webverifylib.listener.IDmeAccessTokenManagerListener;
@@ -32,6 +35,11 @@ public class RedirectUriReceiverActivity extends Activity {
     State currentState = IDmeWebVerify.getCurrentState();
 
     if (currentState == null) {
+      String appName = IDmeWebVerify.getInstance().loadApplicationName(this);
+      if (appName != null) {
+        String toast = String.format(Locale.getDefault(), getString(R.string.cannot_process_request_error_message), appName);
+        Toast.makeText(this, toast, Toast.LENGTH_LONG).show();
+      }
       IDmeWebVerify.getInstance().notifyFailure(new IDmeException("Activity was created but there is not an initialized process"));
       sendResult(RESULT_CANCELED);
       return;

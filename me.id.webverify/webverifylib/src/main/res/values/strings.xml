@@ -11,4 +11,5 @@
     <string name="unavailable">Unavailable</string>
     <string name="id_me_sdk_requires_internet_connection">ID.me Wallet requires an \n internet connection.</string>
     <string name="retry">Retry</string>
+    <string name="cannot_process_request_error_message">Request cannot be processed. Open application %1$s and try again, please.</string>
 </resources>

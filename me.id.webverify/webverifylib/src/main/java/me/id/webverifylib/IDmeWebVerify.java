@@ -3,6 +3,8 @@ package me.id.webverifylib;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -60,6 +62,11 @@ public final class IDmeWebVerify {
 
   private static final IDmeWebVerify INSTANCE = new IDmeWebVerify();
 
+  @Nullable
+  private SharedPreferences preferences;
+  @Nullable
+  private AsyncSharedPreferenceLoader preferenceLoader;
+
   /**
    * This method needs to be called before IDmeWebVerify can be used.
    * Typically it will be called from your Application class's onCreate method.
@@ -93,10 +100,51 @@ public final class IDmeWebVerify {
     IDmeWebVerify.clientId = clientId;
     IDmeWebVerify.redirectUri = redirectUri;
     IDmeWebVerify.clientSecret = clientSecret;
+
+    INSTANCE.storeApplicationNameFromContext(context);
   }
 
   private IDmeWebVerify() {
+  }
 
+  private static final String APP_NAME_KEY_NAME = "IDmeWebVerify.applicationName";
+
+  private void storeApplicationNameFromContext(@NonNull Context context) {
+    loadPreferencesIfNeeded(context);
+    if (preferences == null) {
+      return;
+    }
+
+    ApplicationInfo applicationInfo = context.getApplicationInfo();
+    int stringId = applicationInfo.labelRes;
+    String appName = stringId == 0 ? applicationInfo.nonLocalizedLabel.toString() : context.getString(stringId);
+    preferences.edit()
+        .putString(APP_NAME_KEY_NAME, appName)
+        .apply();
+  }
+
+  @Nullable
+  String loadApplicationName(@NonNull Context context) {
+    loadPreferencesIfNeeded(context);
+    if (preferences == null) {
+      return null;
+    }
+
+    return preferences.getString(APP_NAME_KEY_NAME, null);
+  }
+
+  private void loadPreferencesIfNeeded(Context context) {
+    if (preferenceLoader == null) {
+      try {
+        preferenceLoader = new AsyncSharedPreferenceLoader(context);
+      } catch (Exception ex) {
+        // TODO: log
+        return;
+      }
+    }
+    if (preferences == null) {
+      preferences = preferenceLoader.get();
+    }
   }
 
   public static IDmeWebVerify getInstance() {
