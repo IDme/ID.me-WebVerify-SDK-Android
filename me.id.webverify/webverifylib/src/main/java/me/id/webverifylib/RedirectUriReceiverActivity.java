@@ -35,7 +35,7 @@ public class RedirectUriReceiverActivity extends Activity {
     State currentState = IDmeWebVerify.getCurrentState();
 
     if (currentState == null) {
-      String appName = IDmeWebVerify.getInstance().loadApplicationName(this);
+      String appName = IDmeWebVerify.getInstance().getPreferences().loadApplicationName(this);
       if (appName != null) {
         String toast = String.format(Locale.getDefault(), getString(R.string.cannot_process_request_error_message), appName);
         Toast.makeText(this, toast, Toast.LENGTH_LONG).show();

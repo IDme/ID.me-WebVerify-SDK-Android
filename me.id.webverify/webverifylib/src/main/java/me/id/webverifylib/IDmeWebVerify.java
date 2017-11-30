@@ -57,15 +57,12 @@ public final class IDmeWebVerify {
   private static boolean initialized;
   private static State currentState;
 
+  private IDmePreferences preferences;
+
   private IDmeGetAccessTokenListener accessTokenCallback = null;
   private IDmeCompletableListener completableCallback = null;
 
   private static final IDmeWebVerify INSTANCE = new IDmeWebVerify();
-
-  @Nullable
-  private SharedPreferences preferences;
-  @Nullable
-  private AsyncSharedPreferenceLoader preferenceLoader;
 
   /**
    * This method needs to be called before IDmeWebVerify can be used.
@@ -101,54 +98,19 @@ public final class IDmeWebVerify {
     IDmeWebVerify.redirectUri = redirectUri;
     IDmeWebVerify.clientSecret = clientSecret;
 
-    INSTANCE.storeApplicationNameFromContext(context);
+    INSTANCE.preferences = new IDmePreferences(context);
+    INSTANCE.preferences.storeApplicationNameFromContext(context);
   }
 
-  private IDmeWebVerify() {
-  }
-
-  private static final String APP_NAME_KEY_NAME = "IDmeWebVerify.applicationName";
-
-  private void storeApplicationNameFromContext(@NonNull Context context) {
-    loadPreferencesIfNeeded(context);
-    if (preferences == null) {
-      return;
-    }
-
-    ApplicationInfo applicationInfo = context.getApplicationInfo();
-    int stringId = applicationInfo.labelRes;
-    String appName = stringId == 0 ? applicationInfo.nonLocalizedLabel.toString() : context.getString(stringId);
-    preferences.edit()
-        .putString(APP_NAME_KEY_NAME, appName)
-        .apply();
-  }
-
-  @Nullable
-  String loadApplicationName(@NonNull Context context) {
-    loadPreferencesIfNeeded(context);
-    if (preferences == null) {
-      return null;
-    }
-
-    return preferences.getString(APP_NAME_KEY_NAME, null);
-  }
-
-  private void loadPreferencesIfNeeded(Context context) {
-    if (preferenceLoader == null) {
-      try {
-        preferenceLoader = new AsyncSharedPreferenceLoader(context);
-      } catch (Exception ex) {
-        // TODO: log
-        return;
-      }
-    }
-    if (preferences == null) {
-      preferences = preferenceLoader.get();
-    }
-  }
+  private IDmeWebVerify() {}
 
   public static IDmeWebVerify getInstance() {
     return INSTANCE;
+  }
+
+  @NonNull
+  public IDmePreferences getPreferences() {
+    return preferences;
   }
 
   /**
