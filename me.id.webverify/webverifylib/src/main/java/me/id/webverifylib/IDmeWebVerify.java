@@ -472,8 +472,6 @@ public final class IDmeWebVerify {
       currentState = state;
       currentState.setScope(scope);
       currentState.setCodeVerifier(CodeVerifierUtil.generateRandomCodeVerifier());
-    } else {
-      throw new IDmeException("A process is already initialized");
     }
   }
 
