@@ -1,6 +1,6 @@
 package me.id.webverifylib.listener;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * Created by mirland on 22/12/16.

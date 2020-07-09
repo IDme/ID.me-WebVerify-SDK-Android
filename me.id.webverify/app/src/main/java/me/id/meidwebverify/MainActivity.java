@@ -1,13 +1,14 @@
 package me.id.meidwebverify;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Locale;
 
@@ -20,7 +21,7 @@ import me.id.webverifylib.listener.IDmeGetAccessTokenListener;
 import me.id.webverifylib.listener.IDmeGetProfileListener;
 import me.id.webverifylib.listener.IDmeScope;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
   private String clientId = null;
   private String secretId = null;
   private String redirectUri = null;
@@ -45,28 +46,18 @@ public class MainActivity extends ActionBarActivity {
       }
     });
 
-    Button btnAddAffiliation = (Button) findViewById(R.id.btnAddAffiliation);
-    btnAddAffiliation.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        addAffiliation();
-      }
-    });
+    Button btnAddAffiliation = findViewById(R.id.btnAddAffiliation);
+    btnAddAffiliation.setOnClickListener(v -> addAffiliation());
 
-    Button btnAddConnection = (Button) findViewById(R.id.btnAddConnection);
-    btnAddConnection.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        addConnection();
-      }
-    });
+    Button btnAddConnection = findViewById(R.id.btnAddConnection);
+    btnAddConnection.setOnClickListener(v -> addConnection());
   }
 
   /**
    * Method that starts de authentication process
    */
   void login() {
-    Spinner propRoute = (Spinner) findViewById(R.id.spnProperties);
+    Spinner propRoute = findViewById(R.id.spnProperties);
     returnProperties = propRoute.getSelectedItem().toString().equals("Yes");
 
     IDmeWebVerify.getInstance().login(this, Scope.DEFAULT, new IDmeGetAccessTokenListener() {
