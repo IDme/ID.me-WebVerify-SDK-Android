@@ -3,7 +3,7 @@ package me.id.webverifylib;
 /**
  * The type of supported affiliations
  */
-public enum IDmeAffiliationType {
+public enum IDmeAffiliationType implements IDmeAffiliation {
   GOVERNMENT("government"),
   MILITARY("military"),
   RESPONDER("responder"),

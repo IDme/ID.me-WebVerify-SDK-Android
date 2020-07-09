@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Locale;
 
+import me.id.webverifylib.IDmeAffiliation;
 import me.id.webverifylib.IDmeAffiliationType;
 import me.id.webverifylib.IDmeConnectionType;
 import me.id.webverifylib.IDmeProfile;
