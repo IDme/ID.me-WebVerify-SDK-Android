@@ -2,7 +2,8 @@ package me.id.webverifylib;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 
 import org.json.JSONException;
 import org.json.JSONObject;

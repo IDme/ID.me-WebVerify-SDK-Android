@@ -1,6 +1,6 @@
 package me.id.webverifylib;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import me.id.webverifylib.helper.CodeVerifierUtil;
 import me.id.webverifylib.listener.IDmeScope;

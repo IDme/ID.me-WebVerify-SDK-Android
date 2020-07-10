@@ -1,10 +1,11 @@
 package me.id.webverifylib.helper;
 
-import android.support.annotation.Nullable;
 import android.util.Base64;
 import android.util.Base64InputStream;
 import android.util.Base64OutputStream;
 import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;

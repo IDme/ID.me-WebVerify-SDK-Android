@@ -1,7 +1,8 @@
 package me.id.webverifylib.networking;
 
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
+
+import androidx.annotation.NonNull;
 
 import java.io.OutputStream;
 import java.net.HttpURLConnection;

@@ -22,12 +22,16 @@ android {
             ]
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile "com.android.support:appcompat-v7:${rootProject.ext.androidSupportLibraryVersion}"
-    compile "com.android.support:customtabs:${rootProject.ext.androidSupportLibraryVersion}"
+    implementation "androidx.annotation:annotation:${rootProject.ext.androidXAnnotations}"
+    implementation "androidx.appcompat:appcompat:${rootProject.ext.androidXAppCompat}"
+    implementation "androidx.browser:browser:${rootProject.ext.androidXBrowser}"
 }
 
 def isReleaseBuild() {

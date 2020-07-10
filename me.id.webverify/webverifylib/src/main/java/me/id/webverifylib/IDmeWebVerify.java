@@ -4,9 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.Locale;
 
@@ -272,7 +273,7 @@ public final class IDmeWebVerify {
    *
    * @param activity        Which will be used to start the login activity.
    * @param scope           The type of group verification.
-   * @param affiliationType The affiliation that will be registered.
+   * @param affiliation     The affiliation that will be registered.
    * @param listener        The listener that will be called when the registration process finished.
    * @throws UserCanceledException    if the user cancel the action
    * @throws UnauthenticatedException if the auth information is not valid
@@ -280,13 +281,13 @@ public final class IDmeWebVerify {
    */
   public void registerAffiliation(@NonNull Activity activity,
                                   @NonNull IDmeScope scope,
-                                  IDmeAffiliationType affiliationType,
+                                  @NonNull IDmeAffiliation affiliation,
                                   @NonNull IDmeCompletableListener listener) {
     checkInitialization();
     setCurrentState(State.REGISTER_AFFILIATION, scope);
 
     completableCallback = listener;
-    String requestUrl = createRegisterAffiliationUrl(affiliationType);
+    String requestUrl = createRegisterAffiliationUrl(affiliation);
     openCustomTabActivity(activity, requestUrl);
   }
 
@@ -427,14 +428,14 @@ public final class IDmeWebVerify {
   /**
    * Creates the URL for adding a new affiliation type
    *
-   * @param affiliationType The affiliation type that should be registered
+   * @param affiliation The affiliation type that should be registered
    * @return URL with proper formatted request
    */
-  private String createRegisterAffiliationUrl(IDmeAffiliationType affiliationType) {
+  private String createRegisterAffiliationUrl(IDmeAffiliation affiliation) {
     return getCommonUri()
         .appendQueryParameter(PARAM_CODE_CHALLENGE, currentState.getCodeChallenge())
         .appendQueryParameter(PARAM_CODE_CHALLENGE_METHOD, currentState.getCodeVerifierMethod())
-        .appendQueryParameter(PARAM_SCOPE_TYPE, affiliationType.getKey())
+        .appendQueryParameter(PARAM_SCOPE_TYPE, affiliation.getKey())
         .build()
         .toString();
   }

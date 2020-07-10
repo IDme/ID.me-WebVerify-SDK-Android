@@ -1,9 +1,11 @@
 package me.id.webverifylib;
 
+import androidx.annotation.NonNull;
+
 /**
  * The type of supported affiliations
  */
-public enum IDmeAffiliationType {
+public enum IDmeAffiliationType implements IDmeAffiliation {
   GOVERNMENT("government"),
   MILITARY("military"),
   RESPONDER("responder"),
@@ -17,6 +19,8 @@ public enum IDmeAffiliationType {
     this.key = key;
   }
 
+  @NonNull
+  @Override
   public String getKey() {
     return key;
   }

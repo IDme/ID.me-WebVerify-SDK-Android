@@ -1,8 +1,9 @@
 package me.id.webverifylib.networking;
 
 import android.os.AsyncTask;
-import android.support.annotation.NonNull;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import org.json.JSONException;
 
