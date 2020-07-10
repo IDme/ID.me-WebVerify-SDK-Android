@@ -33,6 +33,6 @@ repositories
         }
 
 dependencies {
-    implementation "androidx.appcompat:appcompat:${rootProject.ext.androidXAppCompat}"
     implementation project(':webverifylib')
+    implementation "androidx.appcompat:appcompat:${rootProject.ext.androidXAppCompat}"
 }

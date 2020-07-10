@@ -1,5 +1,7 @@
 package me.id.webverifylib;
 
+import androidx.annotation.NonNull;
+
 /**
  * <p>Supported affiliations interface. See {@link IDmeAffiliationType} for a subset of supported affiliations.</p>
  *
@@ -10,5 +12,6 @@ package me.id.webverifylib;
  * @see IDmeAffiliationType
  */
 public interface IDmeAffiliation {
+    @NonNull
     String getKey();
 }

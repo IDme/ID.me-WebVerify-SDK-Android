@@ -281,7 +281,7 @@ public final class IDmeWebVerify {
    */
   public void registerAffiliation(@NonNull Activity activity,
                                   @NonNull IDmeScope scope,
-                                  IDmeAffiliation affiliation,
+                                  @NonNull IDmeAffiliation affiliation,
                                   @NonNull IDmeCompletableListener listener) {
     checkInitialization();
     setCurrentState(State.REGISTER_AFFILIATION, scope);

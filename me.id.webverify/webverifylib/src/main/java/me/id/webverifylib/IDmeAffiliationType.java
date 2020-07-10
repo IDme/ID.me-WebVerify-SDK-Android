@@ -1,5 +1,7 @@
 package me.id.webverifylib;
 
+import androidx.annotation.NonNull;
+
 /**
  * The type of supported affiliations
  */
@@ -17,6 +19,8 @@ public enum IDmeAffiliationType implements IDmeAffiliation {
     this.key = key;
   }
 
+  @NonNull
+  @Override
   public String getKey() {
     return key;
   }
