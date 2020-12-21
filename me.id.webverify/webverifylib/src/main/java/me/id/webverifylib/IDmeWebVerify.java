@@ -302,8 +302,9 @@ public final class IDmeWebVerify {
    * @throws UnauthenticatedException if the auth information is not valid
    * @throws IDmeException            if something went wrong
    */
-  public void registerConnection(@NonNull Activity activity, @NonNull IDmeScope scope,
-                                 @NonNull IDmeConnectionType connectionType,
+  public void registerConnection(@NonNull Activity activity,
+                                 @NonNull IDmeScope scope,
+                                 @NonNull IDmeConnection connectionType,
                                  @NonNull IDmeCompletableListener listener) {
     checkInitialization();
     setCurrentState(State.REGISTER_CONNECTION, scope);
@@ -447,7 +448,7 @@ public final class IDmeWebVerify {
    * @param scope          The type of group verification.
    * @return URL: with proper formatted request
    */
-  private String createRegisterConnectionUrl(IDmeConnectionType connectionType, IDmeScope scope) {
+  private String createRegisterConnectionUrl(IDmeConnection connectionType, IDmeScope scope) {
     return getCommonUri()
         .appendQueryParameter(PARAM_CODE_CHALLENGE, currentState.getCodeChallenge())
         .appendQueryParameter(PARAM_CODE_CHALLENGE_METHOD, currentState.getCodeVerifierMethod())

@@ -12,6 +12,6 @@ import androidx.annotation.NonNull;
  * @see IDmeAffiliationType
  */
 public interface IDmeAffiliation {
-    @NonNull
-    String getKey();
+  @NonNull
+  String getKey();
 }

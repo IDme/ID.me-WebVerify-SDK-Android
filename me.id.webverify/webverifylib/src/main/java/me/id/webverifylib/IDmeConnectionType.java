@@ -1,9 +1,11 @@
 package me.id.webverifylib;
 
+import androidx.annotation.NonNull;
+
 /**
- * Created by remer on 6/2/17.
+ * The type of supported connections
  */
-public enum IDmeConnectionType {
+public enum IDmeConnectionType implements IDmeConnection {
   FACEBOOK("facebook"),
   GOOGLE_PLUS("google"),
   LINEDIN("linkedin"),
@@ -16,6 +18,8 @@ public enum IDmeConnectionType {
     this.key = key;
   }
 
+  @NonNull
+  @Override
   public String getKey() {
     return key;
   }
