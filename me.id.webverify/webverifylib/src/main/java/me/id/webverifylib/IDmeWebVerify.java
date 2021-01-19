@@ -6,10 +6,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
+import androidx.annotation.CheckResult;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.Locale;
+import java.util.Set;
 
 import me.id.webverifylib.exception.IDmeException;
 import me.id.webverifylib.exception.UnauthenticatedException;
@@ -155,14 +157,42 @@ public final class IDmeWebVerify {
   public void login(@NonNull Activity activity, @NonNull IDmeScope scope, @Nullable LoginType loginType,
                     @NonNull IDmeGetAccessTokenListener listener) {
     checkInitialization();
-    setCurrentState(State.LOGIN, scope);
-    accessTokenCallback = listener;
     if (loginType == null) {
       loginType = LoginType.SIGN_IN;
     }
 
-    String requestUrl = createURL(scope, loginType);
-    openCustomTabActivity(activity, requestUrl);
+    Uri requestUrl = createURL(scope, loginType);
+    login(activity, requestUrl, listener);
+  }
+
+  /**
+   * Starts the login process using a custom url.
+   *
+   * @param activity which will be used to start the login activity
+   * @param loginUri The url used to perform the login process.
+   * @param listener The listener that will be called when the login process is finished.
+   * @throws UserCanceledException    if the user cancel the action
+   * @throws UnauthenticatedException if the auth information is not valid
+   * @throws IDmeException            if something went wrong
+   */
+  public void login(@NonNull Activity activity, @NonNull Uri loginUri, @NonNull IDmeGetAccessTokenListener listener) {
+    checkInitialization();
+    String scopeStr = loginUri.getQueryParameter(PARAM_SCOPE_TYPE);
+    if (scopeStr == null) {
+      throw new IDmeException("Malformed Url: scope is missing");
+    }
+    String clientId = loginUri.getQueryParameter(PARAM_CLIENT_ID);
+    if (clientId != null && !clientId.equals(IDmeWebVerify.clientId)) {
+      throw new IDmeException("Invalid Url: the provided client id doesn't match with the library client id.");
+    }
+
+    IDmeScope scope = () -> scopeStr;
+
+    setCurrentState(State.LOGIN, scope);
+    accessTokenCallback = listener;
+    Uri requestUrl = addPKCEParams(loginUri);
+    requestUrl = addRedirectUrl(requestUrl);
+    openCustomTabActivity(activity, requestUrl.toString());
   }
 
   private void openCustomTabActivity(@NonNull Activity activity, String requestUrl) {
@@ -271,10 +301,10 @@ public final class IDmeWebVerify {
   /**
    * Starts the process of adding a new affiliation type
    *
-   * @param activity        Which will be used to start the login activity.
-   * @param scope           The type of group verification.
-   * @param affiliation     The affiliation that will be registered.
-   * @param listener        The listener that will be called when the registration process finished.
+   * @param activity    Which will be used to start the login activity.
+   * @param scope       The type of group verification.
+   * @param affiliation The affiliation that will be registered.
+   * @param listener    The listener that will be called when the registration process finished.
    * @throws UserCanceledException    if the user cancel the action
    * @throws UnauthenticatedException if the auth information is not valid
    * @throws IDmeException            if something went wrong
@@ -381,14 +411,43 @@ public final class IDmeWebVerify {
    *
    * @return URl with redirect uri, client id and scope
    */
-  private String createURL(@NonNull IDmeScope scope, @NonNull LoginType loginType) {
+  @CheckResult
+  private Uri createURL(@NonNull IDmeScope scope, @NonNull LoginType loginType) {
     return getCommonUri()
-        .appendQueryParameter(PARAM_CODE_CHALLENGE, currentState.getCodeChallenge())
-        .appendQueryParameter(PARAM_CODE_CHALLENGE_METHOD, currentState.getCodeVerifierMethod())
         .appendQueryParameter(PARAM_SCOPE_TYPE, scope.getScopeId())
         .appendQueryParameter(SIGN_TYPE_KEY, loginType.getId())
-        .build()
-        .toString();
+        .build();
+  }
+
+  /**
+   * Adds the PKCE params
+   *
+   * @return URl with PKCE params
+   */
+  @CheckResult
+  private Uri addPKCEParams(@NonNull Uri uri) {
+    return uri.buildUpon()
+        .appendQueryParameter(PARAM_CODE_CHALLENGE, currentState.getCodeChallenge())
+        .appendQueryParameter(PARAM_CODE_CHALLENGE_METHOD, currentState.getCodeVerifierMethod())
+        .build();
+  }
+
+  /**
+   * Adds the redirect url
+   *
+   * @return URl including the redirect callback.
+   */
+  @CheckResult
+  private Uri addRedirectUrl(@NonNull Uri uri) {
+    final Set<String> params = uri.getQueryParameterNames();
+    final Uri.Builder newUri = uri.buildUpon().clearQuery();
+    for (String param : params) {
+      if (!param.equals(PARAM_REDIRECT_URI)) {
+        newUri.appendQueryParameter(param, uri.getQueryParameter(param));
+      }
+    }
+    newUri.appendQueryParameter(PARAM_REDIRECT_URI, redirectUri);
+    return newUri.build();
   }
 
   /**
