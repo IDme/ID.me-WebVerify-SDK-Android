@@ -53,6 +53,7 @@ public class RedirectUriReceiverActivity extends Activity {
       IDmeWebVerify.getInstance().notifyFailure(new IDmeException("An error has occurred getting the auth token"));
       sendResult(RESULT_CANCELED);
     } else {
+      IDmeWebVerify.setExecutingBackgroundTaskState();
       new GetAccessTokenConnectionTask(IDmeWebVerify.getAccessTokenQuery(code), authCodeListener, currentState.getScope())
           .execute(IDmeWebVerify.getIdMeWebVerifyAccessTokenUri());
     }

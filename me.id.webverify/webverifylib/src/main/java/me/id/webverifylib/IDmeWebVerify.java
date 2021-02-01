@@ -57,6 +57,7 @@ public final class IDmeWebVerify {
   private static String clientSecret;
   private static boolean initialized;
   private static State currentState;
+  private static boolean isExecutingBackgroundTask;
 
   private IDmeGetAccessTokenListener accessTokenCallback = null;
   private IDmeCompletableListener completableCallback = null;
@@ -404,6 +405,7 @@ public final class IDmeWebVerify {
     accessTokenCallback = null;
     completableCallback = null;
     currentState = null;
+    isExecutingBackgroundTask = false;
   }
 
   /**
@@ -534,6 +536,14 @@ public final class IDmeWebVerify {
       currentState.setScope(scope);
       currentState.setCodeVerifier(CodeVerifierUtil.generateRandomCodeVerifier());
     }
+  }
+
+  static void setExecutingBackgroundTaskState() {
+    isExecutingBackgroundTask = true;
+  }
+
+  static boolean isExecutingBackgroundTaskState() {
+    return isExecutingBackgroundTask;
   }
 
   static String getIdMeWebVerifyAccessTokenUri() {

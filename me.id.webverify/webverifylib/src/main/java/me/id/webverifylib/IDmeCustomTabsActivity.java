@@ -37,7 +37,7 @@ public class IDmeCustomTabsActivity extends Activity {
   protected void onResume() {
     super.onResume();
     if (shouldCloseCustomTab) {
-      if (IDmeWebVerify.getCurrentState() != null) {
+      if (IDmeWebVerify.getCurrentState() != null && !IDmeWebVerify.isExecutingBackgroundTaskState()) {
         IDmeWebVerify.getInstance().notifyFailure(new UserCanceledException());
       }
       finish();
