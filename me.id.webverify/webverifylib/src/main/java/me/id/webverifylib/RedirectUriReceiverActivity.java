@@ -1,6 +1,8 @@
 package me.id.webverifylib;
 
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -61,6 +63,15 @@ public class RedirectUriReceiverActivity extends Activity {
 
   private void sendResult(int resultCode) {
     setResult(resultCode);
+    try {
+      // MOB-944: send an intent to the activity that started the browser. This is needed due to
+      // RedirectUriReceiverActivity is opened in the browser's stack, so when this activity finishes,
+      // the result is that the browser will stay visible.
+      Intent intent = new Intent(this, IDmeCustomTabsActivity.class);
+      PendingIntent.getActivity(this, 0, intent, 0).send();
+    } catch (PendingIntent.CanceledException ex) {
+      ex.printStackTrace();
+    }
     finish();
   }
 }
