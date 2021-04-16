@@ -17,13 +17,13 @@ public class RedirectUriReceiverActivity extends Activity {
     @Override
     public void onSuccess(AuthToken authToken) {
       IDmeWebVerify.getInstance().notifySuccess(authToken);
-      sendResult(RESULT_OK);
+      sendResult(RESULT_OK, true);
     }
 
     @Override
     public void onError(Throwable throwable) {
       IDmeWebVerify.getInstance().notifyFailure(throwable);
-      sendResult(RESULT_CANCELED);
+      sendResult(RESULT_CANCELED, true);
     }
   };
 
@@ -34,26 +34,26 @@ public class RedirectUriReceiverActivity extends Activity {
 
     if (currentState == null) {
       Log.w(IDmeWebVerify.TAG, "Activity was created but there is not an initialized process");
-      sendResult(RESULT_CANCELED);
+      sendResult(RESULT_CANCELED, false);
       return;
     }
 
     if (getIntent() == null || getIntent().getData() == null) {
       IDmeWebVerify.getInstance().notifyFailure(new IDmeException("Null intent or invalid data was received"));
-      sendResult(RESULT_CANCELED);
+      sendResult(RESULT_CANCELED, false);
       return;
     }
 
     if (currentState == State.LOGOUT) {
       IDmeWebVerify.getInstance().notifyLogoutSuccess();
-      sendResult(RESULT_OK);
+      sendResult(RESULT_OK, true);
       return;
     }
 
     String code = getIntent().getData().getQueryParameter(IDmeWebVerify.PARAM_CODE);
     if (code == null || code.isEmpty()) {
       IDmeWebVerify.getInstance().notifyFailure(new IDmeException("An error has occurred getting the auth token"));
-      sendResult(RESULT_CANCELED);
+      sendResult(RESULT_CANCELED, true);
     } else {
       IDmeWebVerify.setExecutingBackgroundTaskState();
       new GetAccessTokenConnectionTask(IDmeWebVerify.getAccessTokenQuery(code), authCodeListener, currentState.getScope())
@@ -61,14 +61,16 @@ public class RedirectUriReceiverActivity extends Activity {
     }
   }
 
-  private void sendResult(int resultCode) {
+  private void sendResult(int resultCode, boolean notifyTabActivity) {
     setResult(resultCode);
     try {
-      // MOB-944: send an intent to the activity that started the browser. This is needed due to
-      // RedirectUriReceiverActivity is opened in the browser's stack, so when this activity finishes,
-      // the result is that the browser will stay visible.
-      Intent intent = new Intent(this, IDmeCustomTabsActivity.class);
-      PendingIntent.getActivity(this, 0, intent, 0).send();
+      if (notifyTabActivity) {
+        // MOB-944: send an intent to the activity that started the browser. This is needed due to
+        // RedirectUriReceiverActivity is opened in the browser's stack, so when this activity finishes,
+        // the result is that the browser will stay visible.
+        Intent intent = new Intent(this, IDmeCustomTabsActivity.class);
+        PendingIntent.getActivity(this, 0, intent, 0).send();
+      }
     } catch (PendingIntent.CanceledException ex) {
       ex.printStackTrace();
     }
