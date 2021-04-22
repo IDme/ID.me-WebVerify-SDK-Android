@@ -44,17 +44,22 @@ public class IDmeCustomTabsActivity extends Activity {
   protected void onResume() {
     super.onResume();
     if (shouldCloseCustomTab) {
-      // In some devices, when the callback url isCalled, this activity is resumed before the
-      // `RedirectUriReceiverActivity` is invoked (the callback activity), producing a cancellation state.
-      // The delay is done to check if an activity callback was queued.
-      new Handler().postDelayed(() -> {
-        if (IDmeWebVerify.getCurrentState() != null && !IDmeWebVerify.isExecutingBackgroundTaskState()) {
-          IDmeWebVerify.getInstance().notifyFailure(new UserCanceledException());
-        }
-        if (!isDestroyed() && !IDmeWebVerify.isExecutingBackgroundTaskState()) {
-          finish();
-        }
-      }, CANCEL_RESULT_CALLBACK_DELAY_IN_MILLIS);
+      if (IDmeWebVerify.getCurrentState() == null) {
+        finish();
+      } else {
+        // In some devices, when the callback url isCalled, this activity is resumed before the
+        // `RedirectUriReceiverActivity` is invoked (the callback activity), producing a cancellation state.
+        // The delay is done to check if an activity callback was queued.
+        new Handler().postDelayed(() -> {
+          if (IDmeWebVerify.getCurrentState() != null && !IDmeWebVerify.isExecutingBackgroundTaskState()) {
+            IDmeWebVerify.getInstance().notifyFailure(new UserCanceledException());
+          }
+          if (!isDestroyed() && !IDmeWebVerify.isExecutingBackgroundTaskState()) {
+            finish();
+          }
+        }, CANCEL_RESULT_CALLBACK_DELAY_IN_MILLIS);
+        IDmeWebVerify.setupSdkStabilizationTime(CANCEL_RESULT_CALLBACK_DELAY_IN_MILLIS);
+      }
     }
     shouldCloseCustomTab = true;
   }

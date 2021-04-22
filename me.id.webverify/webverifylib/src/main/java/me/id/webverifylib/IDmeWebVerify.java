@@ -4,12 +4,16 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
 import android.util.Log;
 
 import androidx.annotation.CheckResult;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
 
@@ -45,6 +49,8 @@ public final class IDmeWebVerify {
   private static final String RESPONSE_TYPE_VALUE = "code";
   private static final String LOGOUT_TYPE_VALUE = "logout";
 
+  private static final int STABILIZATION_DELAY_VALUE_IN_MILLIS = 50;
+
   private static Uri idMeWebVerifyAccessTokenUri;
   private static Uri idMeWebVerifyGetCommonUri;
   private static Uri idMeWebVerifyGetLogoutUri;
@@ -58,6 +64,8 @@ public final class IDmeWebVerify {
   private static boolean initialized;
   private static State currentState;
   private static boolean isExecutingBackgroundTask;
+  @Nullable
+  private static Date sdkStabilizationDate = null;
 
   private IDmeGetAccessTokenListener accessTokenCallback = null;
   private IDmeCompletableListener completableCallback = null;
@@ -139,6 +147,7 @@ public final class IDmeWebVerify {
    * @param scope    The type of group verification.
    * @param listener The listener that will be called when the login process is finished.
    */
+  @MainThread
   public void login(@NonNull Activity activity, @NonNull IDmeScope scope, @NonNull IDmeGetAccessTokenListener listener) {
     login(activity, scope, null, listener);
   }
@@ -155,6 +164,7 @@ public final class IDmeWebVerify {
    * @throws UnauthenticatedException if the auth information is not valid
    * @throws IDmeException            if something went wrong
    */
+  @MainThread
   public void login(@NonNull Activity activity, @NonNull IDmeScope scope, @Nullable LoginType loginType,
                     @NonNull IDmeGetAccessTokenListener listener) {
     checkInitialization();
@@ -176,7 +186,23 @@ public final class IDmeWebVerify {
    * @throws UnauthenticatedException if the auth information is not valid
    * @throws IDmeException            if something went wrong
    */
+  @MainThread
   public void login(@NonNull Activity activity, @NonNull Uri loginUri, @NonNull IDmeGetAccessTokenListener listener) {
+    long sdkStabilizationTimeInMillis =
+        sdkStabilizationDate == null ? 0 : sdkStabilizationDate.getTime() - Calendar.getInstance().getTimeInMillis();
+    if (sdkStabilizationTimeInMillis <= 0) {
+      performLogin(activity, loginUri, listener);
+    } else {
+      new Handler()
+          .postDelayed(() -> performLogin(activity, loginUri, listener), sdkStabilizationTimeInMillis);
+    }
+  }
+
+  private void performLogin(
+      @NonNull Activity activity,
+      @NonNull Uri loginUri,
+      @NonNull IDmeGetAccessTokenListener listener
+  ) {
     checkInitialization();
     String scopeStr = loginUri.getQueryParameter(PARAM_SCOPE_TYPE);
     if (scopeStr == null) {
@@ -544,6 +570,14 @@ public final class IDmeWebVerify {
 
   static boolean isExecutingBackgroundTaskState() {
     return isExecutingBackgroundTask;
+  }
+
+  synchronized static void setupSdkStabilizationTime(int taskTimeOutInMillis) {
+    sdkStabilizationDate = new Date(
+        Calendar.getInstance().getTimeInMillis() +
+            taskTimeOutInMillis +
+            STABILIZATION_DELAY_VALUE_IN_MILLIS
+    );
   }
 
   static String getIdMeWebVerifyAccessTokenUri() {
