@@ -243,6 +243,24 @@ public final class IDmeWebVerify {
   }
 
   /**
+   * Returns the current access token if it's valid.
+   *
+   * @param scope The type of group verification.
+   * @return The current access token
+   */
+  @SuppressWarnings("unused")
+  @Nullable
+  public String getLocalAccessToken(@NonNull IDmeScope scope) {
+    checkInitialization();
+    AuthToken token = accessTokenManager.getToken(scope);
+    if (token != null && token.isValidAccessToken()) {
+      return token.getAccessToken();
+    } else {
+      return null;
+    }
+  }
+
+  /**
    * Returns an access token
    *
    * @param scope       The type of group verification.
