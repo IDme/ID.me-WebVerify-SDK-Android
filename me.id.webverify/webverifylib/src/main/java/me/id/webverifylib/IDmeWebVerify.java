@@ -341,6 +341,9 @@ public final class IDmeWebVerify {
 
   /** Notifies the success to the appropriate listener */
   void notifySuccess(AuthToken authToken) {
+    if (currentState == null) {
+      return;
+    }
     saveAccessToken(authToken);
     switch (currentState) {
       case LOGIN:
