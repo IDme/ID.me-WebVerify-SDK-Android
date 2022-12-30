@@ -1,4 +1,6 @@
 apply plugin: 'com.android.library'
+apply plugin: 'digital.wup.android-maven-publish'
+apply plugin: 'signing'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -25,13 +27,12 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile "com.android.support:appcompat-v7:${rootProject.ext.androidSupportLibraryVersion}"
-    compile "com.android.support:customtabs:${rootProject.ext.androidSupportLibraryVersion}"
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "com.android.support:appcompat-v7:${rootProject.ext.androidSupportLibraryVersion}"
+    implementation "com.android.support:customtabs:${rootProject.ext.androidSupportLibraryVersion}"
 }
 
 def isReleaseBuild() {
-
     setVersion(VERSION_NAME)
     return version.contains("SNAPSHOT") == false
 }
