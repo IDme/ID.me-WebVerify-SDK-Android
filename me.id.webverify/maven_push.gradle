@@ -13,11 +13,11 @@ if (isReleaseBuild()) {
 }
 
 def getRepositoryUsername() {
-  return hasProperty('MAVEN_USERNAME') ? nexusUsername : ""
+  return hasProperty('MAVEN_USERNAME') ? MAVEN_USERNAME : ""
 }
 
 def getRepositoryPassword() {
-  return hasProperty('MAVEN_PASSWORD') ? nexusPassword : ""
+  return hasProperty('MAVEN_PASSWORD') ? MAVEN_PASSWORD : ""
 }
 
 publishing {
