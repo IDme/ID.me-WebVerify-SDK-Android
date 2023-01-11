@@ -2,7 +2,7 @@ package me.id.meidwebverify;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Spinner;
@@ -20,7 +20,7 @@ import me.id.webverifylib.listener.IDmeGetAccessTokenListener;
 import me.id.webverifylib.listener.IDmeGetProfileListener;
 import me.id.webverifylib.listener.IDmeScope;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
   private String clientId = null;
   private String secretId = null;
   private String redirectUri = null;
