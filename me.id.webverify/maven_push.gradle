@@ -1,15 +1,15 @@
-apply plugin: 'digital.wup.android-maven-publish'
+apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 def sonatypeRepositoryUrl
 if (isReleaseBuild()) {
   println 'RELEASE BUILD'
   sonatypeRepositoryUrl = hasProperty('RELEASE_REPOSITORY_URL') ? RELEASE_REPOSITORY_URL
-      : "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+          : "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
 } else {
   println 'DEBUG BUILD'
   sonatypeRepositoryUrl = hasProperty('SNAPSHOT_REPOSITORY_URL') ? SNAPSHOT_REPOSITORY_URL
-      : "https://oss.sonatype.org/content/repositories/snapshots/"
+          : "https://oss.sonatype.org/content/repositories/snapshots/"
 }
 
 def getRepositoryUsername() {
@@ -32,6 +32,12 @@ publishing {
   }
   publications {
     mavenAar(MavenPublication) {
+      def releaseAar = "$buildDir/outputs/aar/webverifylib-release.aar"
+      if (new File(releaseAar).exists()) {
+        artifact(releaseAar) {
+          extension 'aar'
+        }
+      }
       pom {
         name = POM_NAME
         packaging = POM_PACKAGING
@@ -60,8 +66,8 @@ publishing {
 }
 
 signing {
-  required { isReleaseBuild() && gradle.taskGraph.hasTask("uploadArchives") }
-  sign configurations.archives
+  required { isReleaseBuild() }
+  sign publishing.publications
 }
 
 task androidJavadocs(type: Javadoc) {
