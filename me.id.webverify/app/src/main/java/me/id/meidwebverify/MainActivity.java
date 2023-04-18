@@ -15,15 +15,16 @@ import me.id.webverifylib.IDmeAffiliationType;
 import me.id.webverifylib.IDmeConnectionType;
 import me.id.webverifylib.IDmeProfile;
 import me.id.webverifylib.IDmeWebVerify;
+import me.id.webverifylib.helper.SandboxConfig;
 import me.id.webverifylib.listener.IDmeCompletableListener;
 import me.id.webverifylib.listener.IDmeGetAccessTokenListener;
 import me.id.webverifylib.listener.IDmeGetProfileListener;
 import me.id.webverifylib.listener.IDmeScope;
 
 public class MainActivity extends AppCompatActivity {
-  private String clientId = null;
-  private String secretId = null;
-  private String redirectUri = null;
+  private final String clientId = "<YOUR_APP_OAUTH_ID>";
+  private final String secretId = "<YOUR_APP_OAUTH_SECRET>>";
+  private final String redirectUri = "<YOUR_APP_HOST>://callback";
   private boolean returnProperties = true;
   private TextView txtResult;
 
@@ -31,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    IDmeWebVerify.initialize(this, clientId, secretId, redirectUri);
+    IDmeWebVerify.initialize(this, clientId, secretId, redirectUri, new SandboxConfig());
 
     setContentView(R.layout.activity_main);
 

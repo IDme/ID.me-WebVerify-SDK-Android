@@ -35,8 +35,8 @@ public class CustomTabsHelper {
     if (packageName != null) {
       customTabsIntent.intent.setPackage(packageName);
     }
-    customTabsIntent.intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_TOP
-        | Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+    customTabsIntent.intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+        | Intent.FLAG_ACTIVITY_SINGLE_TOP);
     return customTabsIntent;
   }
 

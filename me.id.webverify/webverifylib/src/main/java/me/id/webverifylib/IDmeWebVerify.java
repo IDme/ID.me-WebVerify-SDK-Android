@@ -15,7 +15,9 @@ import me.id.webverifylib.exception.UnauthenticatedException;
 import me.id.webverifylib.exception.UserCanceledException;
 import me.id.webverifylib.helper.CodeVerifierUtil;
 import me.id.webverifylib.helper.Preconditions;
+import me.id.webverifylib.helper.ProductionConfig;
 import me.id.webverifylib.listener.IDmeCompletableListener;
+import me.id.webverifylib.listener.IDmeEnvironmentConfig;
 import me.id.webverifylib.listener.IDmeGetAccessTokenListener;
 import me.id.webverifylib.listener.IDmeGetProfileListener;
 import me.id.webverifylib.listener.IDmeScope;
@@ -57,6 +59,7 @@ public final class IDmeWebVerify {
 
   private IDmeGetAccessTokenListener accessTokenCallback = null;
   private IDmeCompletableListener completableCallback = null;
+  private static IDmeEnvironmentConfig environment = null;
 
   private static final IDmeWebVerify INSTANCE = new IDmeWebVerify();
 
@@ -70,9 +73,20 @@ public final class IDmeWebVerify {
    * @param redirectUri  Application redirect uri
    * @throws IDmeException if something went wrong
    */
-  public static void initialize(Context context, String clientId, String clientSecret, String redirectUri) {
+  public static void initialize(
+          Context context,
+          String clientId,
+          String clientSecret,
+          String redirectUri,
+          @Nullable IDmeEnvironmentConfig environment
+  ) {
     if (initialized) {
       throw new IDmeException("IDmeWebVerify is already initialized");
+    }
+    if (environment == null) {
+      IDmeWebVerify.environment = new ProductionConfig();
+    } else {
+      IDmeWebVerify.environment = environment;
     }
     Preconditions.checkNotNull(clientId, "ClientId cannot be null");
     Preconditions.checkNotNull(redirectUri, "RedirectURI cannot be null");
@@ -83,10 +97,10 @@ public final class IDmeWebVerify {
           + "is correctly configured, or that an appropriate intent filter "
           + "exists in your app manifest.");
     }
-    idMeWebVerifyAccessTokenUri = Uri.parse(context.getString(R.string.idme_web_verify_get_access_token_uri));
-    idMeWebVerifyGetCommonUri = Uri.parse(context.getString(R.string.idme_web_verify_get_common_uri));
-    idMeWebVerifyGetLogoutUri = Uri.parse(context.getString(R.string.idme_web_verify_get_logout_uri));
-    idMeWebVerifyGetUserProfileUri = Uri.parse(context.getString(R.string.idme_web_verify_get_profile_uri));
+    idMeWebVerifyAccessTokenUri = Uri.parse(IDmeWebVerify.environment.getAccessTokenUri());
+    idMeWebVerifyGetCommonUri = Uri.parse(IDmeWebVerify.environment.getCommonUri());
+    idMeWebVerifyGetLogoutUri = Uri.parse(IDmeWebVerify.environment.getLogoutUri());
+    idMeWebVerifyGetUserProfileUri = Uri.parse(IDmeWebVerify.environment.getProfileUri());
     initialized = true;
     accessTokenManager = new AccessTokenManager(context);
     refreshAccessTokenHandler = new RefreshAccessTokenHandler(accessTokenManager);
